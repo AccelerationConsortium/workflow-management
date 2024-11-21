@@ -1,0 +1,143 @@
+.node-container {
+  position: relative;
+  width: 280px;
+  background: transparent;
+  transition: outline-color 0.2s;
+}
+
+.node-inner {
+  margin: 0;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  overflow: hidden;
+}
+
+.node-header {
+  padding: 8px 12px;
+  background: #f5f5f5;
+  border-bottom: 1px solid #eee;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.node-content {
+  padding: 12px;
+}
+
+.file-actions, .file-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.upload-button {
+  padding: 8px;
+  background: #87CEEB;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.upload-button:hover {
+  background: #78b9d4;
+}
+
+.selected-file {
+  word-break: break-word;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: #666;
+}
+
+.sample-menu {
+  position: absolute;
+  top: 100%;
+  left: 12px;
+  right: 12px;
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.sample-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s;
+}
+
+.sample-item:last-child {
+  border-bottom: none;
+}
+
+.sample-item:hover {
+  background: #f5f5f5;
+}
+
+/* Handle styles */
+.react-flow__handle {
+  width: 8px !important;
+  height: 8px !important;
+  background: #555 !important;
+  border: 2px solid white !important;
+  z-index: 1;
+}
+
+.react-flow__handle-left {
+  left: -4px !important;
+}
+
+.react-flow__handle-right {
+  right: -4px !important;
+}
+
+/* 确保节点内容不会溢出 */
+.react-flow__node-default {
+  overflow: visible !important;
+}
+
+/* 移除默认的选中样式 */
+.react-flow__node {
+  border: none !important;
+  padding: 0 !important;
+}
+
+/* 自定义选中状态样式 */
+.react-flow__node-default.selected .node-container {
+  outline: 2px solid #1a192b;
+  border-radius: 8px;
+}
+
+/* 添加动画效果 */
+.upload-button, .sample-item {
+  transition: all 0.2s ease;
+}
+
+/* 优化滚动条样式 */
+.sample-menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sample-menu::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.sample-menu::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.sample-menu::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+ 

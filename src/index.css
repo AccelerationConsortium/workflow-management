@@ -1,0 +1,419 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.dndflow {
+  flex-direction: row;
+  display: flex;
+  height: 100vh;
+}
+
+.dndflow aside {
+  border-right: 1px solid #eee;
+  padding: 15px 10px;
+  font-size: 12px;
+  background: #fcfcfc;
+  width: 200px;
+}
+
+.dndflow aside .description {
+  margin-bottom: 10px;
+}
+
+.dndflow .dndnode {
+  height: 20px;
+  padding: 4px;
+  border: 1px solid #1a192b;
+  border-radius: 2px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: grab;
+  background: white;
+}
+
+.dndflow .dndnode:hover {
+  background: #f8f8f8;
+}
+
+.dndflow .reactflow-wrapper {
+  flex-grow: 1;
+  height: 100%;
+}
+
+.react-flow__node {
+  padding: 10px;
+  border-radius: 3px;
+  width: 150px;
+  font-size: 12px;
+  color: #222;
+  text-align: center;
+  border-width: 1px;
+  border-style: solid;
+  background: white;
+  border-color: #1a192b;
+}
+
+.operation-node {
+  height: auto !important;
+  padding: 8px !important;
+  margin-bottom: 15px !important;
+}
+
+.operation-title {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.operation-description {
+  font-size: 11px;
+  color: #666;
+}
+
+.sidebar {
+  min-width: 250px;
+}
+
+.connection-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.connection-dialog button {
+  margin: 5px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.connection-dialog button:hover {
+  background: #f0f0f0;
+}
+
+/* 连接线样式 */
+.react-flow__edge-path {
+  stroke-width: 2;
+}
+
+.react-flow__edge.animated path {
+  stroke-dasharray: 5;
+  animation: dashdraw 0.5s linear infinite;
+}
+
+@keyframes dashdraw {
+  from {
+    stroke-dashoffset: 10;
+  }
+}
+
+.edge-config {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  min-width: 300px;
+}
+
+.config-field {
+  margin-bottom: 15px;
+}
+
+.config-field label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.config-field input,
+.config-field textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.config-field textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.button-group button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.button-group button:first-child {
+  background: #1a90ff;
+  color: white;
+}
+
+.button-group button:last-child {
+  background: #f0f0f0;
+}
+
+/* 连接点提示样式 */
+.handle-wrapper {
+  position: relative;
+}
+
+.handle-wrapper:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1000;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.handle-wrapper[data-type="target"]:hover::after {
+  bottom: 100%;
+  margin-bottom: 5px;
+}
+
+.handle-wrapper[data-type="source"]:hover::after {
+  top: 100%;
+  margin-top: 5px;
+}
+
+/* 添加删除按钮样式 */
+.react-flow__edge:hover .edge-buttons {
+  display: flex;
+}
+
+.edge-buttons {
+  display: none;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  background: white;
+  padding: 2px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.edge-button {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin: 0 2px;
+}
+
+.edge-button:hover {
+  background: #f0f0f0;
+}
+
+/* 连接线文字样式 */
+.react-flow__edge text {
+  fill: #555;
+  font-size: 12px;
+}
+
+.react-flow__edge textPath {
+  dominant-baseline: text-after-edge;
+  text-anchor: middle;
+}
+
+/* 确保文字始终正向显示 */
+.react-flow__edge.reversed text {
+  transform: rotate(180deg);
+}
+
+.react-flow__edge.selected {
+  stroke: #1a90ff;
+}
+
+/* 确保删除按钮在文字上方 */
+.edge-buttons {
+  z-index: 10;
+}
+
+/* 文件节点样式 */
+.file-upload {
+  padding: 10px;
+  text-align: center;
+}
+
+.upload-button {
+  display: inline-block;
+  padding: 8px 16px;
+  background: #1677ff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.upload-button:hover {
+  background: #4096ff;
+}
+
+.file-info {
+  padding: 8px;
+}
+
+.file-name {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.toggle-preview {
+  background: none;
+  border: 1px solid #1677ff;
+  color: #1677ff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.toggle-preview:hover {
+  background: #f0f7ff;
+}
+
+.file-preview {
+  margin-top: 10px;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
+
+.preview-table {
+  max-height: 200px;
+  overflow: auto;
+  margin-top: 8px;
+}
+
+.preview-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.preview-table th,
+.preview-table td {
+  border: 1px solid #eee;
+  padding: 4px;
+  text-align: left;
+}
+
+.preview-table th {
+  background: #f5f5f5;
+}
+
+.preview-table select {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  font-size: 11px;
+  padding: 2px;
+}
+
+/* 文件节点新增样式 */
+.file-actions {
+  position: relative;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.sample-button {
+  background: #52c41a;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.sample-button:hover {
+  background: #73d13d;
+}
+
+.sample-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  z-index: 1000;
+  margin-top: 4px;
+}
+
+.sample-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.sample-item:last-child {
+  border-bottom: none;
+}
+
+.sample-item:hover {
+  background: #f5f5f5;
+}
+
+.sample-name {
+  font-weight: bold;
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+
+.sample-description {
+  font-size: 12px;
+  color: #666;
+}
+
+.change-file {
+  background: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.change-file:hover {
+  background: #ff7875;
+} 

@@ -1,0 +1,84 @@
+.validation-rules {
+  padding: 12px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  margin-top: 12px;
+}
+
+.rules-list {
+  margin-bottom: 12px;
+}
+
+.rule-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.rule-type {
+  background: #e6f4ff;
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-size: 12px;
+}
+
+.rule-message {
+  flex: 1;
+  font-size: 12px;
+  color: #666;
+}
+
+.add-rule {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.range-inputs {
+  display: flex;
+  gap: 8px;
+}
+
+.branch-condition {
+  padding: 12px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.condition-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.condition-description {
+  width: 100%;
+  padding: 4px 8px;
+  font-size: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+select, input {
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+button {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  background: #f5f5f5;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+button:hover {
+  background: #e8e8e8;
+} 
