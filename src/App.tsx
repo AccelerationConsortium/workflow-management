@@ -52,6 +52,12 @@ import {
 } from './components/OperationNodes';
 import { EdgeConfig } from './components/EdgeConfig';
 import { ContextMenu } from './components/ContextMenu';
+import { SaveWorkflowDialog } from './components/SaveWorkflowDialog';
+import { WorkflowStorage } from './services/workflowStorage';
+import './components/Toolbar.css';
+import { WorkflowSimulator } from './components/WorkflowSimulator';
+import { ValidatedNode } from './components/ValidatedNode';
+import { ValidationResult } from './types/validation';
 
 const initialNodes = [
   {
@@ -119,6 +125,12 @@ function Flow() {
     y: number;
     nodeId: string;
   } | null>(null);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<ValidationResult>({
+    isValid: true,
+    errors: [],
+    warnings: []
+  });
 
   const onConnectStart = useCallback((_, { nodeId, handleId }) => {
     console.log('Connection started:', nodeId, handleId);
@@ -383,6 +395,54 @@ function Flow() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [nodes, setNodes, setEdges]);
 
+  const handleSaveWorkflow = (name: string, description: string) => {
+    const workflowData = {
+      name,
+      description,
+      nodes,
+      edges,
+    };
+    
+    try {
+      WorkflowStorage.saveWorkflow(workflowData);
+      setShowSaveDialog(false);
+      // 可以添加一个提示保存成功
+    } catch (error) {
+      console.error('Failed to save workflow:', error);
+      // 可以添加一个错误提示
+    }
+  };
+
+  const Toolbar = () => (
+    <div className="toolbar">
+      <button onClick={() => setShowSaveDialog(true)}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+          <polyline points="17 21 17 13 7 13 7 21" />
+          <polyline points="7 3 7 8 15 8" />
+        </svg>
+        Save Workflow
+      </button>
+      <button onClick={() => {/* TODO: 添加加载功能 */}}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+          <polyline points="17 8 12 3 7 8" />
+          <line x1="12" y1="3" x2="12" y2="15" />
+        </svg>
+        Load Workflow
+      </button>
+    </div>
+  );
+
+  const handleValidationComplete = (result: ValidationResult) => {
+    setValidationErrors(result);
+    if (result.isValid) {
+      console.log('Workflow is valid!');
+    } else {
+      console.error('Validation errors:', result.errors);
+    }
+  };
+
   return (
     <div className="dndflow">
       <ReactFlow
@@ -406,6 +466,12 @@ function Flow() {
         }}
         onNodeContextMenu={onNodeContextMenu}
         onPaneClick={() => setContextMenu(null)}
+        nodeTypes={{
+          ...nodeTypes,
+          default: (props) => (
+            <ValidatedNode {...props} errors={validationErrors.errors} />
+          )
+        }}
       >
         <defs>
           <marker
@@ -422,6 +488,12 @@ function Flow() {
         </defs>
         <Background />
         <Controls />
+        <Toolbar />
+        <WorkflowSimulator
+          nodes={nodes}
+          edges={edges}
+          onValidationComplete={handleValidationComplete}
+        />
       </ReactFlow>
       <Sidebar />
       
@@ -450,6 +522,13 @@ function Flow() {
           onClose={() => setContextMenu(null)}
           onDelete={deleteNode}
           onDuplicate={duplicateNode}
+        />
+      )}
+
+      {showSaveDialog && (
+        <SaveWorkflowDialog
+          onSave={handleSaveWorkflow}
+          onCancel={() => setShowSaveDialog(false)}
         />
       )}
     </div>
