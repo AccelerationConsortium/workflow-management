@@ -1,0 +1,36 @@
+.node-error {
+  border-color: #ff4d4f !important;
+}
+
+.error-indicators {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ff4d4f;
+  color: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.error-tooltip {
+  position: absolute;
+  top: -30px;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ff4d4f;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #ff4d4f;
+  white-space: nowrap;
+  display: none;
+}
+
+.error-indicators:hover .error-tooltip {
+  display: block;
+} 
