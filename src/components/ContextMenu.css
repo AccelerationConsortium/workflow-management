@@ -1,0 +1,28 @@
+.context-menu {
+  position: fixed;
+  background: var(--node-bg);
+  border: 1px solid var(--node-border);
+  border-radius: 4px;
+  padding: 4px 0;
+  min-width: 120px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+}
+
+.context-menu-item {
+  padding: 6px 12px;
+  cursor: pointer;
+  color: var(--node-text);
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+}
+
+.context-menu-item:hover {
+  background: var(--node-hover);
+}
+
+.context-menu-icon {
+  margin-right: 8px;
+  font-size: 14px;
+} 

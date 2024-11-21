@@ -1,0 +1,89 @@
+:root {
+  --primary-color: #4BBCD4;
+  --node-bg: #ffffff;
+  --node-border: #e8e8e8;
+  --node-text: #333333;
+  --node-header: #f5f5f5;
+  --connect-handle: #4BBCD4;
+  --edge-color: #4BBCD4;
+  
+  /* 扩展辅助颜色 */
+  --node-hover: #f0f0f0;
+  --button-bg: #4BBCD4;
+  --button-hover: #5CC6DC;
+}
+
+.workflow-node {
+  background: var(--node-bg);
+  border: 2px solid var(--node-border);
+  border-radius: 4px;
+  color: var(--node-text);
+  padding: 0;
+  min-width: 200px;
+  max-width: 240px;
+}
+
+.node-header {
+  background: var(--node-header);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--node-border);
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.node-content {
+  padding: 12px;
+}
+
+.node-info {
+  font-size: 12px;
+  color: #999;
+  margin-top: 8px;
+}
+
+.handle {
+  width: 12px !important;
+  height: 12px !important;
+  background: var(--connect-handle) !important;
+  border: 2px solid var(--node-bg) !important;
+  box-shadow: 0 0 0 1px var(--node-border) !important;
+}
+
+.handle::before {
+  color: var(--node-text);
+}
+
+.dark-button {
+  background: var(--button-bg);
+  color: var(--node-text);
+  border: 1px solid var(--node-border);
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  width: 100%;
+}
+
+.dark-button:hover {
+  background: var(--button-hover);
+}
+
+/* React Flow 自定义边样式 */
+.react-flow__edge-path {
+  stroke: var(--edge-color);
+  stroke-width: 2;
+}
+
+.react-flow__node-selected {
+  box-shadow: 0 0 0 2px #0096ff !important;
+}
+
+/* 工具提示样式 */
+.tooltip {
+  background: var(--tooltip-bg);
+  color: var(--node-text);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  pointer-events: none;
+} 

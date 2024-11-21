@@ -1,0 +1,21 @@
+.sidebar {
+  width: 250px;
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-right: 1px solid #dee2e6;
+  height: 100vh;
+}
+
+.operationItem {
+  padding: 10px;
+  margin: 5px 0;
+  background-color: white;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  cursor: move;
+  user-select: none;
+}
+
+.operationItem:hover {
+  background-color: #e9ecef;
+} 
