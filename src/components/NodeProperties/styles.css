@@ -1,108 +1,77 @@
-.properties-popup {
+.node-properties {
   position: fixed;
+  width: 280px;
   background: white;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-  width: 280px;
-  max-height: 400px;
-  overflow-y: auto;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
 }
 
-.popup-header {
+.node-properties .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  background: #f5f5f5;
-  border-bottom: 1px solid #ddd;
-  border-radius: 8px 8px 0 0;
+  border-bottom: 1px solid #eee;
 }
 
-.popup-header h3 {
+.node-properties .header h3 {
   margin: 0;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
 }
 
-.close-button {
+.node-properties .close-button {
   background: none;
   border: none;
-  font-size: 18px;
+  font-size: 20px;
   cursor: pointer;
   padding: 0 4px;
   color: #666;
 }
 
-.close-button:hover {
-  color: #333;
+.node-properties .close-button:hover {
+  color: #000;
 }
 
-.popup-content {
-  padding: 12px 16px;
+.node-properties .tabs {
+  border-bottom: 1px solid #eee;
 }
 
-.section {
-  margin-bottom: 16px;
+.node-properties .content {
+  padding: 16px;
 }
 
-.section:last-child {
-  margin-bottom: 0;
+.node-properties .section {
+  margin-bottom: 20px;
 }
 
-.description {
-  margin: 0;
-  font-size: 12px;
-  color: #666;
-}
-
-.section h4 {
+.node-properties .section h4 {
   margin: 0 0 8px 0;
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+}
+
+.node-properties .section p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
   color: #333;
 }
 
-.parameter-row {
-  margin-bottom: 8px;
-}
-
-.parameter-row label {
-  display: block;
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 4px;
-}
-
-.input-group {
+.node-properties .actions {
+  margin-top: 20px;
   display: flex;
-  align-items: center;
-  gap: 4px;
+  justify-content: flex-end;
 }
 
-.input-group input {
-  flex: 1;
-  padding: 4px 8px;
-  font-size: 12px;
-  border: 1px solid #ddd;
+.node-properties pre {
+  background: #f5f5f5;
+  padding: 8px;
   border-radius: 4px;
-}
-
-.unit {
-  font-size: 11px;
-  color: #666;
-}
-
-.spec-row {
-  display: flex;
   font-size: 12px;
-  margin-bottom: 4px;
-}
-
-.spec-key {
-  color: #666;
-  width: 80px;
-}
-
-.spec-value {
-  flex: 1;
+  overflow-x: auto;
 } 
