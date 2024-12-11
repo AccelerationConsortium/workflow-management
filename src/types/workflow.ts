@@ -55,4 +55,41 @@ export interface Connection {
     condition?: BranchCondition;
     validation?: ValidationRule[];
   };
+}
+
+export interface OperationNode {
+  id?: string;
+  type: string;
+  label: string;
+  category: string;
+  description?: string;
+  specs?: {
+    model?: string;
+    manufacturer?: string;
+    range?: string;
+    precision?: string;
+  };
+  parameters?: Array<{
+    name: string;
+    label: string;
+    type: string;
+    unit?: string;
+    range?: [number, number];
+    default?: number;
+    description?: string;
+  }>;
+  inputs?: Array<{
+    id: string;
+    label: string;
+    type: string;
+    required?: boolean;
+    description?: string;
+  }>;
+  outputs?: Array<{
+    id: string;
+    label: string;
+    type: string;
+    description?: string;
+  }>;
+  status?: string;
 } 

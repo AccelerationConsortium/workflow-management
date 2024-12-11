@@ -1,8 +1,15 @@
 export const nodeColors = {
+  'Test': {
+    handle: '#555',
+    border: '#4A90E2',
+    background: '#F5F9FF',
+    text: '#2C5282'
+  },
   'Sample Processing': {
-    background: '#f0f7ff',
+    handle: '#555',
     border: '#C4395E',
-    handle: '#C4395E'
+    background: '#FDF2F4',
+    text: '#92233F'
   },
   'Analysis & Measurement': {
     background: '#f6ffed',

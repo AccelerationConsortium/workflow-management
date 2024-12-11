@@ -1,4 +1,5 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState, useEffect, useMemo, memo } from 'react';
+import { operationNodes } from './data/operationNodes';
 import ReactFlow, { 
   Background, 
   Controls,
@@ -9,14 +10,16 @@ import ReactFlow, {
   Edge,
   useReactFlow,
   ReactFlowProvider,
-  EdgeProps
+  EdgeProps,
+  NodeTypes
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import './styles/theme.css';
 import './styles/App.css';
-import { ConnectionType } from './types/workflow';
+import { ConnectionType, OperationNode } from './types/workflow';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import axios from 'axios';
 
 import Sidebar from './components/Sidebar';
 import { DnDProvider, useDnD } from './context/DnDContext';
@@ -52,6 +55,10 @@ import {
   UltraLowFreezerNode,
   FileNode,
   DataUploadNode,
+  PrepareElectrolyte,
+  MixSolution,
+  HeatTreatment,
+  Characterization,
 } from './components/OperationNodes';
 import { EdgeConfig } from './components/EdgeConfig';
 import { ContextMenu } from './components/ContextMenu';
@@ -109,58 +116,24 @@ const initialNodes = [
 let id = 0;
 const getId = () => `dndnode_${id++}`;
 
-const nodeTypes = {
-  powderDispenser: PowderDispenser,
-  liquidHandler: LiquidHandler,
-  homogenizer: Homogenizer,
-  balancer: Balancer,
-  sampleLibrary: SampleLibrary,
-  sampleSplitter: SampleSplitter,
-  autoSampler: AutoSampler,
-  
-  nmr: NMRNode,
-  massSpectrometer: MassSpectrometerNode,
-  fluorometer: FluorometerNode,
-  ftir: FTIRNode,
-  raman: RamanNode,
-  
-  thermocycler: ThermocyclerNode,
-  bioreactor: BioreactorNode,
-  flowReactor: FlowReactorNode,
-  photoreactor: PhotoreactorNode,
-  
-  crystallizer: CrystallizerNode,
-  filterSystem: FilterSystemNode,
-  gelElectrophoresis: GelElectrophoresisNode,
-  columnChromatography: ColumnChromatographyNode,
-  
-  dataLogger: DataLoggerNode,
-  microscope: MicroscopeNode,
-  multiChannelAnalyzer: MultiChannelAnalyzerNode,
-  thermalImager: ThermalImagerNode,
-  
-  co2Incubator: CO2IncubatorNode,
-  cleanBench: CleanBenchNode,
-  glovebox: GloveboxNode,
-  temperatureController: TemperatureControllerNode,
-  ultraLowFreezer: UltraLowFreezerNode,
-  
-  fileInput: FileNode,
-  dataUpload: DataUploadNode,
+// 将所有节点组件用 memo 包装并移到组件外部
+const MemoizedNodes = {
+  PrepareElectrolyte: memo(PrepareElectrolyte),
+  MixSolution: memo(MixSolution),
+  HeatTreatment: memo(HeatTreatment),
+  Characterization: memo(Characterization),
+  powderDispenser: memo(PowderDispenser),
+  liquidHandler: memo(LiquidHandler),
+  homogenizer: memo(Homogenizer),
+  balancer: memo(Balancer),
+  sampleLibrary: memo(SampleLibrary),
+  sampleSplitter: memo(SampleSplitter),
+  autoSampler: memo(AutoSampler),
+  nmr: memo(NMRNode),
+  massSpectrometer: memo(MassSpectrometerNode),
+  fileInput: memo(FileNode),
+  dataUpload: memo(DataUploadNode),
 };
-
-const validationRules = [
-  {
-    type: 'required' as const,
-    field: 'Sample ID',
-    message: 'Sample ID column is required'
-  },
-  {
-    type: 'required' as const,
-    field: 'Concentration',
-    message: 'Concentration column is required'
-  }
-];
 
 function Flow() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
@@ -186,6 +159,14 @@ function Flow() {
   const [selectedNode, setSelectedNode] = useState(null);
   const [propertiesPosition, setPropertiesPosition] = useState(null);
   const [showEdgeConfig, setShowEdgeConfig] = useState(false);
+  const [testUOs, setTestUOs] = useState<OperationNode[]>([]);
+
+  // 获取测试节点数据
+  useEffect(() => {
+    // 使用本地数据
+    const testNodes = operationNodes.filter(node => node.category === 'Test');
+    setTestUOs(testNodes);
+  }, []);
 
   const onConnectStart = useCallback((_, { nodeId, handleId }) => {
     console.log('Connection started:', nodeId, handleId);
@@ -241,6 +222,9 @@ function Flow() {
     event.dataTransfer.dropEffect = 'move';
   }, []);
 
+  // 使用 useMemo 来缓存 nodeTypes
+  const nodeTypes = useMemo(() => MemoizedNodes, []);
+
   const onDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault();
@@ -248,23 +232,34 @@ function Flow() {
       const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
       const type = event.dataTransfer.getData('application/reactflow');
 
-      // 检查是否有效的节点类型
       if (typeof type === 'undefined' || !type) {
         return;
       }
 
-      const position = reactFlowInstance.project({
+      const position = reactFlowInstance.screenToFlowPosition({
         x: event.clientX - reactFlowBounds.left,
         y: event.clientY - reactFlowBounds.top,
       });
+
+      // 从 operationNodes 中找到对应的节点定义
+      const nodeDefinition = operationNodes.find(node => node.type === type);
+      
+      if (!nodeDefinition) {
+        console.warn(`No definition found for node type: ${type}`);
+        return;
+      }
 
       const newNode = {
         id: `${type}_${getId()}`,
         type,
         position,
-        data: { label: `${type} node` },
+        data: {
+          ...nodeDefinition,
+          id: `${type}_${getId()}`,
+        },
       };
 
+      console.log('Creating new node:', newNode);
       setNodes((nds) => nds.concat(newNode));
     },
     [reactFlowInstance]
