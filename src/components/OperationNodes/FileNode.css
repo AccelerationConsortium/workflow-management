@@ -1,99 +1,87 @@
 .file-node {
   background: white;
-  border: 1px solid #ddd;
+  border: 1px solid var(--node-border);
   border-radius: 8px;
-  padding: 12px;
-  min-width: 200px;
-  max-width: 240px;
-  box-sizing: border-box;
-  position: relative;
+  min-width: 280px;
+  max-width: 320px;
 }
 
-.file-content {
-  padding: 8px;
+.file-node-header {
+  background: var(--node-header);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--node-border);
+  font-weight: 500;
 }
 
-.file-content h4 {
-  margin: 0 0 8px;
-  color: #333;
-  font-size: 14px;
-}
-
-/* 连接点样式 */
-.handle {
-  width: 12px !important;
-  height: 12px !important;
-  background: #555 !important;
-  border: 2px solid white !important;
-  box-shadow: 0 0 0 1px #ddd !important;
-}
-
-.handle.input::before {
-  content: 'Input';
-  position: absolute;
-  font-size: 12px;
-  white-space: nowrap;
-  left: -30px;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.handle.output::before {
-  content: 'Output';
-  position: absolute;
-  font-size: 12px;
-  white-space: nowrap;
-  right: -30px;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-/* 按钮样式 */
-.button {
-  padding: 4px 8px;
-  font-size: 12px;
-  min-width: 60px;
-  border: 1px solid #ccc;
+.dropzone {
+  padding: 20px;
+  border: 2px dashed #ccc;
   border-radius: 4px;
-  background: #f5f5f5;
+  text-align: center;
   cursor: pointer;
+  margin: 12px;
+  transition: all 0.2s ease;
 }
 
-.button:hover {
-  background: #e8e8e8;
+.dropzone.active {
+  border-color: var(--primary-color);
+  background: rgba(75, 188, 212, 0.1);
 }
 
-/* 其他样式保持不变 */
-.file-actions {
+.processing {
   display: flex;
-  gap: 4px;
-  position: relative;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
-.sample-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  z-index: 1000;
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-.file-preview {
+.file-info {
+  padding: 12px;
+}
+
+.headers-preview {
   margin-top: 8px;
-  overflow: auto;
-  max-height: 120px;
   font-size: 12px;
 }
 
-.file-name {
+.headers-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.header-tag {
+  background: #f0f0f0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.validation-errors {
+  padding: 8px 12px;
+  margin: 8px;
+  background: #fff2f0;
+  border: 1px solid #ffccc7;
+  border-radius: 4px;
+}
+
+.error-message {
+  color: #ff4d4f;
   font-size: 12px;
-  color: #666;
-  margin-bottom: 4px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.5;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 } 
