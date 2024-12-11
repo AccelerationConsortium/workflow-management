@@ -111,6 +111,19 @@ const nodeTypes = {
   dataUpload: DataUploadNode,
 };
 
+const validationRules = [
+  {
+    type: 'required' as const,
+    field: 'Sample ID',
+    message: 'Sample ID column is required'
+  },
+  {
+    type: 'required' as const,
+    field: 'Concentration',
+    message: 'Concentration column is required'
+  }
+];
+
 function Flow() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
