@@ -14,6 +14,8 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import './styles/theme.css';
 import { ConnectionType } from './types/workflow';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
 
 import Sidebar from './components/Sidebar';
 import { DnDProvider, useDnD } from './context/DnDContext';
@@ -58,6 +60,39 @@ import './components/Toolbar.css';
 import { WorkflowSimulator } from './components/WorkflowSimulator';
 import { ValidatedNode } from './components/ValidatedNode';
 import { ValidationResult } from './types/validation';
+import { NodeProperties } from './components/NodeProperties';
+
+// 创建主题
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#4BBCD4',
+    },
+    secondary: {
+      main: '#19857b',
+    },
+    background: {
+      default: '#f5f5f5',
+    },
+  },
+  components: {
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          borderRadius: 8,
+        },
+      },
+    },
+    MuiDialogTitle: {
+      styleOverrides: {
+        root: {
+          padding: '16px 24px',
+          backgroundColor: '#f5f5f5',
+        },
+      },
+    },
+  },
+});
 
 const initialNodes = [
   {
@@ -144,6 +179,8 @@ function Flow() {
     errors: [],
     warnings: []
   });
+  const [selectedNode, setSelectedNode] = useState(null);
+  const [propertiesPosition, setPropertiesPosition] = useState(null);
 
   const onConnectStart = useCallback((_, { nodeId, handleId }) => {
     console.log('Connection started:', nodeId, handleId);
@@ -213,15 +250,18 @@ function Flow() {
     [screenToFlowPosition, type]
   );
 
-  const onEdgeClick = useCallback((event: React.MouseEvent, edge: Edge) => {
+  const onEdgeClick = useCallback((event, edge) => {
+    event.preventDefault();
     setSelectedEdge(edge);
   }, []);
 
-  const handleEdgeUpdate = useCallback((updatedEdge: Edge) => {
-    setEdges(eds => eds.map(ed => 
-      ed.id === updatedEdge.id ? updatedEdge : ed
-    ));
-  }, [setEdges]);
+  const handleEdgeUpdate = useCallback((updatedEdge) => {
+    setEdges(eds => 
+      eds.map(edge => 
+        edge.id === updatedEdge.id ? updatedEdge : edge
+      )
+    );
+  }, []);
 
   const onEdgeDelete = useCallback((edge: Edge) => {
     setEdges(edges => edges.filter(e => e.id !== edge.id));
@@ -456,57 +496,49 @@ function Flow() {
     }
   };
 
+  const onNodeClick = useCallback((event, node) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // 计算弹出位置，确保在视口内
+    const rect = event.target.getBoundingClientRect();
+    const position = {
+      x: Math.min(rect.right + 10, window.innerWidth - 290), // 290 = popup width + margin
+      y: Math.min(rect.top, window.innerHeight - 400) // 400 = max popup height
+    };
+    
+    setSelectedNode(node);
+    setPropertiesPosition(position);
+  }, []);
+
+  // 点击画布空白处关闭属性面板
+  const onPaneClick = useCallback(() => {
+    setSelectedNode(null);
+    setPropertiesPosition(null);
+  }, []);
+
   return (
-    <div className="dndflow">
+    <div className="flow-container" style={{ width: '100vw', height: '100vh' }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
-        nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        onConnectStart={onConnectStart}
-        onConnectEnd={onConnectEnd}
         onDrop={onDrop}
         onDragOver={onDragOver}
+        nodeTypes={nodeTypes}
         fitView
+        style={{
+          backgroundColor: theme.palette.background.default
+        }}
+        onNodeClick={onNodeClick}
+        onPaneClick={onPaneClick}
         onEdgeClick={onEdgeClick}
-        edgeTypes={{
-          default: EdgeWithButtons,
-          sequential: EdgeWithButtons,
-          parallel: EdgeWithButtons,
-          conditional: EdgeWithButtons,
-        }}
-        onNodeContextMenu={onNodeContextMenu}
-        onPaneClick={() => setContextMenu(null)}
-        nodeTypes={{
-          ...nodeTypes,
-          default: (props) => (
-            <ValidatedNode {...props} errors={validationErrors.errors} />
-          )
-        }}
       >
-        <defs>
-          <marker
-            id="edge-arrow"
-            viewBox="0 0 10 10"
-            refX="8"
-            refY="5"
-            markerWidth="8"
-            markerHeight="8"
-            orient="auto-start-reverse"
-          >
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="#555" />
-          </marker>
-        </defs>
-        <Background />
         <Controls />
+        <Background />
         <Toolbar />
-        <WorkflowSimulator
-          nodes={nodes}
-          edges={edges}
-          onValidationComplete={handleValidationComplete}
-        />
       </ReactFlow>
       <Sidebar />
       
@@ -544,17 +576,29 @@ function Flow() {
           onCancel={() => setShowSaveDialog(false)}
         />
       )}
+
+      <NodeProperties
+        node={selectedNode}
+        position={propertiesPosition}
+        onClose={() => {
+          setSelectedNode(null);
+          setPropertiesPosition(null);
+        }}
+      />
     </div>
   );
 }
 
 function App() {
   return (
-    <ReactFlowProvider>
-      <DnDProvider>
-        <Flow />
-      </DnDProvider>
-    </ReactFlowProvider>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <ReactFlowProvider>
+        <DnDProvider>
+          <Flow />
+        </DnDProvider>
+      </ReactFlowProvider>
+    </ThemeProvider>
   );
 }
 

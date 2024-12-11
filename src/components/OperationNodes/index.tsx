@@ -5,12 +5,22 @@ import { DataUploadNode } from './DataUploadNode';
 import { OperationNode } from '../../types/workflow';
 
 // 基础节点组件
-const createNodeComponent = (category: string) => ({ data }: { data: OperationNode }) => (
-  <BaseNode data={{
+const createNodeComponent = (category: string) => ({ data, id }: { data: OperationNode; id: string }) => {
+  // 合并默认数据和传入的数据
+  const nodeData = {
     ...data,
-    category
-  }} />
-);
+    id,  // 确保 ID 被传递
+    category,
+    // 确保基本属性存在
+    description: data.description || '',
+    parameters: data.parameters || [],
+    constraints: data.constraints || [],
+    hardware: data.hardware || {},
+    status: data.status || 'idle'
+  };
+
+  return <BaseNode data={nodeData} />;
+};
 
 // 样品处理类
 export const PowderDispenser = createNodeComponent('Sample Processing');
