@@ -1,83 +1,78 @@
 import React, { useState } from 'react';
-import { Edge } from 'reactflow';
-import { ConnectionType } from '../types/workflow';
+import './styles.css';
 
 interface EdgeConfigProps {
-  edge: Edge;
+  edge: any;
   onClose: () => void;
-  onUpdate: (edge: Edge) => void;
+  onUpdate: (edge: any) => void;
 }
 
-export const EdgeConfig: React.FC<EdgeConfigProps> = ({
-  edge,
-  onClose,
-  onUpdate,
-}) => {
+export const EdgeConfig: React.FC<EdgeConfigProps> = ({ edge, onClose, onUpdate }) => {
   const [config, setConfig] = useState({
     delay: edge.data?.delay || 0,
-    triggerFile: edge.data?.triggerFile || '',
+    condition: edge.data?.condition || '',
+    description: edge.data?.description || '',
   });
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onUpdate({
+      ...edge,
+      data: {
+        ...edge.data,
+        ...config
+      }
+    });
+    onClose();
+  };
+
   return (
-    <div className="edge-config">
-      <h3>Configure Connection</h3>
+    <div className="edge-config-popup">
+      <div className="popup-header">
+        <h3>Configure {edge.label} Connection</h3>
+        <button className="close-button" onClick={onClose}>×</button>
+      </div>
       
-      {edge.type === 'sequential' && (
-        <>
+      <form onSubmit={handleSubmit} className="popup-content">
+        {edge.type === 'sequential' && (
           <div className="config-field">
             <label>Delay (seconds)</label>
             <input
               type="number"
-              value={config.delay}
-              onChange={e => setConfig(prev => ({ ...prev, delay: Number(e.target.value) }))}
               min="0"
+              step="0.1"
+              value={config.delay}
+              onChange={(e) => setConfig({ ...config, delay: parseFloat(e.target.value) })}
             />
           </div>
-          <div className="config-field">
-            <label>Trigger File (YAML)</label>
-            <input
-              type="file"
-              accept=".yml,.yaml"
-              onChange={e => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  setConfig(prev => ({ ...prev, triggerFile: file.name }));
-                }
-              }}
-            />
-            <div className="file-status">
-              {config.triggerFile ? `Selected: ${config.triggerFile}` : 'No file selected'}
-            </div>
-          </div>
-        </>
-      )}
+        )}
 
-      {edge.type === 'conditional' && (
+        {edge.type === 'conditional' && (
+          <div className="config-field">
+            <label>Condition</label>
+            <input
+              type="text"
+              value={config.condition}
+              onChange={(e) => setConfig({ ...config, condition: e.target.value })}
+              placeholder="e.g. temperature > 25"
+            />
+          </div>
+        )}
+
         <div className="config-field">
-          <label>Condition Expression</label>
-          <input
-            type="text"
-            placeholder="e.g., temperature > 37"
-            value={config.condition || ''}
-            onChange={e => setConfig(prev => ({ ...prev, condition: e.target.value }))}
+          <label>Description</label>
+          <textarea
+            value={config.description}
+            onChange={(e) => setConfig({ ...config, description: e.target.value })}
+            placeholder="Add a description for this connection..."
           />
         </div>
-      )}
-      
-      <div className="button-group">
-        <button onClick={() => {
-          onUpdate({
-            ...edge,
-            data: config,
-            label: config.delay ? `Delay ${config.delay}s` : 
-                   config.triggerFile ? `Trigger: ${config.triggerFile}` : 
-                   config.condition ? `If: ${config.condition}` :
-                   edge.type
-          });
-          onClose();
-        }}>Save</button>
-        <button onClick={onClose}>Cancel</button>
-      </div>
+
+        <div className="button-group">
+          <button type="submit" className="save-button">Save</button>
+          <button type="button" onClick={onClose} className="cancel-button">Cancel</button>
+        </div>
+      </form>
     </div>
   );
 }; 

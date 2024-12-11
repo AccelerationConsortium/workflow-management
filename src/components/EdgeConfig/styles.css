@@ -1,0 +1,89 @@
+.edge-config-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  width: 300px;
+  z-index: 1000;
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+  border-radius: 8px 8px 0 0;
+}
+
+.popup-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.popup-content {
+  padding: 16px;
+}
+
+.config-field {
+  margin-bottom: 16px;
+}
+
+.config-field label {
+  display: block;
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.config-field input,
+.config-field textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.config-field textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.button-group {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.button-group button {
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.save-button {
+  background: #1a90ff;
+  color: white;
+}
+
+.save-button:hover {
+  background: #0c7cd5;
+}
+
+.cancel-button {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.cancel-button:hover {
+  background: #e0e0e0;
+} 

@@ -1,10 +1,9 @@
 .node-container {
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.node-container:hover {
-  transform: scale(1.02);
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  min-width: 150px;
+  cursor: move;
 }
 
 .node-header {
@@ -14,6 +13,12 @@
   padding: 8px 12px;
   background: #f5f5f5;
   border-bottom: 1px solid #ddd;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+}
+
+.node-header:hover {
+  background: #e0e0e0;
 }
 
 .status-indicator {

@@ -86,3 +86,53 @@ src/
 执行历史记录
 更多类型的节点模板
 后端集成（目前主要是前端功能）
+
+搜索接口
+外部系统集成
+prefect工作流映射
+数据库集成
+
+Canvas System Architecture (Logical Structure)
+Core Components
+1. User Interface (UI):
+   * Canvas:
+      * Allows users to drag and drop Unit Operations (UOs) to design workflows.
+   * Search Interface:
+      * Users can search for desired operations or equipment with constraints (e.g., "plate-to-plate transfer using Tecan").
+   * Connection to External Systems:
+      * Interfaces with:
+         * Experiment Monitor System: Displays real-time sensor data.
+         * Inventory System: Estimates material requirements.
+         * ELN System: Allows report generation.
+2. Backend Components:
+   * Database:
+      * Stores UO metadata (parameters, constraints, devices).
+      * Stores workflows designed on the canvas.
+      * Links each UO to corresponding Python code for Prefect execution.
+   * Prefect Workflow Mapper:
+      * Converts canvas workflows into Prefect-compatible workflows.
+   * Integration Manager:
+      * Handles data exchange with external systems (e.g., Inventory, Monitor).
+External Integrations (reserved api)
+1. Prefect Cloud:
+   * Executes workflows created from the canvas.
+   * Reports workflow execution status back to the system.
+2. Experiment Monitor System:
+   * Provides real-time sensor data to the canvas interface for display.
+3. Inventory System:
+   * Calculates and provides material requirements based on the designed workflows.
+4. ELN System:
+   * Supports exporting workflows and execution data as reports (e.g., in PDF format).
+Data Flow Overview
+1. Workflow Design:
+   * User designs workflows by dragging UOs onto the canvas and configuring them.
+   * UO metadata is retrieved from the database.
+2. Execution:
+   * Canvas workflows are mapped to Prefect workflows and sent to Prefect Cloud for execution.
+   * Prefect Cloud returns execution data (status, logs).
+3. Monitoring:
+   * Real-time data (e.g., sensor readings) is fetched from the Experiment Monitor System and displayed on the canvas.
+4. Material Estimation:
+   * Workflow details are sent to the Inventory System to calculate material needs.
+5. Report Generation:
+   * Workflow and execution data are exported to the ELN System for documentation.
