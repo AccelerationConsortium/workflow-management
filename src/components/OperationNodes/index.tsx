@@ -6,21 +6,29 @@ import { OperationNode } from '../../types/workflow';
 
 // 基础节点组件
 const createNodeComponent = (category: string) => ({ data, id }: { data: OperationNode; id: string }) => {
-  // 合并默认数据和传入的数据
+  console.log('Creating node component:', { category, data, id });
+  
+  // 保留原始数据，只添加必要的字段
   const nodeData = {
     ...data,
-    id,  // 确保 ID 被传递
-    category,
-    // 确保基本属性存在
-    description: data.description || '',
-    parameters: data.parameters || [],
-    constraints: data.constraints || [],
-    hardware: data.hardware || {},
-    status: data.status || 'idle'
+    id,
+    category: category || data.category,
   };
 
+  // 确保所有必要的属性都存在
+  if (!nodeData.type || !nodeData.label) {
+    console.warn('Missing required node data:', nodeData);
+  }
+
+  console.log('Final node data:', nodeData);
   return <BaseNode data={nodeData} />;
 };
+
+// 测试节点
+export const PrepareElectrolyte = createNodeComponent('Test');
+export const MixSolution = createNodeComponent('Test');
+export const HeatTreatment = createNodeComponent('Test');
+export const Characterization = createNodeComponent('Test');
 
 // 样品处理类
 export const PowderDispenser = createNodeComponent('Sample Processing');

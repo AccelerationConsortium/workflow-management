@@ -2,6 +2,12 @@ import React from 'react';
 import './styles.css';
 
 const operationGroups = {
+  'Test': [
+    { type: 'prepare_electrolyte', label: 'Prepare Electrolyte' },
+    { type: 'mix_solution', label: 'Mix Solution' },
+    { type: 'heat_treatment', label: 'Heat Treatment' },
+    { type: 'characterization', label: 'Characterization' }
+  ],
   'Sample Handling': [
     { type: 'powderDispenser', label: 'Powder Dispenser' },
     { type: 'liquidHandler', label: 'Liquid Handler' },

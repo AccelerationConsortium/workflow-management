@@ -3,7 +3,7 @@ export interface OperationNode {
   label: string;
   description: string;
   category: 'Sample Processing' | 'Analysis & Measurement' | 'Reaction Control' | 
-             'Separation & Purification' | 'Data Acquisition' | 'Environment Control';
+             'Separation & Purification' | 'Data Acquisition' | 'Environment Control' | 'Test';
   parameters?: {
     name: string;
     type: 'number' | 'string' | 'boolean';
@@ -33,46 +33,224 @@ export interface OperationNode {
 }
 
 export const operationNodes: OperationNode[] = [
+  // Test Operations
   {
-    type: 'dataUpload',
-    label: 'Data Upload',
-    description: 'Upload and parse data files',
-    category: 'Data Acquisition',
+    type: 'PrepareElectrolyte',
+    label: 'Prepare Electrolyte',
+    description: 'Preparation of electrolyte mixtures',
+    category: 'Test',
+    specs: {
+      model: 'Caframo Compact Mixer',
+      manufacturer: 'Caframo',
+      range: '100-1000 RPM',
+      precision: '±1 RPM'
+    },
     parameters: [
       {
-        name: 'fileType',
-        type: 'select',
-        label: 'File Type',
-        options: ['CSV', 'Excel'],
-        required: true,
-        description: 'Select the format of the uploaded file'
-      },
-      {
-        name: 'file',
-        type: 'file',
-        label: 'Data File',
-        fileTypes: ['.csv', '.xlsx', '.xls'],
-        required: true,
-        description: 'Select the data file to upload'
-      },
-      {
-        name: 'headerRow',
+        name: 'mixingSpeed',
+        label: 'Mixing Speed',
         type: 'number',
-        label: 'Header Row Number',
-        range: [1, 10],
-        default: 1,
-        description: 'Specify the row number of the header'
+        unit: 'RPM',
+        range: [100, 1000],
+        default: 500
+      },
+      {
+        name: 'mixingTime',
+        label: 'Mixing Time',
+        type: 'number',
+        unit: 'min',
+        range: [1, 120],
+        default: 30
+      }
+    ],
+    inputs: [
+      {
+        id: 'solvent-in',
+        label: 'Solvent Input',
+        type: 'liquid',
+        required: true,
+        description: 'Main solvent for electrolyte'
       }
     ],
     outputs: [
       {
-        id: 'data',
-        label: 'Data Output',
-        type: 'dataset'
+        id: 'electrolyte-out',
+        label: 'Electrolyte Output',
+        type: 'liquid',
+        description: 'Mixed electrolyte solution'
       }
     ]
   },
-  // 修改现有组件，添加更多参数
+  {
+    type: 'MixSolution',
+    label: 'Mix Solution',
+    description: 'Solution mixing and homogenization',
+    category: 'Test',
+    specs: {
+      model: 'IKA RW20',
+      manufacturer: 'IKA',
+      range: '60-2000 RPM',
+      precision: '±5 RPM'
+    },
+    parameters: [
+      {
+        name: 'stirringSpeed',
+        label: 'Stirring Speed',
+        type: 'number',
+        unit: 'RPM',
+        range: [60, 2000],
+        default: 800
+      },
+      {
+        name: 'temperature',
+        label: 'Temperature',
+        type: 'number',
+        unit: '°C',
+        range: [20, 80],
+        default: 25
+      }
+    ],
+    inputs: [
+      {
+        id: 'solution-a',
+        label: 'Solution A',
+        type: 'liquid',
+        required: true
+      },
+      {
+        id: 'solution-b',
+        label: 'Solution B',
+        type: 'liquid',
+        required: true
+      }
+    ],
+    outputs: [
+      {
+        id: 'mixed-solution',
+        label: 'Mixed Solution',
+        type: 'liquid',
+        description: 'Homogenized solution'
+      }
+    ]
+  },
+  {
+    type: 'HeatTreatment',
+    label: 'Heat Treatment',
+    description: 'Temperature controlled processing',
+    category: 'Test',
+    specs: {
+      model: 'Thermo Scientific Lindberg',
+      manufacturer: 'Thermo Scientific',
+      range: '50-1200°C',
+      precision: '±1°C'
+    },
+    parameters: [
+      {
+        name: 'temperature',
+        label: 'Temperature',
+        type: 'number',
+        unit: '°C',
+        range: [50, 1200],
+        default: 600
+      },
+      {
+        name: 'duration',
+        label: 'Duration',
+        type: 'number',
+        unit: 'hours',
+        range: [0.5, 72],
+        default: 4
+      },
+      {
+        name: 'rampRate',
+        label: 'Ramp Rate',
+        type: 'number',
+        unit: '°C/min',
+        range: [1, 20],
+        default: 5
+      }
+    ],
+    inputs: [
+      {
+        id: 'sample-in',
+        label: 'Sample Input',
+        type: 'solid',
+        required: true,
+        description: 'Sample for heat treatment'
+      }
+    ],
+    outputs: [
+      {
+        id: 'sample-out',
+        label: 'Processed Sample',
+        type: 'solid',
+        description: 'Heat treated sample'
+      }
+    ]
+  },
+  {
+    type: 'Characterization',
+    label: 'Characterization',
+    description: 'Sample analysis and characterization',
+    category: 'Test',
+    specs: {
+      model: 'Bruker D8 Advance',
+      manufacturer: 'Bruker',
+      range: '2θ: 0-160°',
+      precision: '±0.001°'
+    },
+    parameters: [
+      {
+        name: 'scanRange',
+        label: 'Scan Range',
+        type: 'number',
+        unit: '°',
+        range: [5, 120],
+        default: 60
+      },
+      {
+        name: 'scanRate',
+        label: 'Scan Rate',
+        type: 'number',
+        unit: '°/min',
+        range: [0.1, 10],
+        default: 2
+      },
+      {
+        name: 'stepSize',
+        label: 'Step Size',
+        type: 'number',
+        unit: '°',
+        range: [0.001, 0.1],
+        default: 0.02
+      }
+    ],
+    inputs: [
+      {
+        id: 'sample-in',
+        label: 'Sample Input',
+        type: 'solid',
+        required: true,
+        description: 'Sample for analysis'
+      }
+    ],
+    outputs: [
+      {
+        id: 'data-out',
+        label: 'Analysis Data',
+        type: 'dataset',
+        description: 'Characterization results'
+      },
+      {
+        id: 'sample-out',
+        label: 'Sample Return',
+        type: 'solid',
+        description: 'Analyzed sample'
+      }
+    ]
+  },
+
+  // Existing nodes
   {
     type: 'powderDispenser',
     label: 'Powder Dispenser',

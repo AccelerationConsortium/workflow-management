@@ -4,12 +4,48 @@ import { OperationNode } from '../types/workflow';
 import { nodeColors } from '../styles/nodeTheme';
 import './BaseNode.css';
 
+// 定义颜色常量
+const colors = {
+  handle: '#555',
+  border: '#ddd',
+  background: 'white',
+  text: '#333'
+};
+
 export const BaseNode: React.FC<{ data: OperationNode }> = ({ data }) => {
+  if (!data) {
+    console.error('No data provided to BaseNode');
+    return null;
+  }
+
+  console.log('BaseNode rendering with data:', {
+    type: data.type,
+    label: data.label,
+    parameters: data.parameters?.length,
+    inputs: data.inputs?.length,
+    outputs: data.outputs?.length,
+    specs: data.specs,
+    fullData: data,
+  });
+
+  const nodeCategory = data.category || 'default';
+  const themeColors = nodeColors[nodeCategory] || nodeColors['Test'];
+
   const [selectedTab, setSelectedTab] = useState<'parameters' | 'io' | 'specs'>('parameters');
-  const colors = nodeColors[data.category];
+  const colors = nodeColors[data.category] || {
+    // 默认颜色
+    handle: '#555',
+    border: '#ddd',
+    background: 'white',
+    text: '#333'
+  };
 
   const renderParameters = () => {
-    if (!data.parameters?.length) return null;
+    console.log('Rendering parameters:', data.parameters);
+    if (!data.parameters?.length) {
+      console.log('No parameters to render');
+      return null;
+    }
     return (
       <div className="parameters-section">
         <h4>Parameters</h4>
@@ -70,18 +106,12 @@ export const BaseNode: React.FC<{ data: OperationNode }> = ({ data }) => {
     return (
       <div className="specs-section">
         <h4>Specifications</h4>
-        <div className="spec-item">
-          <span>Model:</span> {data.specs.model}
-        </div>
-        <div className="spec-item">
-          <span>Manufacturer:</span> {data.specs.manufacturer}
-        </div>
-        <div className="spec-item">
-          <span>Range:</span> {data.specs.range}
-        </div>
-        <div className="spec-item">
-          <span>Precision:</span> {data.specs.precision}
-        </div>
+        {Object.entries(data.specs).map(([key, value]) => (
+          <div key={key} className="spec-item">
+            <span className="spec-label">{key}:</span>
+            <span className="spec-value">{value}</span>
+          </div>
+        ))}
       </div>
     );
   };

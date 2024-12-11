@@ -44,9 +44,9 @@ const CategoryGroup: React.FC<CategoryGroupProps> = ({
         </span>
       </div>
       <div className={`category-group-content ${isExpanded ? 'expanded' : 'collapsed'}`}>
-        {nodes.map((node) => (
+        {nodes.map((node, index) => (
           <div
-            key={node.type}
+            key={`${title}-${node.type}-${index}`}
             className="operation-node"
             onDragStart={(e) => onDragStart(e, node.type)}
             onDragEnd={onDragEnd}
