@@ -13,6 +13,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import './styles/theme.css';
+import './styles/App.css';
 import { ConnectionType } from './types/workflow';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -61,6 +62,8 @@ import { WorkflowSimulator } from './components/WorkflowSimulator';
 import { ValidatedNode } from './components/ValidatedNode';
 import { ValidationResult } from './types/validation';
 import { NodeProperties } from './components/NodeProperties';
+import { unitOperationService } from './services/unitOperationService';
+import { CustomEdge } from './components/CustomEdge';
 
 // 创建主题
 const theme = createTheme({
@@ -165,6 +168,7 @@ function Flow() {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const { screenToFlowPosition } = useReactFlow();
   const [type] = useDnD();
+  const [reactFlowInstance, setReactFlowInstance] = useState(null);
 
   const [selectedConnection, setSelectedConnection] = useState<Connection | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
@@ -181,6 +185,7 @@ function Flow() {
   });
   const [selectedNode, setSelectedNode] = useState(null);
   const [propertiesPosition, setPropertiesPosition] = useState(null);
+  const [showEdgeConfig, setShowEdgeConfig] = useState(false);
 
   const onConnectStart = useCallback((_, { nodeId, handleId }) => {
     console.log('Connection started:', nodeId, handleId);
@@ -190,12 +195,23 @@ function Flow() {
     console.log('Connection ended:', event);
   }, []);
 
-  const onConnect = useCallback(
-    (connection: Connection) => {
-      setSelectedConnection(connection);
-    },
-    []
-  );
+  const onConnect = useCallback((params) => {
+    setShowEdgeConfig(true);
+    setSelectedEdge(params);
+  }, []);
+
+  const handleEdgeConfig = useCallback((config: EdgeConfig) => {
+    if (selectedEdge) {
+      const edge = {
+        ...selectedEdge,
+        data: config,
+        type: 'custom',
+      };
+      setEdges((eds) => addEdge(edge, eds));
+      setShowEdgeConfig(false);
+      setSelectedEdge(null);
+    }
+  }, [selectedEdge, setEdges]);
 
   const addConnection = useCallback(
     (type: ConnectionType) => {
@@ -229,25 +245,29 @@ function Flow() {
     (event: React.DragEvent) => {
       event.preventDefault();
 
-      if (!type) {
+      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
+      const type = event.dataTransfer.getData('application/reactflow');
+
+      // 检查是否有效的节点类型
+      if (typeof type === 'undefined' || !type) {
         return;
       }
 
-      const position = screenToFlowPosition({
-        x: event.clientX,
-        y: event.clientY,
+      const position = reactFlowInstance.project({
+        x: event.clientX - reactFlowBounds.left,
+        y: event.clientY - reactFlowBounds.top,
       });
 
       const newNode = {
-        id: getId(),
+        id: `${type}_${getId()}`,
         type,
         position,
-        data: { label: `${type} Node` },
+        data: { label: `${type} node` },
       };
 
       setNodes((nds) => nds.concat(newNode));
     },
-    [screenToFlowPosition, type]
+    [reactFlowInstance]
   );
 
   const onEdgeClick = useCallback((event, edge) => {
@@ -517,74 +537,76 @@ function Flow() {
     setPropertiesPosition(null);
   }, []);
 
-  return (
-    <div className="flow-container" style={{ width: '100vw', height: '100vh' }}>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onDrop={onDrop}
-        onDragOver={onDragOver}
-        nodeTypes={nodeTypes}
-        fitView
-        style={{
-          backgroundColor: theme.palette.background.default
-        }}
-        onNodeClick={onNodeClick}
-        onPaneClick={onPaneClick}
-        onEdgeClick={onEdgeClick}
-      >
-        <Controls />
-        <Background />
-        <Toolbar />
-      </ReactFlow>
-      <Sidebar />
+  const handleNodeUpdate = useCallback(async (
+    nodeId: string, 
+    data: Partial<UnitOperation>
+  ) => {
+    try {
+      // 调用API更新节点数据
+      const updatedUO = await unitOperationService.updateUnitOperation(nodeId, data);
       
-      {selectedConnection && (
-        <div className="connection-dialog">
-          <h3>Select Connection Type</h3>
-          <button onClick={() => addConnection('sequential')}>Sequential</button>
-          <button onClick={() => addConnection('parallel')}>Parallel</button>
-          <button onClick={() => addConnection('conditional')}>Conditional</button>
-          <button onClick={() => setSelectedConnection(null)}>Cancel</button>
-        </div>
-      )}
+      // 更新本地状态
+      setNodes(nds => 
+        nds.map(node => 
+          node.id === nodeId 
+            ? { ...node, data: { ...node.data, ...updatedUO } }
+            : node
+        )
+      );
+    } catch (error) {
+      console.error('Failed to update node:', error);
+      // 这里可以添加错误提示
+    }
+  }, []);
 
-      {selectedEdge && (
+  return (
+    <div className="dndflow">
+      <Sidebar />
+      <div className="flow-container" ref={reactFlowWrapper}>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          nodeTypes={nodeTypes}
+          edgeTypes={{ custom: CustomEdge }}
+          onNodeClick={onNodeClick}
+          onPaneClick={onPaneClick}
+          onInit={setReactFlowInstance}
+          onDragOver={onDragOver}
+          onDrop={onDrop}
+          fitView
+        >
+          <Background />
+          <Controls />
+          {contextMenu && (
+            <ContextMenu
+              x={contextMenu.x}
+              y={contextMenu.y}
+              nodeId={contextMenu.nodeId}
+              onClose={() => setContextMenu(null)}
+            />
+          )}
+        </ReactFlow>
         <EdgeConfig
-          edge={selectedEdge}
-          onClose={() => setSelectedEdge(null)}
-          onUpdate={handleEdgeUpdate}
+          isOpen={showEdgeConfig}
+          onClose={() => {
+            setShowEdgeConfig(false);
+            setSelectedEdge(null);
+          }}
+          onSave={handleEdgeConfig}
         />
-      )}
-
-      {contextMenu && (
-        <ContextMenu
-          x={contextMenu.x}
-          y={contextMenu.y}
-          onClose={() => setContextMenu(null)}
-          onDelete={deleteNode}
-          onDuplicate={duplicateNode}
-        />
-      )}
-
-      {showSaveDialog && (
-        <SaveWorkflowDialog
-          onSave={handleSaveWorkflow}
-          onCancel={() => setShowSaveDialog(false)}
-        />
-      )}
-
-      <NodeProperties
-        node={selectedNode}
-        position={propertiesPosition}
-        onClose={() => {
-          setSelectedNode(null);
-          setPropertiesPosition(null);
-        }}
-      />
+        <Toolbar />
+        {selectedNode && (
+          <NodeProperties
+            node={selectedNode}
+            position={propertiesPosition}
+            onClose={() => setSelectedNode(null)}
+            onUpdate={handleNodeUpdate}
+          />
+        )}
+      </div>
     </div>
   );
 }
@@ -593,11 +615,11 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <ReactFlowProvider>
-        <DnDProvider>
+      <DnDProvider>
+        <ReactFlowProvider>
           <Flow />
-        </DnDProvider>
-      </ReactFlowProvider>
+        </ReactFlowProvider>
+      </DnDProvider>
     </ThemeProvider>
   );
 }

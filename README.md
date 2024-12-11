@@ -136,3 +136,13 @@ Data Flow Overview
    * Workflow details are sent to the Inventory System to calculate material needs.
 5. Report Generation:
    * Workflow and execution data are exported to the ELN System for documentation.
+  
+
+在 App.tsx 中实现 onUpdate 回调来处理节点数据的更新
+相应地更新数据库
+
+后端需要实现的API端点：
+GET /api/unit-operations/templates - 获取所有UO模板
+GET /api/unit-operations/:id - 获取单个UO详情
+PATCH /api/unit-operations/:id - 更新UO参数
+POST /api/unit-operations/instances - 从模板创建新的UO实例

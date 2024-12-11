@@ -1,0 +1,89 @@
+.dndflow {
+  display: flex;
+  flex-direction: row;
+  width: 100vw;
+  height: 100vh;
+}
+
+.flow-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.react-flow {
+  flex-grow: 1;
+  background: #f8f8f8;
+}
+
+.react-flow__node {
+  width: auto;
+  height: auto;
+}
+
+.react-flow__controls {
+  box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.08);
+}
+
+.dndflow aside {
+  border-right: 1px solid #eee;
+  padding: 15px 10px;
+  font-size: 12px;
+  background: #fcfcfc;
+}
+
+.dndflow aside > * {
+  margin-bottom: 10px;
+}
+
+.dndflow .description {
+  margin-bottom: 10px;
+}
+
+.dndflow .wrapper {
+  flex-grow: 1;
+  height: 100%;
+}
+
+.edge-buttons {
+  display: flex;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  background: white;
+  padding: 2px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.edge-button {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin: 0 2px;
+}
+
+.edge-button:hover {
+  background: #f0f0f0;
+}
+
+.react-flow__edge text {
+  fill: #555;
+  font-size: 12px;
+}
+
+.react-flow__edge textPath {
+  dominant-baseline: text-after-edge;
+  text-anchor: middle;
+}
+
+.react-flow__edge.selected {
+  stroke: #1a90ff;
+} 

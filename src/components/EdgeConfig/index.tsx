@@ -1,78 +1,92 @@
 import React, { useState } from 'react';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import './styles.css';
 
+export type ExecutionMode = 'sequential' | 'parallel' | 'conditional';
+
 interface EdgeConfigProps {
-  edge: any;
+  isOpen: boolean;
   onClose: () => void;
-  onUpdate: (edge: any) => void;
+  onSave: (config: EdgeConfig) => void;
 }
 
-export const EdgeConfig: React.FC<EdgeConfigProps> = ({ edge, onClose, onUpdate }) => {
-  const [config, setConfig] = useState({
-    delay: edge.data?.delay || 0,
-    condition: edge.data?.condition || '',
-    description: edge.data?.description || '',
-  });
+export interface EdgeConfig {
+  mode: ExecutionMode;
+  condition?: string;
+  delay?: number;
+  retries?: number;
+}
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onUpdate({
-      ...edge,
-      data: {
-        ...edge.data,
-        ...config
-      }
+export function EdgeConfig({ isOpen, onClose, onSave }: EdgeConfigProps) {
+  const [mode, setMode] = useState<ExecutionMode>('sequential');
+  const [condition, setCondition] = useState('');
+  const [delay, setDelay] = useState(0);
+  const [retries, setRetries] = useState(0);
+
+  const handleSave = () => {
+    onSave({
+      mode,
+      ...(mode === 'conditional' && { condition }),
+      ...(mode === 'sequential' && { delay, retries }),
     });
     onClose();
   };
 
   return (
-    <div className="edge-config-popup">
-      <div className="popup-header">
-        <h3>Configure {edge.label} Connection</h3>
-        <button className="close-button" onClick={onClose}>×</button>
-      </div>
-      
-      <form onSubmit={handleSubmit} className="popup-content">
-        {edge.type === 'sequential' && (
-          <div className="config-field">
-            <label>Delay (seconds)</label>
-            <input
-              type="number"
-              min="0"
-              step="0.1"
-              value={config.delay}
-              onChange={(e) => setConfig({ ...config, delay: parseFloat(e.target.value) })}
-            />
-          </div>
-        )}
+    <Dialog open={isOpen} onClose={onClose}>
+      <DialogTitle>Configure Connection</DialogTitle>
+      <DialogContent>
+        <FormControl fullWidth margin="normal">
+          <InputLabel>Execution Mode</InputLabel>
+          <Select
+            value={mode}
+            onChange={(e) => setMode(e.target.value as ExecutionMode)}
+            label="Execution Mode"
+          >
+            <MenuItem value="sequential">Sequential</MenuItem>
+            <MenuItem value="parallel">Parallel</MenuItem>
+            <MenuItem value="conditional">Conditional</MenuItem>
+          </Select>
+        </FormControl>
 
-        {edge.type === 'conditional' && (
-          <div className="config-field">
-            <label>Condition</label>
-            <input
-              type="text"
-              value={config.condition}
-              onChange={(e) => setConfig({ ...config, condition: e.target.value })}
-              placeholder="e.g. temperature > 25"
-            />
-          </div>
-        )}
-
-        <div className="config-field">
-          <label>Description</label>
-          <textarea
-            value={config.description}
-            onChange={(e) => setConfig({ ...config, description: e.target.value })}
-            placeholder="Add a description for this connection..."
+        {mode === 'conditional' && (
+          <TextField
+            fullWidth
+            margin="normal"
+            label="Condition"
+            value={condition}
+            onChange={(e) => setCondition(e.target.value)}
+            helperText="Enter a condition expression"
           />
-        </div>
+        )}
 
-        <div className="button-group">
-          <button type="submit" className="save-button">Save</button>
-          <button type="button" onClick={onClose} className="cancel-button">Cancel</button>
-        </div>
-      </form>
-    </div>
+        {mode === 'sequential' && (
+          <>
+            <TextField
+              fullWidth
+              margin="normal"
+              type="number"
+              label="Delay (ms)"
+              value={delay}
+              onChange={(e) => setDelay(Number(e.target.value))}
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              type="number"
+              label="Retries"
+              value={retries}
+              onChange={(e) => setRetries(Number(e.target.value))}
+            />
+          </>
+        )}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={handleSave} variant="contained" color="primary">
+          Save
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
-}; 
+} 
