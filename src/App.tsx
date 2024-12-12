@@ -285,15 +285,53 @@ function Flow() {
   const onNodeContextMenu = useCallback(
     (event: React.MouseEvent, node: Node) => {
       event.preventDefault();
+      event.stopPropagation();
       
-      setContextMenu({
+      const menuPosition = {
         x: event.clientX,
         y: event.clientY,
-        nodeId: node.id,
-      });
+        nodeId: node.id
+      };
+      
+      setContextMenu(menuPosition);
     },
     []
   );
+
+  const handleDeleteNode = useCallback(() => {
+    if (!contextMenu) return;
+    
+    setNodes((nodes) => nodes.filter((node) => node.id !== contextMenu.nodeId));
+    setEdges((edges) => edges.filter(
+      (edge) => edge.source !== contextMenu.nodeId && edge.target !== contextMenu.nodeId
+    ));
+    setContextMenu(null);
+  }, [contextMenu, setNodes, setEdges]);
+
+  const handleDuplicateNode = useCallback(() => {
+    if (!contextMenu) return;
+    
+    const sourceNode = nodes.find(node => node.id === contextMenu.nodeId);
+    if (sourceNode) {
+      const newNode = {
+        ...sourceNode,
+        id: `${sourceNode.type}-${Date.now()}`,
+        position: {
+          x: sourceNode.position.x + 250,
+          y: sourceNode.position.y
+        }
+      };
+      setNodes((nds) => [...nds, newNode]);
+    }
+    setContextMenu(null);
+  }, [contextMenu, nodes, setNodes]);
+
+  // 点击画布时关闭右键菜单
+  const onPaneClick = useCallback(() => {
+    setContextMenu(null);
+    setSelectedNode(null);
+    setPropertiesPosition(null);
+  }, []);
 
   const duplicateNode = useCallback(() => {
     if (!contextMenu) return;
@@ -323,6 +361,26 @@ function Flow() {
     ));
     setContextMenu(null);
   }, [contextMenu, setNodes, setEdges]);
+
+  const handleCopyNode = useCallback(() => {
+    if (contextMenu) {
+      const sourceNode = nodes.find(node => node.id === contextMenu.nodeId);
+      if (sourceNode) {
+        // 创建新节点，复制原节点的数据
+        const newNode = {
+          ...sourceNode,
+          id: `${sourceNode.type}-${Date.now()}`, // 生成新的唯一ID
+          position: {
+            x: sourceNode.position.x + 250, // 在原节点右侧创建
+            y: sourceNode.position.y
+          }
+        };
+        
+        setNodes((nds) => [...nds, newNode]);
+      }
+      setContextMenu(null);
+    }
+  }, [contextMenu, nodes, setNodes]);
 
   interface EdgeWithButtonsProps extends EdgeProps {
     id: string;
@@ -526,12 +584,6 @@ function Flow() {
     setPropertiesPosition(position);
   }, []);
 
-  // 点击画布空白处关闭属性面板
-  const onPaneClick = useCallback(() => {
-    setSelectedNode(null);
-    setPropertiesPosition(null);
-  }, []);
-
   const handleNodeUpdate = useCallback(async (
     nodeId: string, 
     data: Partial<UnitOperation>
@@ -572,6 +624,7 @@ function Flow() {
           onDragOver={onDragOver}
           onDrop={onDrop}
           fitView
+          onNodeContextMenu={onNodeContextMenu}
         >
           <Background />
           <Controls />
@@ -582,6 +635,24 @@ function Flow() {
               nodeId={contextMenu.nodeId}
               onClose={() => setContextMenu(null)}
             />
+          )}
+          {contextMenu && (
+            <div
+              className="context-menu"
+              style={{
+                position: 'fixed',
+                left: contextMenu.x,
+                top: contextMenu.y,
+                zIndex: 1000,
+              }}
+            >
+              <button onClick={handleDeleteNode}>
+                <span role="img" aria-label="delete">🗑️</span> Delete Node
+              </button>
+              <button onClick={handleDuplicateNode}>
+                <span role="img" aria-label="duplicate">📋</span> Duplicate Node
+              </button>
+            </div>
           )}
         </ReactFlow>
         <EdgeConfig

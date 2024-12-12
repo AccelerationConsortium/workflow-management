@@ -30,6 +30,19 @@ export interface OperationNode {
     range: string;
     precision: string;
   };
+  primitives?: {
+    id: string;
+    name: string;
+    description: string;
+    order: number;
+    pythonCode: string;
+    parameters?: {
+      name: string;
+      type: 'number' | 'string' | 'boolean';
+      default?: any;
+      description?: string;
+    }[];
+  }[];
 }
 
 export const operationNodes: OperationNode[] = [
@@ -78,6 +91,68 @@ export const operationNodes: OperationNode[] = [
         label: 'Electrolyte Output',
         type: 'liquid',
         description: 'Mixed electrolyte solution'
+      }
+    ],
+    primitives: [
+      {
+        id: 'start-pump',
+        name: 'Start Pump',
+        description: 'Start the pump for liquid transfer',
+        order: 1,
+        pythonCode: `def start_pump(flow_rate: float = 1.0):
+    pump.start(flow_rate)
+    return True`,
+        parameters: [
+          {
+            name: 'flow_rate',
+            type: 'float',
+            default: 1.0,
+            description: 'Flow rate in mL/min'
+          }
+        ]
+      },
+      {
+        id: 'open-valve',
+        name: 'Open Valve',
+        description: 'Open the valve for liquid flow',
+        order: 2,
+        pythonCode: `def open_valve(valve_id: str):
+    valve.open(valve_id)
+    return True`,
+        parameters: [
+          {
+            name: 'valve_id',
+            type: 'string',
+            default: 'main',
+            description: 'ID of the valve to open'
+          }
+        ]
+      },
+      {
+        id: 'mix-electrolyte',
+        name: 'Mix',
+        description: 'Mix electrolyte components',
+        order: 3,
+        pythonCode: `def mix_electrolyte(speed: int = 500, duration: int = 300):
+    mixer.set_speed(speed)
+    mixer.start()
+    time.sleep(duration)
+    mixer.stop()
+    return True`,
+        parameters: [
+          {
+            name: 'speed',
+            type: 'int',
+            default: 500,
+            description: 'Mixing speed in RPM'
+          },
+          {
+            name: 'duration',
+            type: 'int',
+            default: 300,
+            description: 'Mixing duration in seconds'
+          }
+        ]
       }
     ]
   },
@@ -131,12 +206,81 @@ export const operationNodes: OperationNode[] = [
         type: 'liquid',
         description: 'Homogenized solution'
       }
+    ],
+    primitives: [
+      {
+        id: 'start-pump',
+        name: 'Start Pump',
+        description: 'Start the pump for liquid transfer',
+        order: 1,
+        pythonCode: `def start_pump(flow_rate: float = 1.0):
+    pump.start(flow_rate)
+    return True`,
+        parameters: [
+          {
+            name: 'flow_rate',
+            type: 'float',
+            default: 1.0,
+            description: 'Flow rate in mL/min'
+          }
+        ]
+      },
+      {
+        id: 'open-valve',
+        name: 'Open Valve',
+        description: 'Open the valve for liquid flow',
+        order: 2,
+        pythonCode: `def open_valve(valve_id: str):
+    valve.open(valve_id)
+    return True`,
+        parameters: [
+          {
+            name: 'valve_id',
+            type: 'string',
+            default: 'main',
+            description: 'ID of the valve to open'
+          }
+        ]
+      },
+      {
+        id: 'mix-solution',
+        name: 'Mix Solution',
+        description: 'Mix solution with temperature control',
+        order: 3,
+        pythonCode: `def mix_solution(speed: int = 800, temp: float = 25.0, duration: int = 1800):
+    mixer.set_temperature(temp)
+    mixer.set_speed(speed)
+    mixer.start()
+    time.sleep(duration)
+    mixer.stop()
+    return True`,
+        parameters: [
+          {
+            name: 'speed',
+            type: 'int',
+            default: 800,
+            description: 'Stirring speed in RPM'
+          },
+          {
+            name: 'temp',
+            type: 'float',
+            default: 25.0,
+            description: 'Temperature in °C'
+          },
+          {
+            name: 'duration',
+            type: 'int',
+            default: 1800,
+            description: 'Mixing duration in seconds'
+          }
+        ]
+      }
     ]
   },
   {
     type: 'HeatTreatment',
     label: 'Heat Treatment',
-    description: 'Temperature controlled processing',
+    description: 'Temperature control and heat treatment',
     category: 'Test',
     specs: {
       model: 'Thermo Scientific Lindberg',
@@ -186,12 +330,81 @@ export const operationNodes: OperationNode[] = [
         type: 'solid',
         description: 'Heat treated sample'
       }
+    ],
+    primitives: [
+      {
+        id: 'start-pump',
+        name: 'Start Pump',
+        description: 'Start the pump for liquid transfer',
+        order: 1,
+        pythonCode: `def start_pump(flow_rate: float = 1.0):
+    pump.start(flow_rate)
+    return True`,
+        parameters: [
+          {
+            name: 'flow_rate',
+            type: 'float',
+            default: 1.0,
+            description: 'Flow rate in mL/min'
+          }
+        ]
+      },
+      {
+        id: 'open-valve',
+        name: 'Open Valve',
+        description: 'Open the valve for liquid flow',
+        order: 2,
+        pythonCode: `def open_valve(valve_id: str):
+    valve.open(valve_id)
+    return True`,
+        parameters: [
+          {
+            name: 'valve_id',
+            type: 'string',
+            default: 'main',
+            description: 'ID of the valve to open'
+          }
+        ]
+      },
+      {
+        id: 'heat-treatment',
+        name: 'Heat Treatment',
+        description: 'Execute heat treatment process',
+        order: 3,
+        pythonCode: `def heat_treatment(target_temp: float = 600.0, ramp_rate: float = 5.0, hold_time: int = 3600):
+    furnace.set_ramp_rate(ramp_rate)
+    furnace.set_temperature(target_temp)
+    furnace.start()
+    time.sleep(hold_time)
+    furnace.stop()
+    return True`,
+        parameters: [
+          {
+            name: 'target_temp',
+            type: 'float',
+            default: 600.0,
+            description: 'Target temperature in °C'
+          },
+          {
+            name: 'ramp_rate',
+            type: 'float',
+            default: 5.0,
+            description: 'Temperature ramp rate in °C/min'
+          },
+          {
+            name: 'hold_time',
+            type: 'int',
+            default: 3600,
+            description: 'Hold time at target temperature in seconds'
+          }
+        ]
+      }
     ]
   },
   {
     type: 'Characterization',
     label: 'Characterization',
-    description: 'Sample analysis and characterization',
+    description: 'Material characterization and analysis',
     category: 'Test',
     specs: {
       model: 'Bruker D8 Advance',
@@ -246,6 +459,102 @@ export const operationNodes: OperationNode[] = [
         label: 'Sample Return',
         type: 'solid',
         description: 'Analyzed sample'
+      }
+    ],
+    primitives: [
+      {
+        id: 'start-pump',
+        name: 'Start Pump',
+        description: 'Start the pump for liquid transfer',
+        order: 1,
+        pythonCode: `def start_pump(flow_rate: float = 1.0):
+    pump.start(flow_rate)
+    return True`,
+        parameters: [
+          {
+            name: 'flow_rate',
+            type: 'float',
+            default: 1.0,
+            description: 'Flow rate in mL/min'
+          }
+        ]
+      },
+      {
+        id: 'open-valve',
+        name: 'Open Valve',
+        description: 'Open the valve for liquid flow',
+        order: 2,
+        pythonCode: `def open_valve(valve_id: str):
+    valve.open(valve_id)
+    return True`,
+        parameters: [
+          {
+            name: 'valve_id',
+            type: 'string',
+            default: 'main',
+            description: 'ID of the valve to open'
+          }
+        ]
+      },
+      {
+        id: 'mix-electrolyte',
+        name: 'Mix',
+        description: 'Mix electrolyte components',
+        order: 3,
+        pythonCode: `def mix_electrolyte(speed: int = 500, duration: int = 300):
+    mixer.set_speed(speed)
+    mixer.start()
+    time.sleep(duration)
+    mixer.stop()
+    return True`,
+        parameters: [
+          {
+            name: 'speed',
+            type: 'int',
+            default: 500,
+            description: 'Mixing speed in RPM'
+          },
+          {
+            name: 'duration',
+            type: 'int',
+            default: 300,
+            description: 'Mixing duration in seconds'
+          }
+        ]
+      },
+      {
+        id: 'characterize',
+        name: 'Analyze Sample',
+        description: 'Perform sample characterization',
+        order: 3,
+        pythonCode: `def characterize(scan_range: list = [5, 120], scan_rate: float = 2.0, step_size: float = 0.02):
+    instrument.set_scan_range(scan_range[0], scan_range[1])
+    instrument.set_scan_rate(scan_rate)
+    instrument.set_step_size(step_size)
+    instrument.start()
+    data = instrument.collect_data()
+    instrument.stop()
+    return data`,
+        parameters: [
+          {
+            name: 'scan_range',
+            type: 'list',
+            default: [5, 120],
+            description: 'Scan range in degrees [start, end]'
+          },
+          {
+            name: 'scan_rate',
+            type: 'float',
+            default: 2.0,
+            description: 'Scan rate in degrees/min'
+          },
+          {
+            name: 'step_size',
+            type: 'float',
+            default: 0.02,
+            description: 'Step size in degrees'
+          }
+        ]
       }
     ]
   },

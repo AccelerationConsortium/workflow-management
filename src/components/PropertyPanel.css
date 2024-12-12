@@ -1,0 +1,36 @@
+.primitives-list {
+  margin-top: 12px;
+}
+
+.add-primitive {
+  margin-top: 8px;
+  padding: 8px 16px;
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.add-primitive:hover {
+  background: #e0e0e0;
+}
+
+.panel-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.panel-tabs button {
+  padding: 6px 12px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.panel-tabs button.active {
+  border-bottom-color: #4BBCD4;
+  color: #4BBCD4;
+} 
