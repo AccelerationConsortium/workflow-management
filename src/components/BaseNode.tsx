@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Handle, Position } from 'reactflow';
 import { OperationNode } from '../types/workflow';
 import { nodeColors } from '../styles/nodeTheme';
@@ -6,7 +6,22 @@ import './BaseNode.css';
 
 export const BaseNode: React.FC<{ data: OperationNode }> = ({ data }) => {
   const [selectedTab, setSelectedTab] = useState<'parameters' | 'io' | 'specs' | 'primitives'>('parameters');
-  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRefs = useRef<HTMLInputElement[]>([]);
+
+  const handleFileUpload = (inputId: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // 处理文件上传
+      console.log(`Uploading file for input ${inputId}:`, file);
+      // TODO: 添加文件处理逻辑
+    }
+  };
+
+  const handleUploadClick = (inputId: string) => () => {
+    fileInputRefs.current[inputId]?.click();
+  };
+
   const colors = nodeColors[data.category] || {
     handle: '#555',
     border: '#ddd',
@@ -71,14 +86,35 @@ export const BaseNode: React.FC<{ data: OperationNode }> = ({ data }) => {
           )}
 
           {selectedTab === 'io' && (
-            <div className="io-section">
+            <div className="tab-content">
               {data.inputs && (
-                <div className="io-section">
+                <div className="io-group">
                   <h4>Inputs</h4>
-                  {data.inputs.map((input, index) => (
-                    <div key={index} className="io-item">
-                      <div>{input.label}</div>
-                      <div className="io-desc">{input.description}</div>
+                  {data.inputs.map((input) => (
+                    <div key={input.id} className="io-item">
+                      <div className="io-header">
+                        <span>{input.label}</span>
+                        {input.required && <span className="required">*</span>}
+                        <button 
+                          className="io-upload-button"
+                          onClick={handleUploadClick(input.id)}
+                          title="Upload data file"
+                        >
+                          <svg viewBox="0 0 24 24" width="16" height="16">
+                            <path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z" />
+                          </svg>
+                        </button>
+                        <input
+                          type="file"
+                          ref={el => fileInputRefs.current[input.id] = el}
+                          style={{ display: 'none' }}
+                          onChange={handleFileUpload(input.id)}
+                          accept=".csv,.xlsx,.json"
+                        />
+                      </div>
+                      {input.description && (
+                        <div className="io-desc">{input.description}</div>
+                      )}
                     </div>
                   ))}
                 </div>

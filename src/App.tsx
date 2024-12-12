@@ -569,19 +569,29 @@ function Flow() {
     }
   };
 
-  const onNodeClick = useCallback((event, node) => {
+  const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
     event.preventDefault();
     event.stopPropagation();
     
-    // 计算弹出位置，确保在视口内
-    const rect = event.target.getBoundingClientRect();
-    const position = {
-      x: Math.min(rect.right + 10, window.innerWidth - 290), // 290 = popup width + margin
-      y: Math.min(rect.top, window.innerHeight - 400) // 400 = max popup height
-    };
+    // 检查点击的是否是节点标题区域
+    const target = event.target as HTMLElement;
+    if (!target.closest('.node-header')) {
+      return; // 如果不是标题区域，不显示属性面板
+    }
     
-    setSelectedNode(node);
-    setPropertiesPosition(position);
+    // 计算弹出位置，确保在视口内
+    const rect = target.getBoundingClientRect();
+    const position = {
+      x: Math.min(rect.right + 10, window.innerWidth - 290),
+      y: Math.min(rect.top, window.innerHeight - 400)
+    };
+
+    setSelectedNode({
+      id: node.id,
+      type: node.type,
+      data: node.data,
+      position
+    });
   }, []);
 
   const handleNodeUpdate = useCallback(async (
@@ -667,7 +677,7 @@ function Flow() {
         {selectedNode && (
           <NodeProperties
             node={selectedNode}
-            position={propertiesPosition}
+            position={selectedNode.position}
             onClose={() => setSelectedNode(null)}
             onUpdate={handleNodeUpdate}
           />
