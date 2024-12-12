@@ -258,4 +258,44 @@
   color: #999;
   padding: 12px;
   font-style: italic;
+}
+
+.io-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.io-upload-button {
+  padding: 4px 8px;
+  background: #435892;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.io-upload-button:hover {
+  background: #536CA5;
+  transform: translateY(-1px);
+}
+
+.io-upload-button svg {
+  fill: white;
+}
+
+.io-item {
+  margin-bottom: 8px;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 4px;
+}
+
+.io-desc {
+  font-size: 11px;
+  color: #666;
+  margin-top: 4px;
 } 

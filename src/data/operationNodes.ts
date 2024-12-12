@@ -158,14 +158,14 @@ export const operationNodes: OperationNode[] = [
   },
   {
     type: 'MixSolution',
-    label: 'Mix Solution',
-    description: 'Solution mixing and homogenization',
+    label: 'Electrodeposition',
+    description: 'Deposition of catalyst on electrode',
     category: 'Test',
     specs: {
-      model: 'IKA RW20',
+      model: 'IKA RCT',
       manufacturer: 'IKA',
-      range: '60-2000 RPM',
-      precision: '±5 RPM'
+      range: '0-2000 RPM',
+      precision: '±1 RPM'
     },
     parameters: [
       {
@@ -210,8 +210,8 @@ export const operationNodes: OperationNode[] = [
     primitives: [
       {
         id: 'start-pump',
-        name: 'Start Pump',
-        description: 'Start the pump for liquid transfer',
+        name: 'Set Current Density',
+        description: 'Set and control current density',
         order: 1,
         pythonCode: `def start_pump(flow_rate: float = 1.0):
     pump.start(flow_rate)
@@ -227,8 +227,8 @@ export const operationNodes: OperationNode[] = [
       },
       {
         id: 'open-valve',
-        name: 'Open Valve',
-        description: 'Open the valve for liquid flow',
+        name: 'Control Voltage',
+        description: 'Control and monitor voltage',
         order: 2,
         pythonCode: `def open_valve(valve_id: str):
     valve.open(valve_id)
@@ -244,8 +244,8 @@ export const operationNodes: OperationNode[] = [
       },
       {
         id: 'mix-solution',
-        name: 'Mix Solution',
-        description: 'Mix solution with temperature control',
+        name: 'Monitor Deposition Time',
+        description: 'Monitor and control deposition time',
         order: 3,
         pythonCode: `def mix_solution(speed: int = 800, temp: float = 25.0, duration: int = 1800):
     mixer.set_temperature(temp)
@@ -279,8 +279,8 @@ export const operationNodes: OperationNode[] = [
   },
   {
     type: 'HeatTreatment',
-    label: 'Heat Treatment',
-    description: 'Temperature control and heat treatment',
+    label: 'Electroreduction Reaction',
+    description: 'Performs a NO3- to NH3 reduction reaction',
     category: 'Test',
     specs: {
       model: 'Thermo Scientific Lindberg',
@@ -334,8 +334,8 @@ export const operationNodes: OperationNode[] = [
     primitives: [
       {
         id: 'start-pump',
-        name: 'Start Pump',
-        description: 'Start the pump for liquid transfer',
+        name: 'Set Current Density',
+        description: 'Set and control reaction current density',
         order: 1,
         pythonCode: `def start_pump(flow_rate: float = 1.0):
     pump.start(flow_rate)
@@ -351,8 +351,8 @@ export const operationNodes: OperationNode[] = [
       },
       {
         id: 'open-valve',
-        name: 'Open Valve',
-        description: 'Open the valve for liquid flow',
+        name: 'Start Reaction Timer',
+        description: 'Start and monitor reaction time',
         order: 2,
         pythonCode: `def open_valve(valve_id: str):
     valve.open(valve_id)
@@ -368,8 +368,8 @@ export const operationNodes: OperationNode[] = [
       },
       {
         id: 'heat-treatment',
-        name: 'Heat Treatment',
-        description: 'Execute heat treatment process',
+        name: 'Monitor Ammonia Concentration',
+        description: 'Monitor ammonia concentration during reaction',
         order: 3,
         pythonCode: `def heat_treatment(target_temp: float = 600.0, ramp_rate: float = 5.0, hold_time: int = 3600):
     furnace.set_ramp_rate(ramp_rate)
@@ -403,8 +403,8 @@ export const operationNodes: OperationNode[] = [
   },
   {
     type: 'Characterization',
-    label: 'Characterization',
-    description: 'Material characterization and analysis',
+    label: 'Analysis',
+    description: 'Analyzes reaction products',
     category: 'Test',
     specs: {
       model: 'Bruker D8 Advance',
@@ -464,8 +464,8 @@ export const operationNodes: OperationNode[] = [
     primitives: [
       {
         id: 'start-pump',
-        name: 'Start Pump',
-        description: 'Start the pump for liquid transfer',
+        name: 'Take Sample',
+        description: 'Collect sample for analysis',
         order: 1,
         pythonCode: `def start_pump(flow_rate: float = 1.0):
     pump.start(flow_rate)
@@ -481,8 +481,8 @@ export const operationNodes: OperationNode[] = [
       },
       {
         id: 'open-valve',
-        name: 'Open Valve',
-        description: 'Open the valve for liquid flow',
+        name: 'UV-VIS Spectroscopy',
+        description: 'Perform UV-VIS spectroscopy for ammonia detection',
         order: 2,
         pythonCode: `def open_valve(valve_id: str):
     valve.open(valve_id)
