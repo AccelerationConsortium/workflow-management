@@ -57,6 +57,21 @@ export interface Connection {
   };
 }
 
+export interface Primitive {
+  id: string;
+  name: string;
+  description?: string;
+  pythonCode: string;
+  parameters?: Array<{
+    name: string;
+    type: string;
+    default?: any;
+    description?: string;
+  }>;
+  order?: number;  // 执行顺序
+  dependencies?: string[];  // 依赖的其他 primitive IDs
+}
+
 export interface OperationNode {
   id?: string;
   type: string;
@@ -92,4 +107,5 @@ export interface OperationNode {
     description?: string;
   }>;
   status?: string;
+  primitives?: Primitive[];
 } 

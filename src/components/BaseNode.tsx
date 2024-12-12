@@ -4,190 +4,136 @@ import { OperationNode } from '../types/workflow';
 import { nodeColors } from '../styles/nodeTheme';
 import './BaseNode.css';
 
-// 定义颜色常量
-const colors = {
-  handle: '#555',
-  border: '#ddd',
-  background: 'white',
-  text: '#333'
-};
-
 export const BaseNode: React.FC<{ data: OperationNode }> = ({ data }) => {
-  if (!data) {
-    console.error('No data provided to BaseNode');
-    return null;
-  }
-
-  console.log('BaseNode rendering with data:', {
-    type: data.type,
-    label: data.label,
-    parameters: data.parameters?.length,
-    inputs: data.inputs?.length,
-    outputs: data.outputs?.length,
-    specs: data.specs,
-    fullData: data,
-  });
-
-  const nodeCategory = data.category || 'default';
-  const themeColors = nodeColors[nodeCategory] || nodeColors['Test'];
-
-  const [selectedTab, setSelectedTab] = useState<'parameters' | 'io' | 'specs'>('parameters');
+  const [selectedTab, setSelectedTab] = useState<'parameters' | 'io' | 'specs' | 'primitives'>('parameters');
+  
   const colors = nodeColors[data.category] || {
-    // 默认颜色
     handle: '#555',
     border: '#ddd',
     background: 'white',
     text: '#333'
   };
 
-  const renderParameters = () => {
-    console.log('Rendering parameters:', data.parameters);
-    if (!data.parameters?.length) {
-      console.log('No parameters to render');
-      return null;
-    }
-    return (
-      <div className="parameters-section">
-        <h4>Parameters</h4>
-        {data.parameters.map(param => (
-          <div key={param.name} className="parameter-item">
-            <div className="param-header">
-              <span>{param.label}</span>
-              {param.unit && <span className="unit">({param.unit})</span>}
-            </div>
-            {param.range && (
-              <div className="param-range">
-                Range: {param.range[0]} - {param.range[1]}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    );
-  };
-
-  const renderIO = () => {
-    return (
-      <div className="io-section">
-        {data.inputs && (
-          <div className="io-group">
-            <h4>Inputs</h4>
-            {data.inputs.map(input => (
-              <div key={input.id} className="io-item">
-                <span className="io-label">{input.label}</span>
-                {input.required && <span className="required">*</span>}
-                {input.description && (
-                  <div className="io-desc">{input.description}</div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-        
-        {data.outputs && (
-          <div className="io-group">
-            <h4>Outputs</h4>
-            {data.outputs.map(output => (
-              <div key={output.id} className="io-item">
-                <span className="io-label">{output.label}</span>
-                {output.description && (
-                  <div className="io-desc">{output.description}</div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const renderSpecs = () => {
-    if (!data.specs) return null;
-    return (
-      <div className="specs-section">
-        <h4>Specifications</h4>
-        {Object.entries(data.specs).map(([key, value]) => (
-          <div key={key} className="spec-item">
-            <span className="spec-label">{key}:</span>
-            <span className="spec-value">{value}</span>
-          </div>
-        ))}
-      </div>
-    );
-  };
-
   return (
     <div className="node-container">
-      {/* 基本的输入/输出连接点 */}
       <Handle
         type="target"
         position={Position.Left}
-        style={{
-          left: -5,
-          width: 10,
-          height: 10,
-          background: colors.handle,
-          border: '2px solid white',
-          zIndex: 1
-        }}
+        style={{ background: colors.handle }}
       />
       
       <div className="node-inner" style={{ background: colors.background }}>
-        <div 
-          className="node-header"
-          style={{
-            borderBottom: `1px solid ${colors.border}`,
-            color: colors.border
-          }}
-        >
+        <div className="node-header">
           <h3>{data.label}</h3>
           <div className="node-description">{data.description}</div>
         </div>
 
         <div className="node-tabs">
-          <button 
+          <button
             className={selectedTab === 'parameters' ? 'active' : ''}
             onClick={() => setSelectedTab('parameters')}
-            style={{ color: selectedTab === 'parameters' ? colors.border : undefined }}
           >
             Parameters
           </button>
-          <button 
+          <button
             className={selectedTab === 'io' ? 'active' : ''}
             onClick={() => setSelectedTab('io')}
-            style={{ color: selectedTab === 'io' ? colors.border : undefined }}
           >
             I/O
           </button>
-          {data.specs && (
-            <button 
-              className={selectedTab === 'specs' ? 'active' : ''}
-              onClick={() => setSelectedTab('specs')}
-              style={{ color: selectedTab === 'specs' ? colors.border : undefined }}
-            >
-              Specs
-            </button>
-          )}
+          <button
+            className={selectedTab === 'specs' ? 'active' : ''}
+            onClick={() => setSelectedTab('specs')}
+          >
+            Specs
+          </button>
+          <button
+            className={selectedTab === 'primitives' ? 'active' : ''}
+            onClick={() => setSelectedTab('primitives')}
+          >
+            Primitives
+          </button>
         </div>
 
-        <div className="tab-content">
-          {selectedTab === 'parameters' && renderParameters()}
-          {selectedTab === 'io' && renderIO()}
-          {selectedTab === 'specs' && renderSpecs()}
+        <div className="node-content">
+          {selectedTab === 'parameters' && data.parameters && (
+            <div className="parameters-list">
+              {data.parameters.map((param, index) => (
+                <div key={index} className="parameter-item">
+                  <div className="param-header">
+                    <span>{param.label}</span>
+                    {param.unit && <span className="unit">{param.unit}</span>}
+                  </div>
+                  <div>{param.default}</div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {selectedTab === 'io' && (
+            <div className="io-section">
+              {data.inputs && (
+                <div className="io-section">
+                  <h4>Inputs</h4>
+                  {data.inputs.map((input, index) => (
+                    <div key={index} className="io-item">
+                      <div>{input.label}</div>
+                      <div className="io-desc">{input.description}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {data.outputs && (
+                <div className="io-section">
+                  <h4>Outputs</h4>
+                  {data.outputs.map((output, index) => (
+                    <div key={index} className="io-item">
+                      <div>{output.label}</div>
+                      <div className="io-desc">{output.description}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {selectedTab === 'specs' && data.specs && (
+            <div className="specs-list">
+              {Object.entries(data.specs).map(([key, value]) => (
+                <div key={key} className="spec-item">
+                  <div className="spec-label">{key}</div>
+                  <div>{value}</div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {selectedTab === 'primitives' && (
+            <div className="node-content">
+              {data.primitives && data.primitives.length > 0 ? (
+                data.primitives.map((primitive) => (
+                  <div key={primitive.id} className="primitive-item">
+                    <div className="primitive-header">
+                      <span className="order-badge">{primitive.order}</span>
+                      <span className="primitive-name">{primitive.name}</span>
+                    </div>
+                    {primitive.description && (
+                      <div className="primitive-description">{primitive.description}</div>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="no-primitives">No primitives defined</div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
       <Handle
         type="source"
         position={Position.Right}
-        style={{
-          right: -5,
-          width: 10,
-          height: 10,
-          background: colors.handle,
-          border: '2px solid white',
-          zIndex: 1
-        }}
+        style={{ background: colors.handle }}
       />
     </div>
   );
