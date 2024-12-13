@@ -1,59 +1,112 @@
-export interface WorkflowData {
+interface WorkflowData {
   id: string;
   name: string;
-  description?: string;
-  nodes: any[];
-  edges: any[];
-  createdAt: string;
-  updatedAt: string;
+  description: string;
+  steps: Array<{
+    id: string;
+    name: string;
+    description: string;
+    nodeIds: string[];
+    order: number;
+    status: string;
+    dependencies: string[];
+    metadata: {
+      createdAt: Date;
+      updatedAt: Date;
+    };
+  }>;
+  nodes: Array<{
+    id: string;
+    type: string;
+    data: {
+      label: string;
+      parameters: any;
+      primitives: any;
+      // 其他节点特定数据
+    };
+    position: { x: number; y: number };
+  }>;
+  edges: Array<{
+    id: string;
+    source: string;
+    target: string;
+    type: string;
+    data?: any;
+  }>;
+  metadata: {
+    createdAt: Date;
+    updatedAt: Date;
+    author: string;
+    version: string;
+    tags: string[];
+  };
 }
 
-export class WorkflowStorage {
-  private static STORAGE_KEY = 'lab_workflows';
+export const WorkflowStorage = {
+  saveWorkflow: async (workflow: WorkflowData) => {
+    try {
+      // 获取现有工作流
+      const existingWorkflows = localStorage.getItem('workflows') || '[]';
+      const workflows = JSON.parse(existingWorkflows);
+      
+      // 添加新工作流或更新现有工作流
+      const workflowWithId = {
+        ...workflow,
+        id: workflow.id || `workflow-${Date.now()}`,
+        metadata: {
+          ...workflow.metadata,
+          updatedAt: new Date()
+        }
+      };
 
-  static saveWorkflow(workflow: Omit<WorkflowData, 'id' | 'createdAt' | 'updatedAt'>): WorkflowData {
-    const workflows = this.getAllWorkflows();
-    const newWorkflow: WorkflowData = {
-      ...workflow,
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    
-    workflows.push(newWorkflow);
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(workflows));
-    return newWorkflow;
+      const existingIndex = workflows.findIndex((w: WorkflowData) => w.id === workflowWithId.id);
+      if (existingIndex >= 0) {
+        workflows[existingIndex] = workflowWithId;
+      } else {
+        workflows.push(workflowWithId);
+      }
+
+      // 保存到 localStorage
+      localStorage.setItem('workflows', JSON.stringify(workflows));
+      
+      return workflowWithId;
+    } catch (error) {
+      console.error('Error saving workflow:', error);
+      throw error;
+    }
+  },
+
+  // 获取所有工作流
+  getAllWorkflows: () => {
+    try {
+      const workflows = localStorage.getItem('workflows') || '[]';
+      return JSON.parse(workflows);
+    } catch (error) {
+      console.error('Error getting workflows:', error);
+      return [];
+    }
+  },
+
+  // 获取单个工作流
+  getWorkflow: (id: string) => {
+    try {
+      const workflows = WorkflowStorage.getAllWorkflows();
+      return workflows.find((w: WorkflowData) => w.id === id) || null;
+    } catch (error) {
+      console.error('Error getting workflow:', error);
+      return null;
+    }
+  },
+
+  // 删除工作流
+  deleteWorkflow: (id: string) => {
+    try {
+      const workflows = WorkflowStorage.getAllWorkflows();
+      const filteredWorkflows = workflows.filter((w: WorkflowData) => w.id !== id);
+      localStorage.setItem('workflows', JSON.stringify(filteredWorkflows));
+    } catch (error) {
+      console.error('Error deleting workflow:', error);
+      throw error;
+    }
   }
-
-  static updateWorkflow(id: string, workflow: Partial<WorkflowData>): WorkflowData {
-    const workflows = this.getAllWorkflows();
-    const index = workflows.findIndex(w => w.id === id);
-    if (index === -1) throw new Error('Workflow not found');
-
-    const updatedWorkflow = {
-      ...workflows[index],
-      ...workflow,
-      updatedAt: new Date().toISOString(),
-    };
-    
-    workflows[index] = updatedWorkflow;
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(workflows));
-    return updatedWorkflow;
-  }
-
-  static getWorkflow(id: string): WorkflowData | null {
-    const workflows = this.getAllWorkflows();
-    return workflows.find(w => w.id === id) || null;
-  }
-
-  static getAllWorkflows(): WorkflowData[] {
-    const data = localStorage.getItem(this.STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
-  }
-
-  static deleteWorkflow(id: string): void {
-    const workflows = this.getAllWorkflows();
-    const filtered = workflows.filter(w => w.id !== id);
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(filtered));
-  }
-} 
+}; 
