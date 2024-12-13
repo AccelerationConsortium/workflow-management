@@ -200,3 +200,48 @@ WorkflowStep 的创建和管理组件
 优化右键菜单的位置和样式
 添加快捷键支持（如 Esc 退出创建模式）
 添加工作流创建的状态提示
+
+需要继续完善：
+添加工作流的加载功能
+添加工作流的版本控制
+添加工作流的导出/导入功能
+添加工作流的验证和测试功能
+
+DB：
+CREATE TABLE workflows (
+  id VARCHAR PRIMARY KEY,
+  name VARCHAR,
+  description TEXT,
+  metadata JSONB,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP
+);
+
+CREATE TABLE workflow_steps (
+  id VARCHAR PRIMARY KEY,
+  workflow_id VARCHAR REFERENCES workflows(id),
+  name VARCHAR,
+  description TEXT,
+  node_ids JSONB,
+  order_index INTEGER,
+  status VARCHAR,
+  dependencies JSONB,
+  metadata JSONB
+);
+
+CREATE TABLE workflow_nodes (
+  id VARCHAR PRIMARY KEY,
+  workflow_id VARCHAR REFERENCES workflows(id),
+  type VARCHAR,
+  data JSONB,
+  position JSONB
+);
+
+CREATE TABLE workflow_edges (
+  id VARCHAR PRIMARY KEY,
+  workflow_id VARCHAR REFERENCES workflows(id),
+  source VARCHAR,
+  target VARCHAR,
+  type VARCHAR,
+  data JSONB
+);

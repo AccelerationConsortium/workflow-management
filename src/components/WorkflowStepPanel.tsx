@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useWorkflow } from '../context/WorkflowContext';
 import { Autocomplete, TextField, Button, Box, Paper } from '@mui/material';
 import './WorkflowStepPanel.css';
+import { WorkflowStorage } from '../services/workflowStorage';
 
 interface WorkflowStepPanelProps {
   anchorEl: HTMLElement | null;
@@ -46,9 +47,38 @@ export const WorkflowStepPanel: React.FC<WorkflowStepPanelProps> = ({ anchorEl }
     setSelectedUOs([]);
   };
 
-  const handleSaveWorkflow = () => {
-    dispatch({ type: 'SET_WORKFLOW_CREATING', payload: false });
-    // TODO: 触发保存 workflow 的操作
+  const handleSaveWorkflow = async () => {
+    try {
+      // ��备完整的工作流数据
+      const workflowData = {
+        ...state.currentWorkflow,
+        nodes: state.nodes.map(node => ({
+          ...node,
+          data: {
+            ...node.data,
+            parameters: node.data.parameters || {},
+            primitives: node.data.primitives || {},
+          }
+        })),
+        edges: state.edges,
+        metadata: {
+          ...state.currentWorkflow.metadata,
+          updatedAt: new Date()
+        }
+      };
+
+      // 保存工作流
+      await WorkflowStorage.saveWorkflow(workflowData);
+      
+      // 更新状态
+      dispatch({ type: 'SET_WORKFLOW_CREATING', payload: false });
+      
+      // 显示成功提示
+      console.log('Workflow saved successfully');
+    } catch (error) {
+      console.error('Failed to save workflow:', error);
+      // TODO: 显示错误提示
+    }
   };
 
   // 计算面板位置
