@@ -3,6 +3,7 @@ import { useDnD } from '../context/DnDContext';
 import { operationNodes, OperationNode } from '../data/operationNodes';
 import { SearchPanel } from './SearchPanel';
 import './Sidebar.css';
+import { Box } from '@mui/material';
 
 interface CategoryGroupProps {
   title: string;
@@ -67,15 +68,13 @@ const CategoryGroup: React.FC<CategoryGroupProps> = ({
   );
 };
 
-export default function Sidebar() {
+const Sidebar: React.FC = () => {
   const [, setType] = useDnD();
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearchPanelOpen, setIsSearchPanelOpen] = useState(false);
 
-  // 修改快捷键监听，支持 Mac
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // 检测是 Mac 的 Command 键还是 Windows/Linux 的 Ctrl 键
       const isMacCmd = e.metaKey && !e.ctrlKey;
       const isCtrl = e.ctrlKey && !e.metaKey;
       
@@ -88,13 +87,10 @@ export default function Sidebar() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // 处理节点选择
   const handleNodeSelect = (nodeType: string) => {
-    // 可以在这里处理节点的选择，比如高亮显示等
     console.log('Selected node:', nodeType);
   };
 
-  // 按类别分组节点
   const groupedNodes = useMemo(() => {
     const groups = new Map<string, OperationNode[]>();
     operationNodes.forEach(node => {
@@ -108,7 +104,6 @@ export default function Sidebar() {
     return groups;
   }, [searchTerm]);
 
-  // 类别颜色映射
   const categoryColors = {
     'Sample Processing': '#C4395E',
     'Analysis & Measurement': '#AEC17B',
@@ -129,7 +124,21 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="sidebar">
+    <Box
+      sx={{
+        width: 280,
+        flexShrink: 0,
+        borderRight: 1,
+        borderColor: 'divider',
+        height: '100vh',
+        overflow: 'auto',
+        position: 'fixed',
+        left: 0,
+        top: 0,
+        backgroundColor: 'background.paper',
+        zIndex: 1000
+      }}
+    >
       <div className="sidebar-header">
         <h3>Laboratory Automation Components</h3>
         <div className="search-shortcut-hint">
@@ -162,6 +171,8 @@ export default function Sidebar() {
         onClose={() => setIsSearchPanelOpen(false)}
         onSelect={handleNodeSelect}
       />
-    </aside>
+    </Box>
   );
-} 
+};
+
+export default Sidebar; 

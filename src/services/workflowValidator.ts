@@ -1,3 +1,5 @@
+import { LLMService } from './llmService';
+
 export type ValidationStage = 'logic' | 'environment' | 'simulation';
 
 export interface ValidationProgress {
@@ -32,9 +34,11 @@ export interface ValidationResult {
 
 export class WorkflowValidator {
   private updateProgress: (progress: ValidationProgress) => void;
+  private llmService: LLMService;
 
   constructor(updateProgress: (progress: ValidationProgress) => void) {
     this.updateProgress = updateProgress;
+    this.llmService = new LLMService();
   }
 
   async validateWorkflow(workflow: WorkflowData): Promise<ValidationResult> {
@@ -395,6 +399,33 @@ export class WorkflowValidator {
         });
       }
     }
+  }
+
+  private async handleValidationError(error: any, result: ValidationResult) {
+    // 获取 LLM 建议
+    const suggestion = await this.llmService.getWorkflowSuggestion(error);
+    
+    // 添加到验证结果中
+    result.errors.push({
+      ...error,
+      suggestion: suggestion.suggestion,
+      alternatives: suggestion.alternatives,
+      explanation: suggestion.explanation
+    });
+
+    // 更新进度显示，但保持进度条可见
+    this.updateProgress({
+      stage: error.stage,
+      progress: 100,
+      status: 'error',
+      message: error.message,
+      details: [
+        '❌ Validation failed',
+        `💡 Suggestion: ${suggestion.suggestion}`,
+        ...(suggestion.alternatives?.map(alt => `• Alternative: ${alt}`) || []),
+        `📝 ${suggestion.explanation}`
+      ]
+    });
   }
 
   // ... 其他辅助方法 ...
