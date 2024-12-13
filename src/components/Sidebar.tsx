@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useDnD } from '../context/DnDContext';
 import { operationNodes, OperationNode } from '../data/operationNodes';
+import { SearchPanel } from './SearchPanel';
 import './Sidebar.css';
 
 interface CategoryGroupProps {
@@ -69,6 +70,29 @@ const CategoryGroup: React.FC<CategoryGroupProps> = ({
 export default function Sidebar() {
   const [, setType] = useDnD();
   const [searchTerm, setSearchTerm] = useState('');
+  const [isSearchPanelOpen, setIsSearchPanelOpen] = useState(false);
+
+  // 修改快捷键监听，支持 Mac
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // 检测是 Mac 的 Command 键还是 Windows/Linux 的 Ctrl 键
+      const isMacCmd = e.metaKey && !e.ctrlKey;
+      const isCtrl = e.ctrlKey && !e.metaKey;
+      
+      if ((isMacCmd || isCtrl) && e.key.toLowerCase() === 'p') {
+        e.preventDefault();
+        setIsSearchPanelOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // 处理节点选择
+  const handleNodeSelect = (nodeType: string) => {
+    // 可以在这里处理节点的选择，比如高亮显示等
+    console.log('Selected node:', nodeType);
+  };
 
   // 按类别分组节点
   const groupedNodes = useMemo(() => {
@@ -108,6 +132,9 @@ export default function Sidebar() {
     <aside className="sidebar">
       <div className="sidebar-header">
         <h3>Laboratory Automation Components</h3>
+        <div className="search-shortcut-hint">
+          Press <kbd>{navigator.platform.includes('Mac') ? '⌘' : 'Ctrl'}</kbd> + <kbd>P</kbd> for advanced search
+        </div>
         <div className="search-box">
           <input
             type="text"
@@ -129,6 +156,12 @@ export default function Sidebar() {
           />
         ))}
       </div>
+
+      <SearchPanel
+        isOpen={isSearchPanelOpen}
+        onClose={() => setIsSearchPanelOpen(false)}
+        onSelect={handleNodeSelect}
+      />
     </aside>
   );
 } 

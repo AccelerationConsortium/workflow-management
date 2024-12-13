@@ -2,92 +2,47 @@
   position: fixed;
   bottom: 20px;
   right: 20px;
-  z-index: 1000;
-  display: flex;
-  gap: 10px;
-  background: white;
-  padding: 8px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  z-index: 100;
 }
 
-.workflow-simulator button {
+.simulate-button {
   padding: 8px 16px;
-  background: var(--primary-color, #1a90ff);
+  background: #4BBCD4;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 14px;
+  font-weight: 500;
   display: flex;
   align-items: center;
-  gap: 6px;
-  transition: background-color 0.2s;
+  gap: 8px;
+  transition: all 0.3s ease;
 }
 
-.workflow-simulator button:hover {
-  background: var(--button-hover, #40a9ff);
+.simulate-button:hover {
+  background: #3da9c1;
 }
 
-.workflow-simulator button:disabled {
-  background: #ccc;
+.simulate-button.simulating {
+  background: #666;
   cursor: not-allowed;
 }
 
-.workflow-simulator button svg {
-  width: 16px;
-  height: 16px;
-}
-
-/* 添加动画效果 */
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.workflow-simulator button.simulating svg {
-  animation: spin 1s linear infinite;
-}
-
-/* 验证结果提示样式 */
-.validation-tooltip {
-  position: absolute;
-  bottom: 100%;
-  right: 0;
+.simulation-results {
+  margin-top: 16px;
   background: white;
-  border: 1px solid #ff4d4f;
-  padding: 8px 12px;
   border-radius: 4px;
-  margin-bottom: 8px;
-  font-size: 12px;
-  color: #ff4d4f;
-  white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  display: none;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-height: 300px;
+  overflow-y: auto;
 }
 
-.workflow-simulator:hover .validation-tooltip {
-  display: block;
+.result-item {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
 }
 
-/* 成功状态样式 */
-.workflow-simulator.success button {
-  background: #52c41a;
-}
-
-.workflow-simulator.success button:hover {
-  background: #73d13d;
-}
-
-/* 错误状态样式 */
-.workflow-simulator.error button {
-  background: #ff4d4f;
-}
-
-.workflow-simulator.error button:hover {
-  background: #ff7875;
+.result-item:last-child {
+  border-bottom: none;
 } 

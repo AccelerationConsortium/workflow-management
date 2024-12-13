@@ -1,0 +1,58 @@
+.workflow-step-panel {
+  position: absolute;
+  top: 70px;
+  right: 20px;
+  width: 400px;
+  padding: 20px;
+  z-index: 1000;
+}
+
+.step-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.workflow-summary {
+  margin-top: 30px;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+}
+
+.step-item {
+  margin: 10px 0;
+  padding: 12px;
+}
+
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.step-number {
+  background: #4BBCD4;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.step-name {
+  font-weight: 500;
+}
+
+.step-uos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.uo-tag {
+  background: #f0f0f0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #666;
+} 

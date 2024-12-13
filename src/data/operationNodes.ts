@@ -43,6 +43,15 @@ export interface OperationNode {
       description?: string;
     }[];
   }[];
+  supportedDevices?: {
+    manufacturer: string;
+    model: string;
+    constraints: {
+      plateFormat?: string[];
+      volumeRange?: [number, number];
+      temperature?: [number, number];
+    };
+  }[];
 }
 
 export const operationNodes: OperationNode[] = [
