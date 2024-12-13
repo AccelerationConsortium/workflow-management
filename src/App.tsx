@@ -20,6 +20,7 @@ import { ConnectionType, OperationNode } from './types/workflow';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import axios from 'axios';
+import { Box } from '@mui/material';
 
 import Sidebar from './components/Sidebar';
 import { DnDProvider, useDnD } from './context/DnDContext';
@@ -74,6 +75,8 @@ import { CustomEdge } from './components/CustomEdge';
 import { WorkflowProvider, useWorkflow } from './context/WorkflowContext';
 import { WorkflowStepCreator } from './components/WorkflowStepCreator';
 import { WorkflowStepPanel } from './components/WorkflowStepPanel';
+import { ControlPanel } from './components/ControlPanel';
+import { useControlPanelState } from './hooks/useControlPanelState';
 
 // 创建主题
 const theme = createTheme({
@@ -164,6 +167,16 @@ function Flow() {
   const [showEdgeConfig, setShowEdgeConfig] = useState(false);
   const [testUOs, setTestUOs] = useState<OperationNode[]>([]);
   const { state, dispatch } = useWorkflow();
+
+  const {
+    parameterImpacts,
+    visualizationTemplates,
+    shortcuts,
+    operationGroups,
+    handleParameterChange,
+    handleUndo,
+    setCurrentNodeId
+  } = useControlPanelState();
 
   // 获取测试节点数据
   useEffect(() => {
@@ -544,41 +557,33 @@ function Flow() {
   };
 
   const Toolbar = () => {
-    // 获取 Create Workflow 按钮的位置
     const createButtonRef = useRef<HTMLButtonElement>(null);
 
     return (
-      <div className="toolbar">
+      <div className="toolbar" style={{
+        position: 'fixed',
+        top: 20,
+        right: 20,
+        zIndex: 1000,
+        display: 'flex',
+        gap: '8px'
+      }}>
         <button 
           ref={createButtonRef}
           onClick={handleCreateWorkflow}
           className={state.isCreatingWorkflow ? 'active' : ''}
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
           Create Workflow
         </button>
-        {/* 在按钮下方显示面板 */}
         {state.isCreatingWorkflow && (
           <WorkflowStepPanel 
             anchorEl={createButtonRef.current} 
           />
         )}
         <button onClick={() => setShowSaveDialog(true)}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
-            <polyline points="17 21 17 13 7 13 7 21" />
-            <polyline points="7 3 7 8 15 8" />
-          </svg>
           Save Workflow
         </button>
         <button onClick={() => {/* TODO: 添加加载功能 */}}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-            <polyline points="17 8 12 3 7 8" />
-            <line x1="12" y1="3" x2="12" y2="15" />
-          </svg>
           Load Workflow
         </button>
       </div>
@@ -684,8 +689,13 @@ function Flow() {
     dispatch({ type: 'SET_WORKFLOW_CREATING', payload: true });
   };
 
+  // 在节点选择时更新当前节点
+  const onNodeSelect = (nodeId: string) => {
+    setCurrentNodeId(nodeId);
+  };
+
   return (
-    <div className="dndflow">
+    <Box sx={{ position: 'relative', height: '100vh' }}>
       <Sidebar />
       <div 
         className="flow-container" 
@@ -765,8 +775,16 @@ function Flow() {
             onClose={() => setContextMenuPosition(null)}
           />
         )}
+        <ControlPanel
+          parameterImpacts={parameterImpacts}
+          visualizationTemplates={visualizationTemplates}
+          shortcuts={shortcuts}
+          operationGroups={operationGroups}
+          onParameterChange={handleParameterChange}
+          onUndo={handleUndo}
+        />
       </div>
-    </div>
+    </Box>
   );
 }
 

@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { OperationNode, Primitive } from '../types/workflow';
 import { PrimitiveEditor } from './PrimitiveEditor';
 import './PropertyPanel.css';
+import { RecommendationService } from '../services/recommendationService';
+import { RecommendationItem } from './RecommendationItem';
 
 interface PropertyPanelProps {
   node: OperationNode;
@@ -16,6 +18,15 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'properties' | 'primitives'>('properties');
   const [primitives, setPrimitives] = useState<Primitive[]>(node.primitives || []);
+  const [recommendations, setRecommendations] = useState<ParameterRecommendation[]>([]);
+  const recommendationService = new RecommendationService();
+
+  useEffect(() => {
+    if (node) {
+      const recs = recommendationService.getParameterRecommendations(node.type);
+      setRecommendations(recs);
+    }
+  }, [node]);
 
   const handlePrimitiveChange = (updatedPrimitive: Primitive) => {
     const newPrimitives = primitives.map(p => 
@@ -77,6 +88,12 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = ({
             </button>
           </div>
         )}
+        <div className="recommendations-section">
+          <h4>Recommendations</h4>
+          {recommendations.map(rec => (
+            <RecommendationItem key={rec.paramId} recommendation={rec} />
+          ))}
+        </div>
       </div>
     </div>
   );
