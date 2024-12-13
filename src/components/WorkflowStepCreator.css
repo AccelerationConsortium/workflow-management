@@ -1,0 +1,85 @@
+.workflow-step-creator {
+  position: fixed;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  z-index: 1000;
+}
+
+.workflow-step-creator h3 {
+  margin: 0 0 20px 0;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #666;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.form-group textarea {
+  height: 80px;
+  resize: vertical;
+}
+
+.selected-nodes {
+  margin: 15px 0;
+}
+
+.node-list {
+  border: 1px solid #eee;
+  border-radius: 4px;
+  padding: 10px;
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.node-item {
+  padding: 5px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  margin: 5px 0;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.actions button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.actions button:first-child {
+  background: #4BBCD4;
+  color: white;
+}
+
+.actions button:first-child:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.actions button:last-child {
+  background: #f5f5f5;
+  color: #666;
+} 

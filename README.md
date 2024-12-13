@@ -146,3 +146,57 @@ GET /api/unit-operations/templates - 获取所有UO模板
 GET /api/unit-operations/:id - 获取单个UO详情
 PATCH /api/unit-operations/:id - 更新UO参数
 POST /api/unit-operations/instances - 从模板创建新的UO实例
+
+LLM:
+提供了一个基本的演示框架，可以：
+解析简单的实验描述并推荐节点
+跟踪节点资源使用情况
+提供一个预配置的演示工作流
+
+搜索功能：
+搜索结果的排序逻辑
+实现搜索服务
+添加相应的验证函数
+更新搜索服务以利用新字段
+扩展 UI 组件以显示新信息
+ 添加更多的约束类型
+实现更复杂的验证逻辑
+添加批处理配置支持
+扩展控制细节的显示
+
+workflow：
+A. Workflow 创建与管理
+用户可以选择多个 UO 节点，将它们组合成一个 Workflow Step
+可以设置 Step 之间的依赖关系
+为每个 Step 设置名称、描述和目标
+可以保存和加载 Workflow 模板
+B. UI 交互
+Canvas 上添加 "Create Workflow" 按钮
+支持多选节点（Ctrl/Cmd + 点击或框选）
+右键菜单添加 "Add to Workflow Step" 选项
+Workflow 管理面板：
+显示所有 Steps
+每个 Step 显示包含的 UO 节点
+可以编辑 Step 的属性
+可以调整 Step 顺序
+可以设置 Step 间依赖
+C. 执行控制
+可以执行整个 Workflow 或单个 Step
+执行时按照依赖关系和顺序执行
+提供暂停、继续、终止功能
+显示执行进度和状态
+D. 可视化
+在 Canvas 上用不同颜色或边框标识属于不同 Step 的节点
+显示 Step 之间的依赖关系
+提供 Workflow 的流程图视图
+执行状态的实时反馈
+
+多选功能的具体实现
+WorkflowStep 的创建和管理组件
+节点分组的可视化
+工作流验证逻辑
+
+添加创建模式的视觉提示
+优化右键菜单的位置和样式
+添加快捷键支持（如 Esc 退出创建模式）
+添加工作流创建的状态提示

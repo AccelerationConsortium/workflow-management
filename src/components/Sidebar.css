@@ -253,4 +253,23 @@
 
 .dndflow .reactflow-wrapper {
   margin-left: 600px;
+}
+
+.search-shortcut-hint {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.search-shortcut-hint kbd {
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-size: 11px;
+  font-family: monospace;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.2);
 } 

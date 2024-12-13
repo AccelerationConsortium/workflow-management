@@ -86,4 +86,28 @@
 
 .react-flow__edge.selected {
   stroke: #1a90ff;
+}
+
+.toolbar button.active {
+  background-color: #3da9c1;
+  color: white;
+}
+
+.toolbar button svg {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+}
+
+.toolbar button:first-child {
+  background-color: #4BBCD4;
+  color: white;
+}
+
+.toolbar button:first-child:hover {
+  background-color: #3da9c1;
+}
+
+.toolbar button:first-child.active {
+  background-color: #2d8fa6;
 } 

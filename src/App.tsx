@@ -71,6 +71,9 @@ import { ValidationResult } from './types/validation';
 import { NodeProperties } from './components/NodeProperties';
 import { unitOperationService } from './services/unitOperationService';
 import { CustomEdge } from './components/CustomEdge';
+import { WorkflowProvider, useWorkflow } from './context/WorkflowContext';
+import { WorkflowStepCreator } from './components/WorkflowStepCreator';
+import { WorkflowStepPanel } from './components/WorkflowStepPanel';
 
 // 创建主题
 const theme = createTheme({
@@ -160,6 +163,7 @@ function Flow() {
   const [propertiesPosition, setPropertiesPosition] = useState(null);
   const [showEdgeConfig, setShowEdgeConfig] = useState(false);
   const [testUOs, setTestUOs] = useState<OperationNode[]>([]);
+  const { state, dispatch } = useWorkflow();
 
   // 获取测试节点数据
   useEffect(() => {
@@ -539,26 +543,47 @@ function Flow() {
     }
   };
 
-  const Toolbar = () => (
-    <div className="toolbar">
-      <button onClick={() => setShowSaveDialog(true)}>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
-          <polyline points="17 21 17 13 7 13 7 21" />
-          <polyline points="7 3 7 8 15 8" />
-        </svg>
-        Save Workflow
-      </button>
-      <button onClick={() => {/* TODO: 添加加载功能 */}}>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-          <polyline points="17 8 12 3 7 8" />
-          <line x1="12" y1="3" x2="12" y2="15" />
-        </svg>
-        Load Workflow
-      </button>
-    </div>
-  );
+  const Toolbar = () => {
+    // 获取 Create Workflow 按钮的位置
+    const createButtonRef = useRef<HTMLButtonElement>(null);
+
+    return (
+      <div className="toolbar">
+        <button 
+          ref={createButtonRef}
+          onClick={handleCreateWorkflow}
+          className={state.isCreatingWorkflow ? 'active' : ''}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+          Create Workflow
+        </button>
+        {/* 在按钮下方显示面板 */}
+        {state.isCreatingWorkflow && (
+          <WorkflowStepPanel 
+            anchorEl={createButtonRef.current} 
+          />
+        )}
+        <button onClick={() => setShowSaveDialog(true)}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+            <polyline points="17 21 17 13 7 13 7 21" />
+            <polyline points="7 3 7 8 15 8" />
+          </svg>
+          Save Workflow
+        </button>
+        <button onClick={() => {/* TODO: 添加加载功能 */}}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </svg>
+          Load Workflow
+        </button>
+      </div>
+    );
+  };
 
   const handleValidationComplete = (result: ValidationResult) => {
     setValidationErrors(result);
@@ -616,10 +641,57 @@ function Flow() {
     }
   }, []);
 
+  const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(null);
+
+  const handleContextMenu = useCallback((event: React.MouseEvent) => {
+    if (state.isCreatingWorkflow && state.selectedNodeIds.length > 0) {
+      event.preventDefault();
+      setContextMenuPosition({
+        x: event.clientX,
+        y: event.clientY
+      });
+    }
+  }, [state.isCreatingWorkflow, state.selectedNodeIds]);
+
+  // 当节点变化时，同步到 WorkflowContext
+  useEffect(() => {
+    dispatch({ type: 'SET_NODES', payload: nodes });
+  }, [nodes, dispatch]);
+
+  useEffect(() => {
+    dispatch({ type: 'SET_EDGES', payload: edges });
+  }, [edges, dispatch]);
+
+  // 确保在创建工作流时初始化 currentWorkflow
+  const handleCreateWorkflow = () => {
+    dispatch({ 
+      type: 'SET_CURRENT_WORKFLOW', 
+      payload: {
+        id: `workflow-${Date.now()}`,
+        name: '',
+        description: '',
+        steps: [],
+        status: 'draft',
+        metadata: {
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          author: 'user',
+          version: '1.0',
+          tags: []
+        }
+      }
+    });
+    dispatch({ type: 'SET_WORKFLOW_CREATING', payload: true });
+  };
+
   return (
     <div className="dndflow">
       <Sidebar />
-      <div className="flow-container" ref={reactFlowWrapper}>
+      <div 
+        className="flow-container" 
+        ref={reactFlowWrapper}
+        onContextMenu={handleContextMenu}
+      >
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -664,6 +736,11 @@ function Flow() {
               </button>
             </div>
           )}
+          <WorkflowSimulator
+            nodes={nodes}
+            edges={edges}
+            onValidationComplete={handleValidationComplete}
+          />
         </ReactFlow>
         <EdgeConfig
           isOpen={showEdgeConfig}
@@ -682,6 +759,12 @@ function Flow() {
             onUpdate={handleNodeUpdate}
           />
         )}
+        {contextMenuPosition && (
+          <WorkflowStepCreator
+            position={contextMenuPosition}
+            onClose={() => setContextMenuPosition(null)}
+          />
+        )}
       </div>
     </div>
   );
@@ -691,11 +774,13 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <DnDProvider>
-        <ReactFlowProvider>
-          <Flow />
-        </ReactFlowProvider>
-      </DnDProvider>
+      <WorkflowProvider>
+        <DnDProvider>
+          <ReactFlowProvider>
+            <Flow />
+          </ReactFlowProvider>
+        </DnDProvider>
+      </WorkflowProvider>
     </ThemeProvider>
   );
 }
