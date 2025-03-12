@@ -1,0 +1,48 @@
+{
+  "name": "uo-registration",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Unit Operations Registration System",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "start": "node dist/server.js",
+    "dev:server": "nodemon src/server/index.ts",
+    "build:server": "tsc -p tsconfig.server.json",
+    "lint": "eslint . --ext .ts,.tsx"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@hookform/resolvers": "^3.3.4",
+    "@mui/icons-material": "^5.14.18",
+    "@mui/material": "^5.16.11",
+    "axios": "^1.7.9",
+    "express": "^4.18.2",
+    "pg": "^8.11.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.51.1",
+    "react-query": "^3.39.3",
+    "react-router-dom": "^6.22.3",
+    "yup": "^1.3.2",
+    "zustand": "^4.5.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/node": "^22.10.2",
+    "@types/pg": "^8.10.2",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "eslint": "^8.56.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "nodemon": "^2.0.22",
+    "typescript": "^5.7.2",
+    "vite": "^5.4.11"
+  }
+} 
