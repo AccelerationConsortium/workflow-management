@@ -1,31 +1,12 @@
 import React from 'react';
 import { styled } from '@mui/material/styles';
 import { Typography, Box } from '@mui/material';
-import { nodeStyles } from '../../theme/nodeStyles';
+import { nodeStyles } from './nodeStyles';
 
-// 添加类型定义
-interface NodeWrapperProps {
-  category?: string;
-  state?: string;
-  theme?: any;
-}
-
-interface BaseNodeProps {
-  data: {
-    label: string;
-    description?: string;
-    icon?: React.ComponentType<any>;
-    metric?: string;
-    metricLabel?: string;
-  };
-  category?: string;
-  state?: string;
-}
-
-export const NodeWrapper = styled(Box)<NodeWrapperProps>(({ theme, category, state }) => ({
+export const NodeWrapper = styled(Box)(({ theme, category, state }) => ({
   ...nodeStyles.base,
-  ...(category && nodeStyles.categories[category as keyof typeof nodeStyles.categories]),
-  ...(state && nodeStyles.states[state as keyof typeof nodeStyles.states]),
+  ...(category && nodeStyles.categories[category]),
+  ...(state && nodeStyles.states[state]),
   
   // Modern internal layout
   display: 'flex',
@@ -92,7 +73,7 @@ export const NodeWrapper = styled(Box)<NodeWrapperProps>(({ theme, category, sta
   },
 }));
 
-export const BaseNode: React.FC<BaseNodeProps> = ({ data, category, state }) => {
+export const BaseNode = ({ data, category, state }) => {
   return (
     <NodeWrapper category={category} state={state}>
       <div className="node-header">

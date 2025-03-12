@@ -20,7 +20,7 @@ import { ConnectionType, OperationNode } from './types/workflow';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import axios from 'axios';
-import { Box, Button } from '@mui/material';
+import { Box } from '@mui/material';
 
 import Sidebar from './components/Sidebar';
 import { DnDProvider, useDnD } from './context/DnDContext';
@@ -77,8 +77,6 @@ import { WorkflowStepCreator } from './components/WorkflowStepCreator';
 import { WorkflowStepPanel } from './components/WorkflowStepPanel';
 import { ControlPanel } from './components/ControlPanel';
 import { useControlPanelState } from './hooks/useControlPanelState';
-import { BaseNode } from './components/nodes/BaseNode';
-import TestStylePage from './components/TestStylePage';
 
 // 创建主题
 const theme = createTheme({
@@ -126,7 +124,6 @@ const getId = () => `dndnode_${id++}`;
 
 // 将所有节点组件用 memo 包装并移到组件外部
 const MemoizedNodes = {
-  baseNode: memo(BaseNode),
   PrepareElectrolyte: memo(PrepareElectrolyte),
   MixSolution: memo(MixSolution),
   HeatTreatment: memo(HeatTreatment),
@@ -792,45 +789,16 @@ function Flow() {
 }
 
 function App() {
-  // 添加一个状态来控制是否显示测试页面
-  const [showTestPage, setShowTestPage] = useState(false);
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      {showTestPage ? (
-        <>
-          <Box sx={{ position: 'fixed', top: 10, left: 10, zIndex: 9999 }}>
-            <Button 
-              variant="contained" 
-              onClick={() => setShowTestPage(false)}
-              size="small"
-            >
-              Back to Main App
-            </Button>
-          </Box>
-          <TestStylePage />
-        </>
-      ) : (
-        <>
-          <Box sx={{ position: 'fixed', top: 10, right: 10, zIndex: 9999 }}>
-            <Button 
-              variant="contained" 
-              onClick={() => setShowTestPage(true)}
-              size="small"
-            >
-              Test Styles
-            </Button>
-          </Box>
-          <WorkflowProvider>
-            <DnDProvider>
-              <ReactFlowProvider>
-                <Flow />
-              </ReactFlowProvider>
-            </DnDProvider>
-          </WorkflowProvider>
-        </>
-      )}
+      <WorkflowProvider>
+        <DnDProvider>
+          <ReactFlowProvider>
+            <Flow />
+          </ReactFlowProvider>
+        </DnDProvider>
+      </WorkflowProvider>
     </ThemeProvider>
   );
 }
