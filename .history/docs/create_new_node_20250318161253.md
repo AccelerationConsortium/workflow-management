@@ -1,0 +1,408 @@
+# 创建新节点的步骤和注意事项
+
+## 1. 节点定义
+首先在 `src/data/operationNodes.ts` 中添加节点定义：
+```typescript
+{
+  type: 'NewNodeName',  // 这个type要和后面组件名保持一致
+  label: 'Display Name',
+  description: 'Node Description',
+  category: 'Medusa',  // 或其他类别
+  expanded: true,      // 如果需要默认展开面板
+  specs: {
+    // 设备规格
+  },
+  parameters: [
+    // 参数定义
+  ],
+  inputs: [
+    // 输入定义
+  ],
+  outputs: [
+    // 输出定义
+  ],
+  primitives: [
+    // 原语定义
+  ]
+}
+```
+
+## 2. 组件创建
+在对应类别目录下创建组件文件夹和相关文件：
+
+### 2.1 目录结构
+```
+src/components/OperationNodes/[Category]/[NodeName]/
+├── index.tsx        // 组件主文件
+├── constants.ts     // 常量定义
+└── styles.css       // 样式文件
+```
+
+### 2.2 组件实现方式选择
+有两种实现方式：
+
+1. 简单方式：直接使用 `createNodeComponent`
+```typescript
+// src/components/OperationNodes/index.tsx
+export const NewNode = createNodeComponent('Category');
+```
+
+2. 自定义面板方式：创建完整的组件实现
+```typescript
+// src/components/OperationNodes/[Category]/[NodeName]/index.tsx
+const NodePanel = ({ data }) => (
+  // 面板实现
+);
+
+const NodeWrapper = (props) => {
+  const BaseNode = createNodeComponent('Category');
+  return (
+    <div className="node-wrapper">
+      <BaseNode {...props} />
+      <NodePanel data={props.data} />
+    </div>
+  );
+};
+
+export const NewNode = NodeWrapper;
+```
+
+## 3. 组件注册
+需要在多个地方注册新节点：
+
+### 3.1 主入口文件
+在 `src/components/OperationNodes/index.tsx` 中：
+```typescript
+// 1. 导出节点组件
+export const NewNode = createNodeComponent('Category');
+
+// 2. 添加到 nodeComponents
+export const nodeComponents = {
+  // ... 其他节点
+  NewNode,
+};
+```
+
+### 3.2 App组件
+在 `src/App.tsx` 中：
+```typescript
+// 1. 导入组件
+import { NewNode } from './components/OperationNodes';
+
+// 2. 添加到 MemoizedNodes
+const MemoizedNodes = {
+  // ... 其他节点
+  NewNode: memo(NewNode),
+};
+```
+
+## 4. 常见错误和注意事项
+
+1. **命名冲突**：
+   - 如果有重名组件，需要使用不同的名称（如 `NewNode_1`）
+   - 修改时需要同步修改：
+     - 组件名称
+     - `type` 字段
+     - 导出名称
+     - `MemoizedNodes` 中的键名
+
+2. **路径问题**：
+   - 导入 `createNodeComponent` 时要注意路径层级
+   - 从组件目录到 `OperationNodes/index.tsx` 的相对路径要正确
+
+3. **样式注意**：
+   - 样式类名要避免冲突
+   - 面板默认展开需要设置：
+     - `expanded: true` 在节点定义中
+     - `display: block` 在面板的 CSS 中
+
+4. **组件导出顺序**：
+   - 先定义基础组件
+   - 再导出具体实现
+   - 最后添加到 `nodeComponents` 对象中
+
+## 5. 验证清单
+
+- [ ] 节点定义已添加到 `operationNodes.ts`
+- [ ] 组件文件结构完整（index.tsx, constants.ts, styles.css）
+- [ ] 组件已在主入口文件正确导出
+- [ ] 组件已添加到 `nodeComponents`
+- [ ] 组件已添加到 `MemoizedNodes`
+- [ ] 所有命名保持一致
+- [ ] 所有导入路径正确
+- [ ] 样式类名唯一
+- [ ] 面板展开状态正确设置
+
+## 6. 调试技巧
+
+1. 如果节点不显示，检查：
+   - 组件是否正确导出
+   - 节点类型名称是否一致
+   - `MemoizedNodes` 是否正确配置
+
+2. 如果面板不展开，检查：
+   - 节点定义中的 `expanded` 属性
+   - CSS 中的 `display` 属性
+   - 面板的 z-index 是否正确
+
+3. 如果出现样式问题，检查：
+   - CSS 文件是否正确导入
+   - 样式类名是否有冲突
+   - 样式优先级是否正确 
+
+# 节点创建指南
+
+## 1. 节点定义 (operationNodes.ts)
+
+每个节点需要在 `src/data/operationNodes.ts` 中定义以下内容:
+
+```typescript
+{
+  type: string,           // 节点类型标识
+  label: string,          // 显示名称
+  description: string,    // 描述
+  category: string,       // 节点类别
+  
+  // 参数配置
+  parameters?: {
+    name: string,         // 参数名
+    type: 'number' | 'string' | 'boolean',  // 参数类型
+    label: string,        // 显示名称
+    unit?: string,        // 单位
+    range?: [number, number]  // 数值范围
+  }[],
+
+  // 输入输出端口
+  inputs?: {
+    name: string,         // 端口名
+    type: string,         // 数据类型
+    description: string   // 描述
+  }[],
+  outputs?: {
+    name: string,
+    type: string,
+    description: string
+  }[],
+
+  // 设备规格
+  specs?: {
+    model: string,        // 设备型号
+    manufacturer: string, // 制造商
+    range: string,        // 量程
+    accuracy: string      // 精度
+  },
+
+  // 原语操作
+  primitives?: {
+    name: string,         // 操作名
+    code: string,         // 执行代码
+    description: string   // 描述
+  }[]
+}
+```
+
+## 2. 前端组件结构
+
+在 `src/components/nodes/` 下创建节点组件目录:
+
+```
+src/components/nodes/
+  ├── YourNodeName/
+  │   ├── index.tsx        # 主组件
+  │   ├── styles.css       # 样式
+  │   ├── types.ts         # 类型定义
+  │   ├── constants.ts     # 常量
+  │   └── utils.ts         # 工具函数
+```
+
+### 2.1 主组件 (index.tsx)
+
+```typescript
+import React from 'react';
+import { Handle, Position } from 'reactflow';
+import './styles.css';
+
+interface YourNodeProps {
+  data: {
+    // 节点数据
+  };
+}
+
+const YourNode: React.FC<YourNodeProps> = ({ data }) => {
+  return (
+    <div className="node-container">
+      <Handle type="target" position={Position.Top} />
+      {/* 节点内容 */}
+      <Handle type="source" position={Position.Bottom} />
+    </div>
+  );
+};
+
+export default YourNode;
+```
+
+### 2.2 样式文件 (styles.css)
+
+```css
+.node-container {
+  /* 节点样式 */
+}
+
+.node-header {
+  /* 头部样式 */
+}
+
+.node-content {
+  /* 内容区域样式 */
+}
+
+.node-footer {
+  /* 底部样式 */
+}
+```
+
+## 3. 硬件控制层
+
+### 3.1 基础类定义
+
+- 泵控制: `hardware/pumps/src/matterlab_pumps/base_pump.py`
+- 阀门控制: `hardware/valves/base.py`
+- 串口通信: `hardware/serial-device/src/matterlab_serial_device/serial_device.py`
+
+### 3.2 设备通信
+
+```python
+class YourDevice(SerialDevice):
+    def __init__(self, com_port, address, **kwargs):
+        super().__init__(com_port, address, **kwargs)
+        
+    def your_method(self):
+        # 实现设备特定方法
+        pass
+```
+
+## 4. 与Canvas的交互
+
+### 4.1 节点注册
+
+在 `src/components/Flow.tsx` 中注册新节点:
+
+```typescript
+import YourNode from './nodes/YourNodeName';
+
+const nodeTypes = {
+  yourNodeType: YourNode
+};
+```
+
+### 4.2 数据流
+
+```
+UI操作 -> 节点参数更新 -> 触发原语操作 -> 硬件控制命令 -> 串口通信 -> 设备执行
+```
+
+## 5. 关键功能实现
+
+### 5.1 参数验证
+
+```typescript
+const validateParameters = (params: NodeParameters) => {
+  // 实现参数验证逻辑
+};
+```
+
+### 5.2 状态管理
+
+```typescript
+const [nodeState, setNodeState] = useState({
+  // 节点状态
+});
+```
+
+### 5.3 错误处理
+
+```typescript
+try {
+  // 执行操作
+} catch (error) {
+  // 错误处理
+}
+```
+
+### 5.4 数据记录
+
+```typescript
+const logData = (data: any) => {
+  // 实现数据记录逻辑
+};
+```
+
+## 6. 测试
+
+### 6.1 单元测试
+
+创建 `__tests__/YourNode.test.tsx`:
+
+```typescript
+import { render, screen } from '@testing-library/react';
+import YourNode from '../components/nodes/YourNodeName';
+
+describe('YourNode', () => {
+  it('renders correctly', () => {
+    // 测试代码
+  });
+});
+```
+
+### 6.2 集成测试
+
+测试节点与Canvas的交互:
+
+```typescript
+describe('YourNode Integration', () => {
+  it('interacts with canvas correctly', () => {
+    // 测试代码
+  });
+});
+```
+
+## 7. 文档
+
+### 7.1 使用说明
+
+在 `docs/nodes/` 下创建节点文档:
+
+```markdown
+# YourNode
+
+## 功能描述
+...
+
+## 参数说明
+...
+
+## 使用示例
+...
+```
+
+### 7.2 API文档
+
+记录节点提供的API:
+
+```typescript
+/**
+ * YourNode API
+ * @param {Object} options - 配置选项
+ * @returns {void}
+ */
+```
+
+## 8. 注意事项
+
+1. 确保所有代码使用英文
+2. 添加适当的注释
+3. 遵循代码规范
+4. 实现错误处理
+5. 添加日志记录
+6. 编写测试用例
+7. 更新文档 
