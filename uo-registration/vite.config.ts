@@ -10,6 +10,14 @@ export default defineConfig({
       '@': resolve(__dirname, './src'),
     },
   },
+  optimizeDeps: {
+    include: [
+      '@mui/x-date-pickers',
+      '@mui/x-date-pickers/AdapterDateFns',
+      'date-fns',
+      'date-fns/locale'
+    ]
+  },
   server: {
     port: 5173,
     proxy: {

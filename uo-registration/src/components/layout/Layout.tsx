@@ -81,16 +81,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <ListItemText primary="Browse All UOs" />
             </ListItem>
             
-            <ListItem button component={RouterLink} to="/unit-operations/create">
+            <ListItem button component={RouterLink} to="/specific-unit-operations/create">
               <ListItemIcon>
                 <AddIcon />
               </ListItemIcon>
               <ListItemText primary="Create Specific UO" />
             </ListItem>
-            
+
             <ListItem button component={RouterLink} to="/generic-unit-operations/create">
               <ListItemIcon>
-                <SettingsIcon />
+                <AddIcon />
               </ListItemIcon>
               <ListItemText primary="Create Generic UO" />
             </ListItem>

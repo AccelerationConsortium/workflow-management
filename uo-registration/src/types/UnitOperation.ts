@@ -24,50 +24,22 @@ export enum UnitOperationStatus {
   ARCHIVED = 'archived'
 }
 
-// 主要类别
+// 新的UO类别系统
 export enum UnitOperationCategory {
-  REACTION = 'reaction',
-  SEPARATION = 'separation',
-  HEAT_TRANSFER = 'heat_transfer',
-  MASS_TRANSFER = 'mass_transfer',
-  FLUID_FLOW = 'fluid_flow',
-  OTHERS = 'others'
+  CHARACTERIZATION = 'characterization',   // 表征设备
+  SYNTHESIS = 'synthesis',                 // 合成设备
+  PROCESSING = 'processing',               // 加工处理
+  MEASUREMENT = 'measurement',             // 测量设备
+  CONTROL = 'control',                     // 控制设备
+  UTILITY = 'utility'                      // 公用设施
 }
 
-// 子类别
-export enum UnitOperationSubCategory {
-  // 反应类别
-  BATCH_REACTOR = 'batch_reactor',
-  CONTINUOUS_REACTOR = 'continuous_reactor',
-  CATALYTIC_REACTOR = 'catalytic_reactor',
-  FERMENTATION = 'fermentation',
-  
-  // 分离类别
-  DISTILLATION = 'distillation',
-  EXTRACTION = 'extraction',
-  ABSORPTION = 'absorption',
-  FILTRATION = 'filtration',
-  CRYSTALLIZATION = 'crystallization',
-  
-  // 传热类别
-  HEAT_EXCHANGER = 'heat_exchanger',
-  EVAPORATOR = 'evaporator',
-  CONDENSER = 'condenser',
-  
-  // 传质类别
-  ABSORPTION_COLUMN = 'absorption_column',
-  ADSORPTION = 'adsorption',
-  MEMBRANE_SEPARATION = 'membrane_separation',
-  
-  // 流体流动类别
-  PUMPING = 'pumping',
-  COMPRESSION = 'compression',
-  PIPING = 'piping',
-  
-  // 其他
-  MIXING = 'mixing',
-  GRINDING = 'grinding',
-  CUSTOM = 'custom'
+// 标签系统
+export interface UnitOperationTags {
+  functionality: string[];    // 功能标签：如 'heating', 'mixing', 'analysis' 等
+  domain: string[];          // 应用领域：如 'chemical', 'biological', 'material' 等
+  scale: string[];           // 规模：如 'lab', 'pilot', 'industrial' 等
+  customTags?: string[];     // 自定义标签
 }
 
 // 实验室枚举
@@ -92,7 +64,6 @@ export interface UnitOperation {
   name: string;
   type: UnitOperationType;
   category: UnitOperationCategory;
-  subCategory?: UnitOperationSubCategory;
   description: string;
   status: UnitOperationStatus;
   applicableLabs: Laboratory[];
@@ -125,16 +96,41 @@ export interface UnitOperationParameterValue {
 
 // 技术规格接口
 export interface TechnicalSpecifications {
-  capacity: string;
-  operatingTemperature: string;
-  operatingPressure: string;
-  otherSpecifications?: Record<string, string>; // 其他可能的技术规格
+  specifications: SpecificationItem[];
+  environmentalRequirements?: EnvironmentalRequirement[];
 }
 
-// 工作流兼容性
-export interface WorkflowCompatibility {
-  applicableWorkflows: string[];  // 适用的工作流ID列表
-  requiresFileUpload: boolean;    // 是否需要文件上传支持
+export interface SpecificationItem {
+  name: string;
+  value: string | number;
+  unit?: string;
+  type: 'range' | 'discrete' | 'boolean' | 'text';
+  constraints?: {
+    min?: number;
+    max?: number;
+    options?: string[];
+    format?: string;
+  };
+}
+
+export interface EnvironmentalRequirement {
+  parameter: string;          // 如 'temperature', 'humidity' 等
+  type: 'required' | 'recommended';
+  range: {
+    min: number;
+    max: number;
+    unit: string;
+  };
+  impact?: string;           // 描述超出范围的影响
+}
+
+// 接口定义
+export interface InterfaceDefinition {
+  id: string;
+  name: string;
+  dataType: string;           // 数据类型
+  protocol?: string;          // 通信协议（如果需要）
+  constraints?: any;          // 接口约束
 }
 
 // Generic Unit Operation (Template)
@@ -142,30 +138,147 @@ export interface GenericUnitOperation extends UnitOperation {
   type: UnitOperationType.GENERIC;
   parameters: UnitOperationParameter[];
   technicalSpecifications: TechnicalSpecifications;
+  tags: UnitOperationTags;
+  interfaces: {
+    inputs: InterfaceDefinition[];
+    outputs: InterfaceDefinition[];
+  };
   safetyGuidelines: string;
   theoryBackground: string;
   operatingProcedure: string;
   equipmentRequirements: string[];
   maintenanceRequirements?: string;
   references?: string[];
-  workflowCompatibility?: WorkflowCompatibility;
-  parentUnitOperationId?: string; // 父UO的ID，如果继承自另一个UO
-  subUnitOperations?: string[];   // 子UO的ID列表，表示组合关系
+  parentUnitOperationId?: string;
+  subUnitOperations?: string[];
+}
+
+// 设备通信协议类型
+export enum CommunicationProtocol {
+  MODBUS = 'modbus',
+  PROFIBUS = 'profibus',
+  ETHERNET_IP = 'ethernet_ip',
+  OPC_UA = 'opc_ua',
+  SERIAL = 'serial',
+  HTTP = 'http',
+  CUSTOM = 'custom'
+}
+
+// 设备连接配置
+export interface DeviceConnection {
+  protocol: CommunicationProtocol;
+  address: string;  // IP地址、串口号等
+  port?: number;
+  timeout?: number;
+  retries?: number;
+  customSettings?: Record<string, any>;
+}
+
+// 设备校准信息
+export interface CalibrationInfo {
+  lastCalibrationDate: string;
+  nextCalibrationDue: string;
+  calibrationProcedure: string;
+  calibrationCertificate?: string;
+  calibrationHistory?: {
+    date: string;
+    performedBy: string;
+    result: string;
+    notes?: string;
+  }[];
+}
+
+// 设备维护记录
+export interface MaintenanceRecord {
+  type: 'preventive' | 'corrective';
+  date: string;
+  performedBy: string;
+  description: string;
+  parts?: string[];
+  nextMaintenanceDue?: string;
+}
+
+// 设备状态监控
+export interface DeviceMonitoring {
+  parameters: {
+    name: string;
+    type: string;
+    unit?: string;
+    normalRange?: {
+      min: number;
+      max: number;
+    };
+    criticalRange?: {
+      min: number;
+      max: number;
+    };
+    warningThresholds?: {
+      low?: number;
+      high?: number;
+    };
+  }[];
+  alarmSettings?: {
+    name: string;
+    condition: string;
+    severity: 'info' | 'warning' | 'critical';
+    action?: string;
+  }[];
 }
 
 // Specific Unit Operation (Lab-specific implementation)
 export interface SpecificUnitOperation extends UnitOperation {
   type: UnitOperationType.SPECIFIC;
-  genericUnitOperationId: string;  // Reference to the generic UO it's derived from
-  laboratoryId: Laboratory;        // Which laboratory this specific UO belongs to
-  location: string;                // Specific location within the laboratory
+  genericUnitOperationId: string;
+  laboratoryId: Laboratory;
+  location: string;
   parameterValues: UnitOperationParameterValue[];
   technicalSpecifications: TechnicalSpecifications;
-  equipmentIds: string[];          // Specific equipment instances used
-  additionalNotes?: string;        // Any lab-specific notes
-  contactPerson?: string;          // Person responsible for this UO in the lab
-  maintenanceSchedule?: string;    // Lab-specific maintenance info
-  workflowCompatibility?: WorkflowCompatibility;
+  tags: UnitOperationTags;
+  interfaces: {
+    inputs: InterfaceDefinition[];
+    outputs: InterfaceDefinition[];
+  };
+  equipmentIds: string[];
+  additionalNotes?: string;
+  contactPerson?: string;
+  maintenanceSchedule?: string;
+  
+  // 新增字段
+  deviceConnection: DeviceConnection;
+  calibrationInfo: CalibrationInfo;
+  maintenanceRecords: MaintenanceRecord[];
+  monitoring: DeviceMonitoring;
+  
+  // 设备特定的控制命令
+  controlCommands?: {
+    name: string;
+    command: string;
+    parameters?: {
+      name: string;
+      type: string;
+      description: string;
+      required: boolean;
+    }[];
+    responseFormat?: string;
+    description: string;
+  }[];
+  
+  // 错误处理和恢复程序
+  errorHandling?: {
+    errorCode: string;
+    description: string;
+    possibleCauses: string[];
+    recoverySteps: string[];
+    preventiveMeasures?: string[];
+  }[];
+  
+  // 设备特定的安全措施
+  safetyMeasures?: {
+    type: string;
+    description: string;
+    requiredActions: string[];
+    emergencyProcedures?: string[];
+  }[];
 }
 
 // Form data for creating/updating a UO
@@ -173,17 +286,23 @@ export interface UnitOperationFormData {
   name: string;
   type: UnitOperationType;
   category: UnitOperationCategory;
-  subCategory?: UnitOperationSubCategory;
   description: string;
   status?: UnitOperationStatus;
   applicableLabs?: Laboratory[];
   
   // Technical Specifications
   technicalSpecifications?: {
-    capacity?: string;
-    operatingTemperature?: string;
-    operatingPressure?: string;
-    otherSpecifications?: Record<string, string>;
+    specifications: SpecificationItem[];
+    environmentalRequirements?: EnvironmentalRequirement[];
+  };
+  
+  // Tags
+  tags?: UnitOperationTags;
+  
+  // Interfaces
+  interfaces?: {
+    inputs: InterfaceDefinition[];
+    outputs: InterfaceDefinition[];
   };
   
   // Input & Output Parameters
@@ -192,12 +311,6 @@ export interface UnitOperationFormData {
   // Inheritance & Composition
   parentUnitOperationId?: string;
   subUnitOperations?: string[];
-  
-  // Workflow Compatibility
-  workflowCompatibility?: {
-    applicableWorkflows?: string[];
-    requiresFileUpload?: boolean;
-  };
   
   // For Generic UO
   safetyGuidelines?: string;
@@ -222,7 +335,6 @@ export interface UnitOperationError {
   name?: string;
   description?: string;
   category?: string;
-  subCategory?: string;
   applicableLabs?: string;
   [key: string]: string | undefined;
 }
@@ -237,4 +349,59 @@ export interface LaboratoryDetails {
   contactEmail: string;
   createdAt: string;
   updatedAt: string;
+}
+
+// 新增的类型定义
+export interface NodeCreationFormData {
+  name: string;
+  category: string;
+  subCategory?: string;
+  description: string;
+  specifications: NodeSpecifications;
+  parameters: NodeParameter[];
+}
+
+export interface NodeSpecifications {
+  model?: string;
+  manufacturer?: string;
+  type?: string;
+  range?: string;
+  precision?: string;
+  ports?: string;
+  otherSpecs?: Record<string, string>;
+}
+
+export interface NodeParameter {
+  name: string;
+  type: string;
+  unit?: string;
+  description?: string;
+  direction: string;
+  required: boolean;
+  minValue?: number;
+  maxValue?: number;
+  defaultValue?: string | number;
+  options?: string[];
+}
+
+export interface NodeCreationError {
+  name?: string;
+  category?: string;
+  subCategory?: string;
+  description?: string;
+  specifications?: {
+    model?: string;
+    manufacturer?: string;
+    type?: string;
+    range?: string;
+    precision?: string;
+    ports?: string;
+  };
+  parameters?: {
+    name?: string;
+    type?: string;
+    unit?: string;
+    description?: string;
+    direction?: string;
+  }[];
 } 

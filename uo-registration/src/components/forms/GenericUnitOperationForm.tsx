@@ -34,78 +34,58 @@ import * as yup from 'yup';
 import {
   UnitOperationType,
   UnitOperationCategory,
-  UnitOperationSubCategory,
   Laboratory,
   ParameterDirection,
   UnitOperationStatus,
   UnitOperationFormData,
-  UnitOperationParameter
+  UnitOperationParameter,
+  UnitOperationTags
 } from '../../types/UnitOperation';
 
-// 用于显示子类别的映射
-const SUBCATEGORY_MAP: Record<UnitOperationCategory, UnitOperationSubCategory[]> = {
-  [UnitOperationCategory.REACTION]: [
-    UnitOperationSubCategory.BATCH_REACTOR,
-    UnitOperationSubCategory.CONTINUOUS_REACTOR,
-    UnitOperationSubCategory.CATALYTIC_REACTOR,
-    UnitOperationSubCategory.FERMENTATION
+// 预定义的标签选项
+const PREDEFINED_TAGS = {
+  functionality: [
+    'heating',
+    'cooling',
+    'mixing',
+    'analysis',
+    'separation',
+    'reaction',
+    'measurement',
+    'control'
   ],
-  [UnitOperationCategory.SEPARATION]: [
-    UnitOperationSubCategory.DISTILLATION,
-    UnitOperationSubCategory.EXTRACTION,
-    UnitOperationSubCategory.ABSORPTION,
-    UnitOperationSubCategory.FILTRATION,
-    UnitOperationSubCategory.CRYSTALLIZATION
+  domain: [
+    'chemical',
+    'biological',
+    'material',
+    'environmental',
+    'pharmaceutical'
   ],
-  [UnitOperationCategory.HEAT_TRANSFER]: [
-    UnitOperationSubCategory.HEAT_EXCHANGER,
-    UnitOperationSubCategory.EVAPORATOR,
-    UnitOperationSubCategory.CONDENSER
-  ],
-  [UnitOperationCategory.MASS_TRANSFER]: [
-    UnitOperationSubCategory.ABSORPTION_COLUMN,
-    UnitOperationSubCategory.ADSORPTION,
-    UnitOperationSubCategory.MEMBRANE_SEPARATION
-  ],
-  [UnitOperationCategory.FLUID_FLOW]: [
-    UnitOperationSubCategory.PUMPING,
-    UnitOperationSubCategory.COMPRESSION,
-    UnitOperationSubCategory.PIPING
-  ],
-  [UnitOperationCategory.OTHERS]: [
-    UnitOperationSubCategory.MIXING,
-    UnitOperationSubCategory.GRINDING,
-    UnitOperationSubCategory.CUSTOM
+  scale: [
+    'lab',
+    'pilot',
+    'industrial'
   ]
 };
 
 // 获取类别的显示名称
 const getCategoryDisplayName = (category: UnitOperationCategory): string => {
   switch (category) {
-    case UnitOperationCategory.REACTION:
-      return 'Reaction';
-    case UnitOperationCategory.SEPARATION:
-      return 'Separation';
-    case UnitOperationCategory.HEAT_TRANSFER:
-      return 'Heat Transfer';
-    case UnitOperationCategory.MASS_TRANSFER:
-      return 'Mass Transfer';
-    case UnitOperationCategory.FLUID_FLOW:
-      return 'Fluid Flow';
-    case UnitOperationCategory.OTHERS:
-      return 'Others';
+    case UnitOperationCategory.CHARACTERIZATION:
+      return 'Characterization';
+    case UnitOperationCategory.SYNTHESIS:
+      return 'Synthesis';
+    case UnitOperationCategory.PROCESSING:
+      return 'Processing';
+    case UnitOperationCategory.MEASUREMENT:
+      return 'Measurement';
+    case UnitOperationCategory.CONTROL:
+      return 'Control';
+    case UnitOperationCategory.UTILITY:
+      return 'Utility';
     default:
       return category;
   }
-};
-
-// 获取子类别的显示名称
-const getSubCategoryDisplayName = (subCategory: UnitOperationSubCategory): string => {
-  // 将下划线换成空格，并将首字母大写
-  return subCategory
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
 };
 
 // 获取实验室的显示名称
@@ -133,14 +113,23 @@ const validationSchema = yup.object().shape({
   name: yup.string().required('Name is required'),
   description: yup.string().required('Description is required'),
   category: yup.string().required('Category is required'),
-  subCategory: yup.string().required('Sub-category is required'),
   status: yup.string().required('Status is required'),
   applicableLabs: yup.array().min(1, 'At least one laboratory must be selected'),
   
   technicalSpecifications: yup.object().shape({
-    capacity: yup.string().required('Capacity is required'),
-    operatingTemperature: yup.string().required('Operating temperature is required'),
-    operatingPressure: yup.string().required('Operating pressure is required')
+    specifications: yup.array().of(
+      yup.object().shape({
+        name: yup.string().required('Specification name is required'),
+        value: yup.mixed().required('Value is required'),
+        type: yup.string().required('Type is required')
+      })
+    )
+  }),
+  
+  tags: yup.object().shape({
+    functionality: yup.array().min(1, 'At least one functionality tag is required'),
+    domain: yup.array().min(1, 'At least one domain tag is required'),
+    scale: yup.array().min(1, 'At least one scale tag is required')
   }),
   
   parameters: yup.array().of(
@@ -152,11 +141,7 @@ const validationSchema = yup.object().shape({
       parameterType: yup.string().required('Parameter type is required'),
       required: yup.boolean()
     })
-  ),
-  
-  workflowCompatibility: yup.object().shape({
-    requiresFileUpload: yup.boolean()
-  })
+  )
 });
 
 interface GenericUnitOperationFormProps {
@@ -180,27 +165,31 @@ const GenericUnitOperationForm: React.FC<GenericUnitOperationFormProps> = ({
       type: UnitOperationType.GENERIC,
       name: initialData?.name || '',
       description: initialData?.description || '',
-      category: initialData?.category || UnitOperationCategory.OTHERS,
-      subCategory: initialData?.subCategory || UnitOperationSubCategory.CUSTOM,
+      category: initialData?.category || UnitOperationCategory.UTILITY,
       status: initialData?.status || UnitOperationStatus.DRAFT,
       applicableLabs: initialData?.applicableLabs || [],
       
       technicalSpecifications: {
-        capacity: initialData?.technicalSpecifications?.capacity || '',
-        operatingTemperature: initialData?.technicalSpecifications?.operatingTemperature || '',
-        operatingPressure: initialData?.technicalSpecifications?.operatingPressure || '',
-        otherSpecifications: initialData?.technicalSpecifications?.otherSpecifications || {}
+        specifications: initialData?.technicalSpecifications?.specifications || [],
+        environmentalRequirements: initialData?.technicalSpecifications?.environmentalRequirements || []
+      },
+      
+      tags: {
+        functionality: initialData?.tags?.functionality || [],
+        domain: initialData?.tags?.domain || [],
+        scale: initialData?.tags?.scale || [],
+        customTags: initialData?.tags?.customTags || []
+      },
+      
+      interfaces: {
+        inputs: initialData?.interfaces?.inputs || [],
+        outputs: initialData?.interfaces?.outputs || []
       },
       
       parameters: initialData?.parameters || [],
       
       parentUnitOperationId: initialData?.parentUnitOperationId || '',
       subUnitOperations: initialData?.subUnitOperations || [],
-      
-      workflowCompatibility: {
-        applicableWorkflows: initialData?.workflowCompatibility?.applicableWorkflows || [],
-        requiresFileUpload: initialData?.workflowCompatibility?.requiresFileUpload || false
-      },
       
       safetyGuidelines: initialData?.safetyGuidelines || '',
       theoryBackground: initialData?.theoryBackground || '',
@@ -211,22 +200,22 @@ const GenericUnitOperationForm: React.FC<GenericUnitOperationFormProps> = ({
     }
   });
   
-  // 监听类别变化，以更新子类别选项
-  const category = watch('category');
-  useEffect(() => {
-    if (category) {
-      // 当类别变化时，设置默认的子类别
-      const subCategories = SUBCATEGORY_MAP[category as UnitOperationCategory];
-      if (subCategories && subCategories.length > 0) {
-        setValue('subCategory', subCategories[0]);
-      }
-    }
-  }, [category, setValue]);
-  
   // 参数字段数组
   const { fields: parameterFields, append: appendParameter, remove: removeParameter } = useFieldArray({
     control,
     name: 'parameters'
+  });
+  
+  // 技术规格字段数组
+  const { fields: specificationFields, append: appendSpecification, remove: removeSpecification } = useFieldArray({
+    control,
+    name: 'technicalSpecifications.specifications'
+  });
+
+  // 环境要求字段数组
+  const { fields: environmentalFields, append: appendEnvironmental, remove: removeEnvironmental } = useFieldArray({
+    control,
+    name: 'technicalSpecifications.environmentalRequirements'
   });
   
   // 添加新参数
@@ -238,8 +227,35 @@ const GenericUnitOperationForm: React.FC<GenericUnitOperationFormProps> = ({
       unit: '',
       direction,
       required: true,
-      parameterType: 'string'
+      parameterType: 'string',
+      minValue: undefined,
+      maxValue: undefined,
+      defaultValue: undefined,
+      options: []
     } as UnitOperationParameter);
+  };
+  
+  // 添加新的技术规格
+  const handleAddSpecification = () => {
+    appendSpecification({
+      name: '',
+      value: '',
+      type: 'text',
+      unit: ''
+    });
+  };
+
+  // 添加新的环境要求
+  const handleAddEnvironmental = () => {
+    appendEnvironmental({
+      parameter: '',
+      type: 'required',
+      range: {
+        min: 0,
+        max: 0,
+        unit: ''
+      }
+    });
   };
   
   // 处理标签页变化
@@ -254,12 +270,221 @@ const GenericUnitOperationForm: React.FC<GenericUnitOperationFormProps> = ({
     onSubmit(data);
   };
   
+  // 渲染参数表单
+  const renderParameterForm = () => (
+    <Box sx={{ mt: 3 }}>
+      <Typography variant="h6" gutterBottom>
+        Parameters Configuration
+      </Typography>
+      
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+            <Button
+              variant="outlined"
+              startIcon={<AddIcon />}
+              onClick={() => handleAddParameter(ParameterDirection.INPUT)}
+            >
+              Add Input Parameter
+            </Button>
+            <Button
+              variant="outlined"
+              startIcon={<AddIcon />}
+              onClick={() => handleAddParameter(ParameterDirection.OUTPUT)}
+            >
+              Add Output Parameter
+            </Button>
+          </Box>
+        </Grid>
+
+        {parameterFields.map((field, index) => (
+          <Grid container spacing={2} key={field.id} sx={{ ml: 1, mb: 2, width: '100%' }}>
+            <Grid item xs={12} md={3}>
+              <Controller
+                name={`parameters.${index}.name`}
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label="Name"
+                    error={!!errors.parameters?.[index]?.name}
+                    helperText={errors.parameters?.[index]?.name?.message}
+                  />
+                )}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={2}>
+              <Controller
+                name={`parameters.${index}.parameterType`}
+                control={control}
+                render={({ field }) => (
+                  <FormControl fullWidth>
+                    <InputLabel>Type</InputLabel>
+                    <Select {...field} label="Type">
+                      <MenuItem value="string">String</MenuItem>
+                      <MenuItem value="number">Number</MenuItem>
+                      <MenuItem value="boolean">Boolean</MenuItem>
+                      <MenuItem value="enum">Enum</MenuItem>
+                      <MenuItem value="date">Date</MenuItem>
+                    </Select>
+                  </FormControl>
+                )}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={2}>
+              <Controller
+                name={`parameters.${index}.unit`}
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label="Unit"
+                  />
+                )}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={2}>
+              <Controller
+                name={`parameters.${index}.direction`}
+                control={control}
+                render={({ field }) => (
+                  <FormControl fullWidth>
+                    <InputLabel>Direction</InputLabel>
+                    <Select {...field} label="Direction">
+                      <MenuItem value={ParameterDirection.INPUT}>Input</MenuItem>
+                      <MenuItem value={ParameterDirection.OUTPUT}>Output</MenuItem>
+                    </Select>
+                  </FormControl>
+                )}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={2}>
+              <Controller
+                name={`parameters.${index}.required`}
+                control={control}
+                render={({ field }) => (
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={field.value}
+                        onChange={(e) => field.onChange(e.target.checked)}
+                      />
+                    }
+                    label="Required"
+                  />
+                )}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={1}>
+              <IconButton onClick={() => removeParameter(index)}>
+                <DeleteIcon />
+              </IconButton>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Controller
+                name={`parameters.${index}.description`}
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    multiline
+                    rows={2}
+                    label="Description"
+                    error={!!errors.parameters?.[index]?.description}
+                    helperText={errors.parameters?.[index]?.description?.message}
+                  />
+                )}
+              />
+            </Grid>
+
+            {/* 根据参数类型显示额外字段 */}
+            {watch(`parameters.${index}.parameterType`) === 'number' && (
+              <>
+                <Grid item xs={12} md={4}>
+                  <Controller
+                    name={`parameters.${index}.minValue`}
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        type="number"
+                        label="Min Value"
+                      />
+                    )}
+                  />
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <Controller
+                    name={`parameters.${index}.maxValue`}
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        type="number"
+                        label="Max Value"
+                      />
+                    )}
+                  />
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <Controller
+                    name={`parameters.${index}.defaultValue`}
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        type="number"
+                        label="Default Value"
+                      />
+                    )}
+                  />
+                </Grid>
+              </>
+            )}
+
+            {watch(`parameters.${index}.parameterType`) === 'enum' && (
+              <Grid item xs={12}>
+                <Controller
+                  name={`parameters.${index}.options`}
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      label="Options (comma separated)"
+                      helperText="Enter options separated by commas"
+                      value={field.value?.join(', ') || ''}
+                      onChange={(e) => field.onChange(e.target.value.split(',').map(s => s.trim()))}
+                    />
+                  )}
+                />
+              </Grid>
+            )}
+          </Grid>
+        ))}
+      </Grid>
+    </Box>
+  );
+  
   return (
     <Box component="form" onSubmit={handleSubmit(handleFormSubmit)} noValidate>
       <Tabs value={activeTab} onChange={handleTabChange} sx={{ mb: 2 }}>
         <Tab label="Basic Information" />
         <Tab label="Technical Specifications" />
-        <Tab label="Input & Output Parameters" />
+        <Tab label="Tags" />
+        <Tab label="Parameters" />
         <Tab label="Inheritance & Composition" />
         <Tab label="Workflow Compatibility" />
         <Tab label="Documentation" />
@@ -346,26 +571,6 @@ const GenericUnitOperationForm: React.FC<GenericUnitOperationFormProps> = ({
               />
             </Grid>
             
-            <Grid item xs={12} md={6}>
-              <Controller
-                name="subCategory"
-                control={control}
-                render={({ field }) => (
-                  <FormControl fullWidth required error={!!errors.subCategory}>
-                    <InputLabel>Sub-Category</InputLabel>
-                    <Select {...field} label="Sub-Category">
-                      {category && SUBCATEGORY_MAP[category as UnitOperationCategory]?.map((subCategory) => (
-                        <MenuItem key={subCategory} value={subCategory}>
-                          {getSubCategoryDisplayName(subCategory)}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    {errors.subCategory && <FormHelperText>{errors.subCategory.message}</FormHelperText>}
-                  </FormControl>
-                )}
-              />
-            </Grid>
-            
             <Grid item xs={12}>
               <Controller
                 name="applicableLabs"
@@ -404,312 +609,179 @@ const GenericUnitOperationForm: React.FC<GenericUnitOperationFormProps> = ({
       {/* 技术规格标签页 */}
       {activeTab === 1 && (
         <Paper sx={{ p: 3 }}>
-          <Typography variant="h6" gutterBottom>Technical Specifications</Typography>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={4}>
-              <Controller
-                name="technicalSpecifications.capacity"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Capacity"
-                    fullWidth
-                    required
-                    error={!!errors.technicalSpecifications?.capacity}
-                    helperText={errors.technicalSpecifications?.capacity?.message}
-                  />
-                )}
-              />
+          <Typography variant="h6" gutterBottom>Specifications</Typography>
+          {specificationFields.map((field, index) => (
+            <Grid container spacing={2} key={field.id} sx={{ mb: 2 }}>
+              <Grid item xs={12} md={3}>
+                <Controller
+                  name={`technicalSpecifications.specifications.${index}.name`}
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label="Name"
+                      fullWidth
+                      required
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <Controller
+                  name={`technicalSpecifications.specifications.${index}.value`}
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label="Value"
+                      fullWidth
+                      required
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <Controller
+                  name={`technicalSpecifications.specifications.${index}.unit`}
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label="Unit"
+                      fullWidth
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <Controller
+                  name={`technicalSpecifications.specifications.${index}.type`}
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth required>
+                      <InputLabel>Type</InputLabel>
+                      <Select {...field} label="Type">
+                        <MenuItem value="range">Range</MenuItem>
+                        <MenuItem value="discrete">Discrete</MenuItem>
+                        <MenuItem value="boolean">Boolean</MenuItem>
+                        <MenuItem value="text">Text</MenuItem>
+                      </Select>
+                    </FormControl>
+                  )}
+                />
+              </Grid>
+              <Grid item xs={12} md={1}>
+                <IconButton onClick={() => removeSpecification(index)}>
+                  <DeleteIcon />
+                </IconButton>
+              </Grid>
             </Grid>
-            
-            <Grid item xs={12} md={4}>
-              <Controller
-                name="technicalSpecifications.operatingTemperature"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Operating Temperature"
-                    fullWidth
-                    required
-                    error={!!errors.technicalSpecifications?.operatingTemperature}
-                    helperText={errors.technicalSpecifications?.operatingTemperature?.message}
-                  />
-                )}
-              />
+          ))}
+          <Button
+            startIcon={<AddIcon />}
+            onClick={handleAddSpecification}
+            variant="outlined"
+            sx={{ mt: 2 }}
+          >
+            Add Specification
+          </Button>
+
+          <Typography variant="h6" sx={{ mt: 4 }} gutterBottom>Environmental Requirements</Typography>
+          {environmentalFields.map((field, index) => (
+            <Grid container spacing={2} key={field.id} sx={{ mb: 2 }}>
+              <Grid item xs={12} md={3}>
+                <Controller
+                  name={`technicalSpecifications.environmentalRequirements.${index}.parameter`}
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label="Parameter"
+                      fullWidth
+                      required
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <Controller
+                  name={`technicalSpecifications.environmentalRequirements.${index}.type`}
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth required>
+                      <InputLabel>Type</InputLabel>
+                      <Select {...field} label="Type">
+                        <MenuItem value="required">Required</MenuItem>
+                        <MenuItem value="recommended">Recommended</MenuItem>
+                      </Select>
+                    </FormControl>
+                  )}
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <Controller
+                  name={`technicalSpecifications.environmentalRequirements.${index}.range.min`}
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label="Min"
+                      type="number"
+                      fullWidth
+                      required
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <Controller
+                  name={`technicalSpecifications.environmentalRequirements.${index}.range.max`}
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label="Max"
+                      type="number"
+                      fullWidth
+                      required
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <Controller
+                  name={`technicalSpecifications.environmentalRequirements.${index}.range.unit`}
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label="Unit"
+                      fullWidth
+                      required
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item xs={12} md={1}>
+                <IconButton onClick={() => removeEnvironmental(index)}>
+                  <DeleteIcon />
+                </IconButton>
+              </Grid>
             </Grid>
-            
-            <Grid item xs={12} md={4}>
-              <Controller
-                name="technicalSpecifications.operatingPressure"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Operating Pressure"
-                    fullWidth
-                    required
-                    error={!!errors.technicalSpecifications?.operatingPressure}
-                    helperText={errors.technicalSpecifications?.operatingPressure?.message}
-                  />
-                )}
-              />
-            </Grid>
-            
-            {/* 自定义技术规格（可选项） */}
-            <Grid item xs={12}>
-              <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
-                Additional Technical Specifications
-              </Typography>
-              {/* 这里可以添加动态字段的逻辑 */}
-            </Grid>
-          </Grid>
+          ))}
+          <Button
+            startIcon={<AddIcon />}
+            onClick={handleAddEnvironmental}
+            variant="outlined"
+            sx={{ mt: 2 }}
+          >
+            Add Environmental Requirement
+          </Button>
         </Paper>
       )}
       
-      {/* 输入输出参数标签页 */}
-      {activeTab === 2 && (
-        <Paper sx={{ p: 3 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Typography variant="h6">Input & Output Parameters</Typography>
-            <Box>
-              <Button 
-                variant="outlined" 
-                startIcon={<AddIcon />}
-                onClick={() => handleAddParameter(ParameterDirection.INPUT)}
-                sx={{ mr: 1 }}
-              >
-                Add Input
-              </Button>
-              <Button 
-                variant="outlined" 
-                startIcon={<AddIcon />}
-                onClick={() => handleAddParameter(ParameterDirection.OUTPUT)}
-              >
-                Add Output
-              </Button>
-            </Box>
-          </Box>
-          
-          {/* 输入参数 */}
-          <Typography variant="subtitle1" gutterBottom>Input Parameters</Typography>
-          {parameterFields.filter(field => field.direction === ParameterDirection.INPUT).length === 0 ? (
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              No input parameters defined. Click "Add Input" to add an input parameter.
-            </Typography>
-          ) : (
-            <Grid container spacing={2} sx={{ mb: 3 }}>
-              {parameterFields
-                .filter(field => field.direction === ParameterDirection.INPUT)
-                .map((field, index) => {
-                  const fieldIndex = parameterFields.findIndex(f => f.id === field.id);
-                  return (
-                    <Grid item xs={12} key={field.id}>
-                      <Card variant="outlined">
-                        <CardHeader
-                          title={`Input Parameter ${index + 1}`}
-                          action={
-                            <IconButton onClick={() => removeParameter(fieldIndex)}>
-                              <DeleteIcon />
-                            </IconButton>
-                          }
-                        />
-                        <CardContent>
-                          <Grid container spacing={2}>
-                            <Grid item xs={12} md={6}>
-                              <Controller
-                                name={`parameters.${fieldIndex}.name`}
-                                control={control}
-                                render={({ field }) => (
-                                  <TextField
-                                    {...field}
-                                    label="Name"
-                                    fullWidth
-                                    required
-                                    error={!!errors.parameters?.[fieldIndex]?.name}
-                                    helperText={errors.parameters?.[fieldIndex]?.name?.message}
-                                  />
-                                )}
-                              />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                              <Controller
-                                name={`parameters.${fieldIndex}.parameterType`}
-                                control={control}
-                                render={({ field }) => (
-                                  <FormControl fullWidth required>
-                                    <InputLabel>Type</InputLabel>
-                                    <Select {...field} label="Type">
-                                      <MenuItem value="string">Text</MenuItem>
-                                      <MenuItem value="number">Number</MenuItem>
-                                      <MenuItem value="boolean">Boolean</MenuItem>
-                                      <MenuItem value="date">Date</MenuItem>
-                                      <MenuItem value="enum">Enum (Selection)</MenuItem>
-                                    </Select>
-                                  </FormControl>
-                                )}
-                              />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                              <Controller
-                                name={`parameters.${fieldIndex}.unit`}
-                                control={control}
-                                render={({ field }) => (
-                                  <TextField
-                                    {...field}
-                                    label="Unit"
-                                    fullWidth
-                                  />
-                                )}
-                              />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                              <Controller
-                                name={`parameters.${fieldIndex}.required`}
-                                control={control}
-                                render={({ field }) => (
-                                  <FormControlLabel
-                                    control={
-                                      <Switch
-                                        checked={field.value}
-                                        onChange={field.onChange}
-                                      />
-                                    }
-                                    label="Required"
-                                  />
-                                )}
-                              />
-                            </Grid>
-                            <Grid item xs={12}>
-                              <Controller
-                                name={`parameters.${fieldIndex}.description`}
-                                control={control}
-                                render={({ field }) => (
-                                  <TextField
-                                    {...field}
-                                    label="Description"
-                                    fullWidth
-                                    multiline
-                                    rows={2}
-                                    required
-                                    error={!!errors.parameters?.[fieldIndex]?.description}
-                                    helperText={errors.parameters?.[fieldIndex]?.description?.message}
-                                  />
-                                )}
-                              />
-                            </Grid>
-                          </Grid>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                  );
-                })}
-            </Grid>
-          )}
-          
-          <Divider sx={{ my: 3 }} />
-          
-          {/* 输出参数 */}
-          <Typography variant="subtitle1" gutterBottom>Output Parameters</Typography>
-          {parameterFields.filter(field => field.direction === ParameterDirection.OUTPUT).length === 0 ? (
-            <Typography variant="body2" color="text.secondary">
-              No output parameters defined. Click "Add Output" to add an output parameter.
-            </Typography>
-          ) : (
-            <Grid container spacing={2}>
-              {parameterFields
-                .filter(field => field.direction === ParameterDirection.OUTPUT)
-                .map((field, index) => {
-                  const fieldIndex = parameterFields.findIndex(f => f.id === field.id);
-                  return (
-                    <Grid item xs={12} key={field.id}>
-                      <Card variant="outlined">
-                        <CardHeader
-                          title={`Output Parameter ${index + 1}`}
-                          action={
-                            <IconButton onClick={() => removeParameter(fieldIndex)}>
-                              <DeleteIcon />
-                            </IconButton>
-                          }
-                        />
-                        <CardContent>
-                          <Grid container spacing={2}>
-                            <Grid item xs={12} md={6}>
-                              <Controller
-                                name={`parameters.${fieldIndex}.name`}
-                                control={control}
-                                render={({ field }) => (
-                                  <TextField
-                                    {...field}
-                                    label="Name"
-                                    fullWidth
-                                    required
-                                    error={!!errors.parameters?.[fieldIndex]?.name}
-                                    helperText={errors.parameters?.[fieldIndex]?.name?.message}
-                                  />
-                                )}
-                              />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                              <Controller
-                                name={`parameters.${fieldIndex}.parameterType`}
-                                control={control}
-                                render={({ field }) => (
-                                  <FormControl fullWidth required>
-                                    <InputLabel>Type</InputLabel>
-                                    <Select {...field} label="Type">
-                                      <MenuItem value="string">Text</MenuItem>
-                                      <MenuItem value="number">Number</MenuItem>
-                                      <MenuItem value="boolean">Boolean</MenuItem>
-                                      <MenuItem value="date">Date</MenuItem>
-                                      <MenuItem value="enum">Enum (Selection)</MenuItem>
-                                    </Select>
-                                  </FormControl>
-                                )}
-                              />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                              <Controller
-                                name={`parameters.${fieldIndex}.unit`}
-                                control={control}
-                                render={({ field }) => (
-                                  <TextField
-                                    {...field}
-                                    label="Unit"
-                                    fullWidth
-                                  />
-                                )}
-                              />
-                            </Grid>
-                            <Grid item xs={12}>
-                              <Controller
-                                name={`parameters.${fieldIndex}.description`}
-                                control={control}
-                                render={({ field }) => (
-                                  <TextField
-                                    {...field}
-                                    label="Description"
-                                    fullWidth
-                                    multiline
-                                    rows={2}
-                                    required
-                                    error={!!errors.parameters?.[fieldIndex]?.description}
-                                    helperText={errors.parameters?.[fieldIndex]?.description?.message}
-                                  />
-                                )}
-                              />
-                            </Grid>
-                          </Grid>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                  );
-                })}
-            </Grid>
-          )}
-        </Paper>
-      )}
+      {/* 参数标签页 */}
+      {activeTab === 2 && renderParameterForm()}
       
       {/* 继承和组合标签页 */}
       {activeTab === 3 && (
