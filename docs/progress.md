@@ -1,378 +1,119 @@
-# 项目开发进度
+# Workflow Management System Development Progress
 
-## 已完成功能
+## Completed Features
 
-### 1. 基础架构
-- [x] 项目基础架构搭建（React + TypeScript + Vite）
-- [x] 依赖管理配置（package.json）
-- [x] TypeScript配置（tsconfig.json）
-- [x] 环境变量配置（.env文件）
+### 1. Device Parameter Schema (2024-03-18)
+- ✅ Implemented unified parameter schema using Zod
+- ✅ Defined common parameters for reuse across devices
+- ✅ Created device-specific parameter schemas
+- ✅ Added parameter validation and type inference
+- ✅ Implemented default values for all device types
 
-### 2. UI组件
-- [x] 基础节点组件（BaseNode）
-- [x] 画布容器组件（CanvasContainer）
-- [x] 自定义边线组件（CustomEdge）
-- [x] 侧边栏组件（Sidebar）
-- [x] 控制面板组件（ControlPanel）
-- [x] 属性面板组件（PropertyPanel）
-- [x] 工作流步骤面板（WorkflowStepPanel）
-- [x] 工作流步骤创建器（WorkflowStepCreator）
-- [x] 搜索面板（SearchPanel）
-- [x] 错误对话框（ErrorDialog）
-- [x] 验证进度组件（ValidationProgress）
-- [x] 保存工作流对话框（SaveWorkflowDialog）
-- [x] 上下文菜单（ContextMenu）
-- [x] 测试样式页面（TestStylePage）
+### 2. Device Factory System (2024-03-18)
+- ✅ Created device interface and factory pattern
+- ✅ Implemented real and simulated device factories
+- ✅ Added device manager with simulation mode support
+- ✅ Designed singleton pattern for device management
 
-### 3. 主题和样式
-- [x] 节点样式定义（nodeStyles.ts）
-- [x] 动画效果定义（animations.ts）
-- [x] CSS模块样式（多个.css文件）
-- [x] 测试节点数据（testNode.ts）
+### 3. Medusa Template System (2024-03-18)
+- ✅ Defined template data structure
+- ✅ Implemented template validation logic
+- ✅ Added support for node connections
+- ✅ Created parameter constraints system
+- ✅ Implemented dependency validation
+- ✅ Added template instantiation functionality
 
-### 4. 功能模块
-- [x] 工作流编辑器（ReactFlow集成）
-- [x] 拖放功能（DnD）
-- [x] 节点连接管理
-- [x] 工作流验证
-- [x] 工作流保存
-- [x] 参数配置
-- [x] 原语编辑器（PrimitiveEditor）
-- [x] 样式测试功能
+## In Progress
 
-### 5. 数据管理
-- [x] 操作节点数据结构（OperationNode接口）
-- [x] 工作流数据结构
-- [x] 数据库连接配置
+### 1. Device Implementation
+- 🔄 Creating concrete device implementations
+- 🔄 Implementing device communication protocols
+- 🔄 Adding error handling and recovery mechanisms
 
-### 6. 后端集成
-- [x] Express服务器设置（server.ts）
-- [x] 数据库迁移配置（migrations/）
-- [x] API路由（routes/）
-- [x] 控制器（controllers/）
+### 2. Simulation System
+- 🔄 Developing device simulators
+- 🔄 Implementing mock response generation
+- 🔄 Creating simulation scenarios
 
-## 进行中功能
+## Planned Features
 
-### 1. UI改进
-- [ ] 节点样式现代化设计
-- [ ] 画布背景和网格优化
-- [ ] 边线样式和交互效果
-- [ ] 动画过渡效果
+### 1. Testing Framework
+```
+tests/
+  ├── unit/
+  │   ├── devices/         # Device component tests
+  │   ├── templates/       # Template system tests
+  │   └── workflow/        # Workflow logic tests
+  ├── integration/
+  │   ├── device_tests/    # End-to-end device tests
+  │   ├── workflow_tests/  # Workflow execution tests
+  │   └── simulation_tests/# Simulation mode tests
+  └── e2e/
+      └── scenarios/       # Real-world scenario tests
+```
 
-### 2. 功能增强
-- [ ] 工作流模拟器完善
-- [ ] 参数联动面板完善
-- [ ] 推荐系统集成
-- [ ] 可视化模板选择器
+### 2. CI/CD Pipeline
+- [ ] Setup GitHub Actions workflow
+- [ ] Configure pytest and tox
+- [ ] Add code coverage reporting
+- [ ] Implement automated deployment
 
-### 3. 演示模块
-- [ ] 颜色混合演示
-- [ ] 设备通信服务
-- [ ] 优化算法服务
-- [ ] 数据存储服务
+### 3. Template Library
+- [ ] Create basic operation templates
+- [ ] Add complex workflow templates
+- [ ] Implement template versioning
+- [ ] Add template sharing mechanism
 
-## 待开发功能
+### 4. Device Simulation
+- [ ] Implement hotplate simulator
+- [ ] Create pump simulator
+- [ ] Add valve simulator
+- [ ] Develop sensor simulator
+- [ ] Create balance simulator
 
-### 1. 高级功能
-- [ ] 工作流版本控制
-- [ ] 协作编辑
-- [ ] 实时数据可视化
-- [ ] 高级分析工具集成
+### 5. Documentation
+- [ ] API documentation
+- [ ] User guides
+- [ ] Development guidelines
+- [ ] Template creation guide
 
-### 2. 性能优化
-- [ ] 大型工作流渲染优化
-- [ ] 数据加载和缓存策略
-- [ ] 服务端渲染支持
+## Technical Debt
 
-### 3. 部署和测试
-- [ ] 单元测试覆盖
-- [ ] 集成测试
-- [ ] CI/CD配置
-- [ ] 容器化部署
+1. **Code Organization**
+   - Refactor device implementations
+   - Optimize template validation
+   - Improve error handling
 
-## 技术栈
+2. **Testing**
+   - Add more unit tests
+   - Create integration tests
+   - Setup E2E testing
 
-- **前端**:
-  - React 18
-  - TypeScript
-  - Material-UI (MUI) 5
-  - ReactFlow
-  - Emotion (CSS-in-JS)
-  - Formik + Yup (表单处理)
+3. **Performance**
+   - Optimize template instantiation
+   - Improve device communication
+   - Enhance simulation performance
 
-- **后端**:
-  - Node.js
-  - Express
-  - PostgreSQL
-  - node-pg-migrate (数据库迁移)
+## Next Steps
 
-- **开发工具**:
-  - Vite (构建工具)
-  - ESLint + TypeScript ESLint
-  - Nodemon (开发热重载)
-  - ts-node (TypeScript执行)
+1. **Immediate Priority**
+   - Complete device simulators
+   - Setup basic testing framework
+   - Create essential workflow templates
 
-## 下一步计划
+2. **Medium Term**
+   - Implement CI/CD pipeline
+   - Enhance error handling
+   - Add performance monitoring
 
-1. ✅ 修复当前UI样式问题
-2. 完善节点和边线的视觉设计
-3. 增强用户交互体验
-4. 实现颜色混合演示模块
-5. 扩展工作流推荐系统
+3. **Long Term**
+   - Develop template marketplace
+   - Add advanced simulation features
+   - Implement machine learning for workflow optimization
 
-## 最近更新 (2024-03-09)
+## Notes
 
-1. 修复了BaseNode组件的TypeScript类型定义
-2. 修复了nodeStyles导入路径问题
-3. 更新了tsconfig.json，添加了JSX支持
-4. 添加了测试样式页面和测试节点数据
-5. 在App.tsx中添加了样式测试入口
-6. 完善了文档，记录了问题修复和进展 
-7. 
-## 最近更新 (2024-03-19)正在开发的LCP通信层
-
-开发步骤：
-设置 LCP 服务：
-部署现有的 LCP 项目
-配置必要的协议适配器
-测试基本功能
-实现客户端接口：
-创建 LCPClient 类
-实现必要的 API 调用
-添加错误处理和重试机制
-集成到设备控制器：
-改造 BaseDeviceController 使用 LCP 客户端
-实现具体设备的控制器
-添加设备特定的命令和参数
-工作流集成：
-在工作流节点中使用设备控制器
-处理设备状态和数据
-实现错误处理和恢复
-
-## 最近更新 (2024-03-20) 
-已完成：
-LCP 服务正在运行
-设备模拟器正在运行并发送模拟数据
-我们可以成功发送命令到设备并接收响应
-
-开发设备模拟器：
-验证 LCP 协议的完整性：
-确保协议设计能满足所有设备类型的需求
-验证数据格式和命令结构的通用性
-测试错误处理和异常情况
-开发和测试 Canvas 集成：
-在没有实际设备的情况下进行前端开发
-测试工作流程的逻辑和控制流
-验证实时数据显示和命令发送功能
-作为参考实现：
-为实际设备驱动提供标准接口示例
-帮助理解每种设备的特定需求和行为
-便于其他开发者理解和实现设备驱动
-
-io的文件上传功能：
-前端 (React) -> 后端 API -> 数据库存储
-     ↓                ↓
-文件上传组件    文件元数据+内容
-
-数据验证微服务：
-- 读取存储的文件
-- 验证数据格式和范围
-- 返回验证结果
-
-LCP硬件控制微服务：
-- 读取存储的文件
-- 解析参数配置
-- 通过MQTT发送控制命令
-
-上传文件到后端数据库的部分：
-已经创建了基本的后端服务结构，包括：
-文件上传的路由
-文件处理的控制器
-文件存储的服务层
-数据库模型定义
-接下来需要：
-安装依赖
-设置数据库连接
-运行数据库迁移
-启动服务
-
-文件上传与LCP微服务的通信部分：
-已经实现了：
-LCP服务的类型定义
-LCP服务的通信类（HTTP + MQTT）
-React Hook用于在组件中使用LCP服务
-
-
-## 最近更新 (2024-03-21) 
-
-已完成的功能：
-Canvas画布基础功能：
-节点拖拽
-基本的节点连接
-节点类型定义（HotplateControl等）
-Medusa集成：
-HotplateControl组件的基本UI
-参数配置界面
-文件上传功能
-状态显示和图表
-数据持久化：
-Prisma数据库schema设计
-Node和File模型定义
-参数和文件的API接口
-LCP通信：
-与LCP服务的基本连接
-MQTT通信集成
-设备状态监控
-模式切换框架：
-Edit模式（基本完成）
-Simulation模式（部分完成）
-Production模式（框架已有）
-
-待开发的功能（按优先级排序）：
-工作流验证和执行：
-完善节点参数验证
-实现节点间的数据流验证
-添加工作流执行状态管理
-Prefect集成：
-Prefect服务器配置
-节点到Prefect任务的映射
-工作流生成和部署
-模式切换完善：
-Simulation模式下的完整设备模拟
-Production模式下的实际设备切换
-模式切换时的状态保持
-数据流管理：
-节点间的数据传递
-文件依赖关系处理
-执行结果的保存和展示
-
-最新完成：
-
-1. Medusa组件和LCP通信：
-   - 完成了HotplateControl组件的基础开发
-   - 实现了与LCP服务的通信逻辑
-   - 添加了状态指示器和参数图表组件
-   - 实现了模拟模式和实际运行模式的切换
-
-2. 工作流管理系统升级：
-   - 决定采用Prefect作为工作流引擎
-   - 完成了基础设施搭建：
-     - PrefectConfig组件：用于配置Prefect服务器连接
-     - PrefectClient：处理与Prefect服务器的通信
-     - NodeMapping系统：实现了可扩展的节点到Prefect任务的映射
-
-3. 待完成的工作：
-   - 工作流生成器的实现
-   - 其他设备控制节点的Prefect任务映射
-   - 工作流验证和执行逻辑
-   - 完整的模拟器和实际设备切换机制
-
-4. 架构改进：
-   - 从简单的React组件升级为完整的工作流系统
-   - 增加了配置持久化
-   - 提供了更好的扩展性支持
-
-下一步计划：
-1. 实现工作流生成器
-2. 完善节点间的数据传递机制
-3. 实现工作流的验证和执行
-4. 添加更多设备控制节点的支持
-
-当前LCP和模拟器的状态：
-LCP服务已经可以与模拟器正常通信
-模拟器实现了与真实设备相同的接口和行为
-通信协议（MQTT）已经建立
-基本的命令（如设置温度、搅拌速度）可以正常工作
-
-需要完善的前端部分：
-Canvas中节点的状态显示
-参数配置界面
-实时数据更新
-模拟/实际模式切换的UI指示
-错误处理和用户反馈
-
-切换到真实仪器时只需要：
-
-   // 在WorkflowContext中
-   const switchToProduction = async () => {
-     // 1. 停止模拟器
-     await stopSimulator();
-     
-     // 2. 切换LCP配置
-     await lcp.switchToProductionMode();
-     
-     // 3. 连接真实设备
-     await connectRealDevice();
-     
-     // 4. 更新UI状态
-     setMode('production');
-   };
-
-
-工作流进度：
-前端 Canvas Workflow
-✅ 已实现：
-通过 WorkflowNode 和 WorkflowConnection 定义了节点和连接的数据结构
-WorkflowValidator 可以验证节点参数和连接的有效性
-Workflow 到 Prefect Flow 的转换
-
-src/services/prefect/
-├── client.ts           # Prefect 客户端基础类
-├── flowConverter.ts    # 工作流转换器
-├── nodeMapping.ts      # 节点映射定义
-├── prefectService.ts   # Prefect 服务主类
-├── server.ts          # Prefect Server 通信服务
-├── taskConverter.ts    # 任务转换器
-└── workflowManager.ts  # 工作流管理器
-职责分工：
-client.ts: 处理与 Prefect API 的基础通信
-server.ts: 提供高级别的 Prefect Server 操作接口
-flowConverter.ts: 负责将前端工作流转换为 Prefect Flow
-taskConverter.ts: 处理单个任务的转换逻辑
-nodeMapping.ts: 定义设备节点到 Prefect 任务的映射规则
-prefectService.ts: 整合所有功能的主服务类
-workflowManager.ts: 管理工作流的生命周期和状态
-
-Prefect 相关的转换层
-✅ 已实现：
-flowConverter.ts: 将前端工作流转换为 Prefect Flow
-taskConverter.ts: 处理任务转换
-nodeMapping.ts: 定义节点映射规则
-Prefect 任务定义
-✅ 已实现：
-在 taskConverter.ts 中定义了 PrefectTaskDefinition 接口
-在设备定义中（如 hotplate.ts）实现了具体设备的任务定义
-与 Prefect Server 的通信
-✅ 已实现：
-server.ts: 实现了与 Prefect Server 的基本通信
-client.ts: 处理底层 API 调用
-执行状态的同步
-✅ 已实现：
-workflowManager.ts 中实现了状态轮询和事件通知
-支持实时状态更新和日志收集
-
-✅ Canvas 前端到 Workflow DAG
-设备节点定义完整
-参数配置支持
-JSON 序列化支持
-✅ Workflow 到 Prefect Flow 转换
-WorkflowConverter 类实现了：
-DAG 验证（循环检测、断开节点检测）
-节点到任务的转换
-依赖关系处理
-Prefect Flow Python 脚本生成
-使用 .wait_for() 管理任务依赖
-✅ 设备执行支持
-多种执行模式：
-本地执行
-远程 SSH
-MQTT
-gRPC
-错误处理和重试机制
-参数验证
-初始化和清理脚本支持
-✅ 分布式执行
-Worker/Agent 管理
-设备分配策略
-标签机制
-负载均衡
+- Current focus is on completing the simulation system
+- Need to coordinate with hardware team for device implementation
+- Planning to add more template examples
+- Consider adding support for custom device types
