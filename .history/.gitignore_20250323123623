@@ -1,0 +1,3 @@
+node_modules
+*_[0-9]*.tsx
+*_[0-9]*.css
