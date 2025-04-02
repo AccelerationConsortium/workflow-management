@@ -63,7 +63,8 @@ import {
   PumpControl,
   ValveControl,
   HotplateControl,
-  BalanceControl
+  BalanceControl,
+  Activation
 } from './components/OperationNodes';
 import { EdgeConfig } from './components/EdgeConfig';
 import { ContextMenu } from './components/ContextMenu';
@@ -83,6 +84,7 @@ import { ControlPanel } from './components/ControlPanel';
 import { useControlPanelState } from './hooks/useControlPanelState';
 import { BaseNode } from './components/nodes/BaseNode';
 import TestStylePage from './components/TestStylePage';
+import { SDL_CATALYST_NODES } from './components/OperationNodes/SDLCatalyst';
 
 // 创建主题
 const theme = createTheme({
@@ -135,6 +137,7 @@ const nodeTypes = {
   HotplateControl: memo(HotplateControl),
   PumpControl: memo(PumpControl),
   BalanceControl: memo(BalanceControl),
+  Activation: memo(Activation),
   baseNode: memo(BaseNode),
   PrepareElectrolyte: memo(PrepareElectrolyte),
   liquidHandler: memo(LiquidHandler),
@@ -170,6 +173,10 @@ const nodeTypes = {
   valveControl: memo(ValveControl),
   hotplateControl: memo(HotplateControl),
   balanceControl: memo(BalanceControl),
+  ...Object.entries(SDL_CATALYST_NODES).reduce((acc, [key, component]) => ({
+    ...acc,
+    [key]: memo(component)
+  }), {})
 };
 
 function Flow() {
