@@ -26,7 +26,7 @@ export const NodeProperties: React.FC<NodePropertiesProps> = ({
   const [editedValues, setEditedValues] = useState<{[key: string]: any}>({});
   const [configDialogOpen, setConfigDialogOpen] = useState(false);
   const [selectedStep, setSelectedStep] = useState<{
-    type: 'setTemperature' | 'setStirring' | 'waitTemperature';
+    type: 'setTemperature' | 'setStirring' | 'waitTemperature' | 'activate' | 'deactivate' | 'setMode';
     index: number;
   } | null>(null);
 
@@ -46,7 +46,7 @@ export const NodeProperties: React.FC<NodePropertiesProps> = ({
     }
   };
 
-  const handleStepClick = (type: 'setTemperature' | 'setStirring' | 'waitTemperature', index: number) => {
+  const handleStepClick = (type: 'setTemperature' | 'setStirring' | 'waitTemperature' | 'activate' | 'deactivate' | 'setMode', index: number) => {
     setSelectedStep({ type, index });
     setConfigDialogOpen(true);
   };
@@ -66,9 +66,13 @@ export const NodeProperties: React.FC<NodePropertiesProps> = ({
   };
 
   const renderPrimitives = () => {
-    if (node.type !== 'HotplateControl') return null;
+    if (node.type !== 'HotplateControl' && node.type !== 'Activation') return null;
 
-    const steps = [
+    const steps = node.type === 'Activation' ? [
+      { type: 'activate', label: 'Activate Device' },
+      { type: 'deactivate', label: 'Deactivate Device' },
+      { type: 'setMode', label: 'Set Operation Mode' }
+    ] : [
       { type: 'setTemperature', label: 'Set Temperature' },
       { type: 'setStirring', label: 'Set Stirring' },
       { type: 'waitTemperature', label: 'Wait for Temperature' }
@@ -122,7 +126,7 @@ export const NodeProperties: React.FC<NodePropertiesProps> = ({
       >
         <Tab label="Basic" />
         <Tab label="Advanced" />
-        {node.type === 'HotplateControl' && <Tab label="Primitives" />}
+        {(node.type === 'HotplateControl' || node.type === 'Activation') && <Tab label="Primitives" />}
       </Tabs>
 
       <div className="content">
@@ -179,7 +183,7 @@ export const NodeProperties: React.FC<NodePropertiesProps> = ({
           </>
         )}
 
-        {activeTab === 2 && node.type === 'HotplateControl' && (
+        {activeTab === 2 && (node.type === 'HotplateControl' || node.type === 'Activation') && (
           <div className="section">
             <h4>Operation Steps</h4>
             {renderPrimitives()}

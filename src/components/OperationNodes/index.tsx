@@ -1,94 +1,101 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { BaseNode } from '../BaseNode';
 import { FileNode } from './FileNode';
 import { DataUploadNode } from './DataUploadNode';
-import { OperationNode } from '../../types/workflow';
+import { OperationNode } from '@/types/workflow';
+import { SDLCatalystNodes } from './SDLCatalyst';
 
-// 基础节点组件
-export const createNodeComponent = (category: string) => ({ data, id }: { data: OperationNode; id: string }) => {
-  console.log('Creating node component:', { category, data, id });
-  
-  // 保留原始数据，只添加必要的字段
-  const nodeData = {
-    ...data,
-    id,
-    category: category || data.category,
-  };
+// Create a map to store node components
+const nodeComponentMap = new Map();
 
-  // 确保所有必要的属性都存在
-  if (!nodeData.type || !nodeData.label) {
-    console.warn('Missing required node data:', nodeData);
+// Create the node component once and store it in the map
+const getNodeComponent = (category: string) => {
+  if (!nodeComponentMap.has(category)) {
+    const NodeComponent = memo(({ data, id }: { data: OperationNode; id: string }) => {
+      console.log('Creating node component:', { category, data, id });
+      
+      const nodeData = {
+        ...data,
+        id,
+        category: category || data.category,
+      };
+
+      console.log('Final node data:', nodeData);
+      return <BaseNode data={nodeData} />;
+    });
+
+    // Store the component
+    nodeComponentMap.set(category, NodeComponent);
   }
 
-  console.log('Final node data:', nodeData);
-  return <BaseNode data={nodeData} />;
+  return nodeComponentMap.get(category);
 };
 
-// 测试节点
-export const PrepareElectrolyte = createNodeComponent('Test');
-export const MixSolution = createNodeComponent('Test');
-export const HeatTreatment = createNodeComponent('Test');
-export const Characterization = createNodeComponent('Test');
+// Export node components using the cached version
+export const PowderDispenser = getNodeComponent('Sample Processing');
+export const LiquidHandler = getNodeComponent('Sample Processing');
+export const Homogenizer = getNodeComponent('Sample Processing');
+export const Balancer = getNodeComponent('Sample Processing');
+export const SampleLibrary = getNodeComponent('Sample Processing');
+export const SampleSplitter = getNodeComponent('Sample Processing');
+export const AutoSampler = getNodeComponent('Sample Processing');
 
-// 样品处理类
-export const PowderDispenser = createNodeComponent('Sample Processing');
-export const LiquidHandler = createNodeComponent('Sample Processing');
-export const Homogenizer = createNodeComponent('Sample Processing');
-export const Balancer = createNodeComponent('Sample Processing');
-export const SampleLibrary = createNodeComponent('Sample Processing');
-export const SampleSplitter = createNodeComponent('Sample Processing');
-export const AutoSampler = createNodeComponent('Sample Processing');
+export const NMRNode = getNodeComponent('Analysis & Measurement');
+export const MassSpectrometerNode = getNodeComponent('Analysis & Measurement');
+export const FluorometerNode = getNodeComponent('Analysis & Measurement');
+export const FTIRNode = getNodeComponent('Analysis & Measurement');
+export const RamanNode = getNodeComponent('Analysis & Measurement');
 
-// 分析测量类
-export const NMRNode = createNodeComponent('Analysis & Measurement');
-export const MassSpectrometerNode = createNodeComponent('Analysis & Measurement');
-export const FluorometerNode = createNodeComponent('Analysis & Measurement');
-export const FTIRNode = createNodeComponent('Analysis & Measurement');
-export const RamanNode = createNodeComponent('Analysis & Measurement');
+export const ThermocyclerNode = getNodeComponent('Reaction Control');
+export const BioreactorNode = getNodeComponent('Reaction Control');
+export const FlowReactorNode = getNodeComponent('Reaction Control');
+export const PhotoreactorNode = getNodeComponent('Reaction Control');
+export const CrystallizerNode = getNodeComponent('Reaction Control');
 
-// 反应控制类
-export const ThermocyclerNode = createNodeComponent('Reaction Control');
-export const BioreactorNode = createNodeComponent('Reaction Control');
-export const FlowReactorNode = createNodeComponent('Reaction Control');
-export const PhotoreactorNode = createNodeComponent('Reaction Control');
+export const FilterSystemNode = getNodeComponent('Sample Processing');
+export const GelElectrophoresisNode = getNodeComponent('Analysis & Measurement');
+export const ColumnChromatographyNode = getNodeComponent('Sample Processing');
+export const DataLoggerNode = getNodeComponent('Data Acquisition');
+export const MicroscopeNode = getNodeComponent('Analysis & Measurement');
+export const MultiChannelAnalyzerNode = getNodeComponent('Data Acquisition');
+export const ThermalImagerNode = getNodeComponent('Analysis & Measurement');
 
-// 分离纯化类
-export const CrystallizerNode = createNodeComponent('Separation & Purification');
-export const FilterSystemNode = createNodeComponent('Separation & Purification');
-export const GelElectrophoresisNode = createNodeComponent('Separation & Purification');
-export const ColumnChromatographyNode = createNodeComponent('Separation & Purification');
+export const CO2IncubatorNode = getNodeComponent('Environment Control');
+export const CleanBenchNode = getNodeComponent('Environment Control');
+export const GloveboxNode = getNodeComponent('Environment Control');
+export const TemperatureControllerNode = getNodeComponent('Environment Control');
+export const UltraLowFreezerNode = getNodeComponent('Environment Control');
 
-// 数据采集类
-export const DataLoggerNode = createNodeComponent('Data Acquisition');
-export const MicroscopeNode = createNodeComponent('Data Acquisition');
-export const MultiChannelAnalyzerNode = createNodeComponent('Data Acquisition');
-export const ThermalImagerNode = createNodeComponent('Data Acquisition');
+// Data Input nodes
+const FileNodeComponent = getNodeComponent('Data Input');
+const DataUploadNodeComponent = getNodeComponent('Data Input');
 
-// 环境控制类
-export const CO2IncubatorNode = createNodeComponent('Environment Control');
-export const CleanBenchNode = createNodeComponent('Environment Control');
-export const GloveboxNode = createNodeComponent('Environment Control');
-export const TemperatureControllerNode = createNodeComponent('Environment Control');
-export const UltraLowFreezerNode = createNodeComponent('Environment Control');
+export const PrepareElectrolyte = getNodeComponent('Sample Processing');
+export const MixSolution = getNodeComponent('Sample Processing');
+export const HeatTreatment = getNodeComponent('Sample Processing');
+export const Characterization = getNodeComponent('Analysis & Measurement');
 
-// Medusa 节点
-export const PumpControl = createNodeComponent('Medusa');
-export const ValveControl = createNodeComponent('Medusa');
-export const HotplateControl = createNodeComponent('Medusa');
-export const BalanceControl = createNodeComponent('Medusa');
+export const PumpControl = getNodeComponent('Device Control');
+export const ValveControl = getNodeComponent('Device Control');
+export const HotplateControl = getNodeComponent('Device Control');
+export const BalanceControl = getNodeComponent('Device Control');
+export const Activation = getNodeComponent('Catalyst Workflow');
 
-// 导出所有节点组件
+// Export all node components
 export const nodeComponents = {
-  FileNode,
-  DataUploadNode,
+  FileNode: FileNodeComponent,
+  DataUploadNode: DataUploadNodeComponent,
   PrepareElectrolyte,
   PumpControl,
   ValveControl,
   HotplateControl,
   BalanceControl,
+  Activation,
+  ...SDLCatalystNodes
 };
 
 export {
-  FileNode,
-  DataUploadNode,
+  FileNodeComponent as FileNode,
+  DataUploadNodeComponent as DataUploadNode,
+  SDLCatalystNodes
 }; 

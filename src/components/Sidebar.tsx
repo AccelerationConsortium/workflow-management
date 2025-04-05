@@ -111,6 +111,8 @@ const Sidebar: React.FC = () => {
     'Separation & Purification': '#E07B42',
     'Data Acquisition': '#89A7C2',
     'Environment Control': '#4BBCD4',
+    'Catalyst Workflow': '#7B68EE',
+    'SDL Catalyst': '#9C27B0'
   };
 
   const onDragStart = (event: React.DragEvent, nodeType: string) => {
