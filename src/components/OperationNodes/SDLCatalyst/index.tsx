@@ -3,6 +3,7 @@ import { OperationNode } from '../../../data/operationNodes';
 import { OCVNode } from './OCV/OCVNode';
 import { CPNode } from './CP/CPNode';
 import { CVANode } from './CVA/CVANode';
+import { BatchCVANode } from './CVA/BatchCVANode';
 import { PEISNode } from './PEIS/PEISNode';
 import { LSVNode } from './LSV/LSVNode';
 
@@ -11,6 +12,7 @@ export const SDL_CATALYST_NODES = {
   sdl_catalyst_ocv: OCVNode,
   sdl_catalyst_cp: CPNode,
   sdl_catalyst_cva: CVANode,
+  sdl_catalyst_batch_cva: BatchCVANode,
   sdl_catalyst_peis: PEISNode,
   sdl_catalyst_lsv: LSVNode,
 };
@@ -34,6 +36,12 @@ export const SDL_CATALYST_NODE_TYPES: Pick<OperationNode, 'type' | 'label' | 'de
     label: 'CVA',
     category: 'SDL Catalyst',
     description: 'Cyclic Voltammetry measurement',
+  },
+  {
+    type: 'sdl_catalyst_batch_cva',
+    label: 'Batch CVA',
+    category: 'SDL Catalyst',
+    description: 'Batch Cyclic Voltammetry measurement with multiple iterations',
   },
   {
     type: 'sdl_catalyst_peis',

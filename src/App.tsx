@@ -11,20 +11,24 @@ import ReactFlow, {
   useReactFlow,
   ReactFlowProvider,
   EdgeProps,
-  NodeTypes
+  NodeTypes,
+  Node
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import './styles/theme.css';
 import './styles/App.css';
-import { ConnectionType, OperationNode } from './types/workflow';
+import { ConnectionType, OperationNode, UnitOperation } from './types/workflow';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import axios from 'axios';
 import { Box, Button } from '@mui/material';
 
-import Sidebar from './components/Sidebar';
-import { DnDProvider, useDnD } from './context/DnDContext';
+// Import BaseNode separately
+import { BaseNode } from './components/BaseNode';
+
+// Import all node components
 import {
+  FileNode,
+  DataUploadNode,
   PowderDispenser,
   LiquidHandler,
   Homogenizer,
@@ -34,14 +38,6 @@ import {
   AutoSampler,
   NMRNode,
   MassSpectrometerNode,
-  FluorometerNode,
-  FTIRNode,
-  RamanNode,
-  ThermocyclerNode,
-  BioreactorNode,
-  FlowReactorNode,
-  PhotoreactorNode,
-  CrystallizerNode,
   FilterSystemNode,
   GelElectrophoresisNode,
   ColumnChromatographyNode,
@@ -54,8 +50,6 @@ import {
   GloveboxNode,
   TemperatureControllerNode,
   UltraLowFreezerNode,
-  FileNode,
-  DataUploadNode,
   PrepareElectrolyte,
   MixSolution,
   HeatTreatment,
@@ -66,11 +60,13 @@ import {
   BalanceControl,
   Activation
 } from './components/OperationNodes';
+
+// Import other components and contexts
+import { DnDProvider, useDnD } from './context/DnDContext';
 import { EdgeConfig } from './components/EdgeConfig';
 import { ContextMenu } from './components/ContextMenu';
 import { SaveWorkflowDialog } from './components/SaveWorkflowDialog';
 import { WorkflowStorage } from './services/workflowStorage';
-import './components/Toolbar.css';
 import { WorkflowSimulator } from './components/WorkflowSimulator';
 import { ValidatedNode } from './components/ValidatedNode';
 import { ValidationResult } from './types/validation';
@@ -82,9 +78,9 @@ import { WorkflowStepCreator } from './components/WorkflowStepCreator';
 import { WorkflowStepPanel } from './components/WorkflowStepPanel';
 import { ControlPanel } from './components/ControlPanel';
 import { useControlPanelState } from './hooks/useControlPanelState';
-import { BaseNode } from './components/nodes/BaseNode';
+import { SDLCatalystNodes } from './components/OperationNodes/SDLCatalyst';
+import Sidebar from './components/Sidebar';
 import TestStylePage from './components/TestStylePage';
-import { SDL_CATALYST_NODES } from './components/OperationNodes/SDLCatalyst';
 
 // 创建主题
 const theme = createTheme({
@@ -130,16 +126,11 @@ const initialNodes = [
 let id = 0;
 const getId = () => `dndnode_${id++}`;
 
-// Define nodeTypes outside of the component
-const nodeTypes = {
+// Define base node types outside of the component
+const baseNodeTypes = {
   fileInput: memo(FileNode),
   dataUpload: memo(DataUploadNode),
-  HotplateControl: memo(HotplateControl),
-  PumpControl: memo(PumpControl),
-  BalanceControl: memo(BalanceControl),
-  Activation: memo(Activation),
-  baseNode: memo(BaseNode),
-  PrepareElectrolyte: memo(PrepareElectrolyte),
+  powderDispenser: memo(PowderDispenser),
   liquidHandler: memo(LiquidHandler),
   homogenizer: memo(Homogenizer),
   balancer: memo(Balancer),
@@ -148,11 +139,6 @@ const nodeTypes = {
   autoSampler: memo(AutoSampler),
   nmr: memo(NMRNode),
   massSpectrometer: memo(MassSpectrometerNode),
-  valveControl: memo(ValveControl),
-  mixSolution: memo(MixSolution),
-  heatTreatment: memo(HeatTreatment),
-  characterization: memo(Characterization),
-  powderDispenser: memo(PowderDispenser),
   filterSystem: memo(FilterSystemNode),
   gelElectrophoresis: memo(GelElectrophoresisNode),
   columnChromatography: memo(ColumnChromatographyNode),
@@ -173,10 +159,20 @@ const nodeTypes = {
   valveControl: memo(ValveControl),
   hotplateControl: memo(HotplateControl),
   balanceControl: memo(BalanceControl),
-  ...Object.entries(SDL_CATALYST_NODES).reduce((acc, [key, component]) => ({
-    ...acc,
-    [key]: memo(component)
-  }), {})
+  activation: memo(Activation)
+};
+
+// Define SDL Catalyst node types
+const MemoizedSDLCatalystNodes = Object.entries(SDLCatalystNodes).reduce((acc, [key, component]) => ({
+  ...acc,
+  [key]: memo((props) => React.createElement(component, { ...props }))
+}), {});
+
+// Define all node types
+const ALL_NODE_TYPES = {
+  ...baseNodeTypes,
+  ...MemoizedSDLCatalystNodes,
+  custom: CustomEdge
 };
 
 function Flow() {
@@ -186,6 +182,13 @@ function Flow() {
   const { screenToFlowPosition } = useReactFlow();
   const [type] = useDnD();
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
+
+  // Use ALL_NODE_TYPES directly
+  const nodeTypes = ALL_NODE_TYPES;
+
+  const edgeTypes = useMemo(() => ({
+    custom: CustomEdge
+  }), []);
 
   const [selectedConnection, setSelectedConnection] = useState<Connection | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
@@ -308,13 +311,14 @@ function Flow() {
         data: {
           ...nodeDefinition,
           id: `${type}_${getId()}`,
+          workflowId: state.currentWorkflow?.id || undefined,
         },
       };
 
       console.log('Creating new node:', newNode);
       setNodes((nds) => nds.concat(newNode));
     },
-    [reactFlowInstance]
+    [reactFlowInstance, state.currentWorkflow]
   );
 
   const onEdgeClick = useCallback((event, edge) => {
@@ -744,7 +748,7 @@ function Flow() {
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           nodeTypes={nodeTypes}
-          edgeTypes={{ custom: CustomEdge }}
+          edgeTypes={edgeTypes}
           onNodeClick={onNodeClick}
           onPaneClick={onPaneClick}
           onInit={setReactFlowInstance}
