@@ -1,0 +1,9 @@
+tasks:
+  - id: task1
+    type: print
+    parameters:
+      text: "Testing Python Executor"
+  - id: task2
+    type: sum
+    parameters:
+      numbers: [1, 2, 3, 4, 5] 

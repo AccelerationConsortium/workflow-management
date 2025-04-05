@@ -3,6 +3,12 @@ import { NodeProps } from 'reactflow';
 import { BaseUONode } from '../BaseUONode';
 
 const parameters = {
+  vs_initial: {
+    type: 'boolean',
+    label: 'VS Initial',
+    description: 'Enable/disable VS initial',
+    defaultValue: false
+  },
   start_voltage: {
     type: 'number',
     label: 'Start Voltage',

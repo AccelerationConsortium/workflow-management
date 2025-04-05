@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import { Node, Edge } from 'reactflow';
 import { Workflow, WorkflowStep } from '../types/workflow';
 
 interface WorkflowState {
@@ -13,22 +14,40 @@ interface WorkflowState {
   edges: Edge[];
 }
 
+type WorkflowActionType = 
+  | 'SET_WORKFLOWS'
+  | 'SET_CURRENT_WORKFLOW'
+  | 'ADD_STEP'
+  | 'UPDATE_STEP'
+  | 'DELETE_STEP'
+  | 'SET_SELECTED_STEP'
+  | 'SET_SELECTED_NODES'
+  | 'SET_WORKFLOW_CREATING'
+  | 'ADD_NODES_TO_STEP'
+  | 'SET_NODES'
+  | 'SET_EDGES'
+  | 'REMOVE_NODE'
+  | 'REMOVE_EDGES';
+
 type WorkflowAction =
   | { type: 'SET_WORKFLOWS'; payload: Workflow[] }
   | { type: 'SET_CURRENT_WORKFLOW'; payload: Workflow | null }
   | { type: 'ADD_STEP'; payload: WorkflowStep }
-  | { type: 'UPDATE_STEP'; payload: { stepId: string; updates: Partial<WorkflowStep> } }
+  | { type: 'UPDATE_STEP'; payload: { stepId: string; step: Partial<WorkflowStep> } }
   | { type: 'DELETE_STEP'; payload: string }
   | { type: 'SET_SELECTED_STEP'; payload: string | null }
   | { type: 'SET_SELECTED_NODES'; payload: string[] }
   | { type: 'SET_WORKFLOW_CREATING'; payload: boolean }
   | { type: 'ADD_NODES_TO_STEP'; payload: { stepId: string; nodeIds: string[] } }
-  | { type: 'SET_SELECTED_ELEMENTS'; payload: { nodeIds: string[]; edgeIds: string[] } }
-  | { type: 'SET_CONTEXT_MENU_POSITION'; payload: { x: number; y: number } | null }
   | { type: 'SET_NODES'; payload: Node[] }
-  | { type: 'SET_EDGES'; payload: Edge[] };
+  | { type: 'SET_EDGES'; payload: Edge[] }
+  | { type: 'REMOVE_NODE'; payload: string }
+  | { type: 'REMOVE_EDGES'; payload: string };
 
 const workflowReducer = (state: WorkflowState, action: WorkflowAction): WorkflowState => {
+  console.log('WorkflowContext reducer:', action.type, action.payload);
+  console.log('Current state:', state);
+
   switch (action.type) {
     case 'SET_WORKFLOWS':
       return { ...state, workflows: action.payload };
@@ -54,7 +73,7 @@ const workflowReducer = (state: WorkflowState, action: WorkflowAction): Workflow
           ...state.currentWorkflow,
           steps: state.currentWorkflow.steps.map(step =>
             step.id === action.payload.stepId
-              ? { ...step, ...action.payload.updates }
+              ? { ...step, ...action.payload.step }
               : step
           )
         }
@@ -95,20 +114,71 @@ const workflowReducer = (state: WorkflowState, action: WorkflowAction): Workflow
         }
       };
     
-    case 'SET_SELECTED_ELEMENTS':
-      return {
-        ...state,
-        selectedNodeIds: action.payload.nodeIds,
-        selectedEdgeIds: action.payload.edgeIds
-      };
-    
-    case 'SET_CONTEXT_MENU_POSITION':
-      return { ...state, contextMenuPosition: action.payload };
-    
-    case 'SET_NODES':
+    case 'SET_NODES': {
+      console.log('处理 SET_NODES action');
+      console.log('新的节点列表:', action.payload);
       return { ...state, nodes: action.payload };
+    }
     case 'SET_EDGES':
       return { ...state, edges: action.payload };
+    
+    case 'REMOVE_NODE': {
+      console.log('处理 REMOVE_NODE action');
+      console.log('要删除的节点 ID:', action.payload);
+      
+      // 1. 从节点列表中移除节点
+      const updatedNodes = state.nodes.filter(node => node.id !== action.payload);
+      
+      // 2. 从边列表中移除相关边
+      const updatedEdges = state.edges.filter(
+        edge => edge.source !== action.payload && edge.target !== action.payload
+      );
+      
+      // 3. 从选中节点列表中移除
+      const updatedSelectedNodeIds = state.selectedNodeIds.filter(id => id !== action.payload);
+      
+      // 4. 如果当前工作流存在，更新工作流中的节点
+      const updatedWorkflow = state.currentWorkflow
+        ? {
+            ...state.currentWorkflow,
+            steps: state.currentWorkflow.steps.map(step => ({
+              ...step,
+              nodeIds: step.nodeIds.filter(id => id !== action.payload)
+            }))
+          }
+        : null;
+      
+      console.log('删除后的状态:', {
+        nodes: updatedNodes,
+        edges: updatedEdges,
+        selectedNodeIds: updatedSelectedNodeIds
+      });
+      
+      return {
+        ...state,
+        nodes: updatedNodes,
+        edges: updatedEdges,
+        selectedNodeIds: updatedSelectedNodeIds,
+        currentWorkflow: updatedWorkflow
+      };
+    }
+    
+    case 'REMOVE_EDGES': {
+      console.log('处理 REMOVE_EDGES action');
+      console.log('要删除相关边的节点 ID:', action.payload);
+      
+      // 删除与指定节点相关的所有边
+      const updatedEdges = state.edges.filter(
+        edge => edge.source !== action.payload && edge.target !== action.payload
+      );
+      
+      console.log('更新后的边列表:', updatedEdges);
+      
+      return {
+        ...state,
+        edges: updatedEdges
+      };
+    }
     
     default:
       return state;

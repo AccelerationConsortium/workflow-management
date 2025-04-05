@@ -3,7 +3,7 @@ import ReactFlow, { Background, Controls, MiniMap } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { Box, Typography, Button, Container } from '@mui/material';
 import { testNodes } from '../data/testNode';
-import { BaseNode } from './nodes/BaseNode';
+import { BaseNode } from './BaseNode';
 import { CanvasContainer } from './Canvas/CanvasContainer';
 
 // 注册节点类型

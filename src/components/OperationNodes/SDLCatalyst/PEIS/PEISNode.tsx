@@ -19,6 +19,12 @@ const parameters = {
     min: 0.01,
     defaultValue: 0.1
   },
+  vs_ref: {
+    type: 'boolean',
+    label: 'VS',
+    description: 'Voltage measurement against reference electrode',
+    defaultValue: true
+  },
   points_per_decade: {
     type: 'number',
     label: 'Points per Decade',

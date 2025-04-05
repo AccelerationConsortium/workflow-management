@@ -3,6 +3,7 @@ import { BaseNode } from '../BaseNode';
 import { FileNode } from './FileNode';
 import { DataUploadNode } from './DataUploadNode';
 import { OperationNode } from '@/types/workflow';
+import { SDLCatalystNodes } from './SDLCatalyst';
 
 // Create a map to store node components
 const nodeComponentMap = new Map();
@@ -89,10 +90,12 @@ export const nodeComponents = {
   ValveControl,
   HotplateControl,
   BalanceControl,
-  Activation
+  Activation,
+  ...SDLCatalystNodes
 };
 
 export {
   FileNodeComponent as FileNode,
   DataUploadNodeComponent as DataUploadNode,
+  SDLCatalystNodes
 }; 

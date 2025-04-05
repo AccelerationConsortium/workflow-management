@@ -1,0 +1,9 @@
+import CVANode from './CVA/CVANode';
+import BatchCVANode from './CVA/BatchCVANode';
+import OT2Node from './OT2/OT2Node';
+
+export const SDL_CATALYST_NODES = {
+  CVA: CVANode,
+  BatchCVA: BatchCVANode,
+  OT2: OT2Node
+}; 
