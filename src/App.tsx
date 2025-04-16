@@ -578,20 +578,97 @@ function Flow() {
   }, [nodes, setNodes, setEdges]);
 
   const handleSaveWorkflow = (name: string, description: string) => {
+    // 深度复制并清理节点和边的数据，去除可能导致循环引用的属性
+    const cleanedNodes = nodes.map(node => {
+      // 深度复制节点数据，去除可能导致 JSON 序列化问题的属性
+      const cleanData = {};
+      if (node.data) {
+        // 只复制简单的数据属性，避免方法和事件处理程序
+        Object.keys(node.data).forEach(key => {
+          const value = node.data[key];
+          if (
+            typeof value !== 'function' &&  // 排除函数
+            !(value instanceof Element) &&  // 排除 DOM 元素
+            key !== '__rf'                // 排除 ReactFlow 内部属性
+          ) {
+            cleanData[key] = value;
+          }
+        });
+      }
+      
+      return {
+        id: node.id,
+        type: node.type,
+        position: node.position,
+        data: cleanData
+      };
+    });
+
+    const cleanedEdges = edges.map(edge => {
+      // 深度复制边数据，去除可能导致 JSON 序列化问题的属性
+      const cleanData = edge.data ? { ...edge.data } : undefined;
+      
+      return {
+        id: edge.id,
+        source: edge.source,
+        target: edge.target,
+        type: edge.type,
+        data: cleanData
+      };
+    });
+    
     const workflowData = {
+      id: `workflow-${Date.now()}`,
       name,
       description,
-      nodes,
-      edges,
+      nodes: cleanedNodes,
+      edges: cleanedEdges,
+      metadata: {
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        author: 'user',
+        version: '1.0',
+        tags: []
+      }
     };
     
+    console.log('准备保存的工作流数据:', {
+      id: workflowData.id,
+      name: workflowData.name,
+      nodesCount: workflowData.nodes.length,
+      edgesCount: workflowData.edges.length
+    });
+    
     try {
-      WorkflowStorage.saveWorkflow(workflowData);
+      // 保存到 localStorage
+      const savedWorkflow = WorkflowStorage.saveWorkflow(workflowData);
       setShowSaveDialog(false);
-      // 可以添加一个提示保存成功
+      
+      // 直接使用处理好的 workflowData 创建 JSON 文件
+      const workflowJson = JSON.stringify(workflowData, null, 2);
+      console.log('序列化后的 JSON 长度:', workflowJson.length);
+      
+      const blob = new Blob([workflowJson], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      // 创建临时下载链接
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${name.replace(/\s+/g, '_')}_workflow.json`;
+      document.body.appendChild(link);
+      link.click();
+      
+      // 清理
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }, 100);
+      
+      // 提示保存成功
+      alert(`工作流 "${name}" 已保存并下载！包含 ${workflowData.nodes.length} 个节点和 ${workflowData.edges.length} 条连接。`);
     } catch (error) {
       console.error('Failed to save workflow:', error);
-      // 可以添加一个错误提示
+      alert(`保存工作流失败: ${error}`);
     }
   };
 
@@ -823,6 +900,14 @@ function Flow() {
           onUndo={handleUndo}
         />
       </div>
+
+      {/* 添加保存工作流的对话框 */}
+      {showSaveDialog && (
+        <SaveWorkflowDialog
+          onSave={handleSaveWorkflow}
+          onCancel={() => setShowSaveDialog(false)}
+        />
+      )}
     </Box>
   );
 }

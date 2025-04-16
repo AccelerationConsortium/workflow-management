@@ -13,17 +13,6 @@ const hideNumberInputArrows = {
 };
 
 const parameters = {
-  purpose: {
-    type: 'string',
-    label: 'Purpose',
-    description: 'Purpose of the CVA measurement',
-    defaultValue: 'cv',
-    options: [
-      { label: 'CV', value: 'cv' },
-      { label: 'Activation', value: 'activation' },
-      { label: 'Stability', value: 'stability' }
-    ]
-  },
   vs_ref: {
     type: 'string',
     label: 'VS',

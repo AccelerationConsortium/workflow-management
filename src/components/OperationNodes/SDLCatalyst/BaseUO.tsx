@@ -14,6 +14,11 @@ import {
 } from '@mui/material';
 import { BaseUOProps, Parameter, UOConfig } from './types';
 
+/**
+ * BaseUO - 一个简化的参数编辑组件，不包含 ReactFlow 节点功能
+ * 可以在非流程图环境中使用，例如配置面板或测试界面
+ * 注意：在大多数场景下，应该使用 BaseUONode，这个组件主要用于单独测试参数编辑功能
+ */
 export const BaseUO: React.FC<BaseUOProps & { config: UOConfig }> = ({
   id,
   position,
@@ -33,14 +38,14 @@ export const BaseUO: React.FC<BaseUOProps & { config: UOConfig }> = ({
 
   const validateParameter = (name: string, value: any, param: Parameter): string => {
     if (param.required && (value === undefined || value === '')) {
-      return 'This field is required';
+      return '此字段为必填项';
     }
     if (param.type === 'number') {
       if (param.min !== undefined && value < param.min) {
-        return `Value must be at least ${param.min}`;
+        return `值必须大于等于 ${param.min}`;
       }
       if (param.max !== undefined && value > param.max) {
-        return `Value must be at most ${param.max}`;
+        return `值必须小于等于 ${param.max}`;
       }
     }
     return '';
@@ -53,7 +58,7 @@ export const BaseUO: React.FC<BaseUOProps & { config: UOConfig }> = ({
     setParameters(prev => ({ ...prev, [name]: value }));
     setErrors(prev => ({ ...prev, [name]: error }));
     
-    // Only trigger onChange if there are no errors
+    // 只有在没有错误时才触发onChange
     if (!error) {
       onParameterChange(parameters);
     }
@@ -65,7 +70,7 @@ export const BaseUO: React.FC<BaseUOProps & { config: UOConfig }> = ({
       parameters,
     };
     onExport();
-    console.log('Exported configuration:', exportData);
+    console.log('导出配置:', exportData);
   };
 
   const renderParameter = (name: string, param: Parameter) => {
@@ -102,10 +107,28 @@ export const BaseUO: React.FC<BaseUOProps & { config: UOConfig }> = ({
               label={param.label}
             >
               {param.options?.map((option) => (
-                <MenuItem key={option} value={option}>
-                  {option}
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
                 </MenuItem>
               ))}
+            </Select>
+            {(error || param.description) && (
+              <FormHelperText>{error || param.description}</FormHelperText>
+            )}
+          </FormControl>
+        );
+        
+      case 'boolean':
+        return (
+          <FormControl key={name} fullWidth margin="normal" error={!!error}>
+            <InputLabel>{param.label}</InputLabel>
+            <Select
+              value={String(parameters[name])}
+              onChange={(e) => handleParameterChange(name, e.target.value === 'true')}
+              label={param.label}
+            >
+              <MenuItem value="true">是</MenuItem>
+              <MenuItem value="false">否</MenuItem>
             </Select>
             {(error || param.description) && (
               <FormHelperText>{error || param.description}</FormHelperText>
@@ -156,7 +179,7 @@ export const BaseUO: React.FC<BaseUOProps & { config: UOConfig }> = ({
             onClick={handleExport}
             disabled={Object.keys(errors).some(key => !!errors[key])}
           >
-            Export
+            导出
           </Button>
         </Box>
       </CardContent>
