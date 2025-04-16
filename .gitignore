@@ -82,3 +82,8 @@ storybook-static/
 
 # Optional: Jest coverage
 /coverage/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
