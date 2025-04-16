@@ -20,10 +20,14 @@ const parameters = {
     defaultValue: 0.1
   },
   vs_ref: {
-    type: 'boolean',
+    type: 'string',
     label: 'VS',
     description: 'Voltage measurement against reference electrode',
-    defaultValue: true
+    defaultValue: 'true',
+    options: [
+      { label: 'True', value: 'true' },
+      { label: 'False', value: 'false' }
+    ]
   },
   points_per_decade: {
     type: 'number',
@@ -58,6 +62,10 @@ export const PEISNode: React.FC<NodeProps> = (props) => {
         label: 'PEIS',
         parameters,
         onParameterChange: (params) => {
+          // Convert vs_ref from string to boolean
+          if (params.vs_ref !== undefined) {
+            params.vs_ref = params.vs_ref === 'true';
+          }
           console.log('PEIS parameters changed:', params);
           // Here you can handle parameter changes
         },

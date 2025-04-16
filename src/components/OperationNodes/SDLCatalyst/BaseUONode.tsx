@@ -32,33 +32,11 @@ import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { styled } from '@mui/material/styles';
 import { useWorkflow } from '../../../context/WorkflowContext';
-
-interface Parameter {
-  type: string;
-  label: string;
-  unit?: string;
-  description?: string;
-  min?: number;
-  max?: number;
-  defaultValue?: any;
-  options?: { value: string; label: string }[];
-  required?: boolean;
-  render?: (props: any) => React.ReactNode;
-  inputProps?: any;
-}
+import { Parameter, BaseUONodeData } from './types';
 
 interface BaseUONodeProps extends NodeProps {
-  data: {
-    label: string;
-    parameters: Record<string, Parameter>;
-    onParameterChange?: (params: Record<string, any>) => void;
-    onExport?: () => void;
-    workflowId: string;
-    onDelete?: (id: string) => void;
-    onNodeDelete?: (id: string) => void;
-  };
+  data: BaseUONodeData;
   id: string;
-  workflowId?: string;
 }
 
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -162,7 +140,7 @@ const StyledRadioGroup = styled(RadioGroup)(({ theme }) => ({
   },
 }));
 
-export const BaseUONode: React.FC<BaseUONodeProps> = ({ data, id, workflowId }) => {
+export const BaseUONode: React.FC<BaseUONodeProps> = ({ data, id }) => {
   const { state, dispatch } = useWorkflow();
   const [expanded, setExpanded] = useState(false);
   const [parameters, setParameters] = useState<Record<string, any>>({});

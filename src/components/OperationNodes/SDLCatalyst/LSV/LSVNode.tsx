@@ -3,11 +3,15 @@ import { NodeProps } from 'reactflow';
 import { BaseUONode } from '../BaseUONode';
 
 const parameters = {
-  vs_initial: {
-    type: 'boolean',
-    label: 'VS Initial',
-    description: 'Enable/disable VS initial',
-    defaultValue: false
+  vs_ref: {
+    type: 'string',
+    label: 'VS',
+    description: 'Voltage measurement against reference electrode',
+    defaultValue: 'true',
+    options: [
+      { label: 'True', value: 'true' },
+      { label: 'False', value: 'false' }
+    ]
   },
   start_voltage: {
     type: 'number',
@@ -50,6 +54,10 @@ export const LSVNode: React.FC<NodeProps> = (props) => {
         label: 'LSV',
         parameters,
         onParameterChange: (params) => {
+          // Convert vs_ref from string to boolean
+          if (params.vs_ref !== undefined) {
+            params.vs_ref = params.vs_ref === 'true';
+          }
           console.log('LSV parameters changed:', params);
           // Here you can handle parameter changes
         },
