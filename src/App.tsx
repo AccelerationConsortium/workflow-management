@@ -175,6 +175,52 @@ const ALL_NODE_TYPES = {
   custom: CustomEdge
 };
 
+// Define the remote execution endpoint
+const REMOTE_EXECUTION_URL = "https://SissiFeng-catalyst-OT2.hf.space/run_experiment";
+
+// Interface for backend step result
+interface StepResult {
+  step_index: number;
+  label: string; // Ideally backend should return node id
+  status: 'success' | 'error';
+  message?: string;
+  // other potential fields from backend result
+}
+
+// Interface for backend overall response
+interface WorkflowExecutionResponse {
+  status: 'success' | 'partial_failure' | 'error';
+  results?: StepResult[];
+  execution_order?: string[];
+  log_file?: string;
+  message?: string; // For top-level errors
+}
+
+// Default Global Config (Example based on test.json - replace/manage as needed)
+const DEFAULT_GLOBAL_CONFIG = {
+    labware: {
+      reactor_plate: { type: "opentrons_24_wellplate_3.4ml_pcr_full_skirt", slot: 9, working_well: "B2" },
+      wash_station: { type: "opentrons_6_wellplate_16.2ml_flat", slot: 3 },
+      tip_rack: { type: "opentrons_96_tiprack_1000ul", slot: 1 },
+      electrode_tip_rack: { type: "opentrons_96_tiprack_300ul", slot: 10 },
+      solution_rack: { type: "opentrons_12_reservoir_21000ul", slot: 2 }
+    },
+    instruments: {
+      pipette: { type: "p1000_single_gen2", mount: "right" }
+    },
+    solutions: {
+      electrolyte: { labware: "solution_rack", position: "A1" },
+      wash_solution: { labware: "solution_rack", position: "A2" }
+    },
+    arduino_control: {
+      pumps: { water: 0, acid: 1, out: 2 },
+      temperature: { default: 25.0 }
+    },
+    biologic_control: {
+      reference_electrode: { type: "RE", enabled: true }
+    }
+};
+
 function Flow() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -218,6 +264,8 @@ function Flow() {
     handleUndo,
     setCurrentNodeId
   } = useControlPanelState();
+
+  const [isRealRunMode, setIsRealRunMode] = useState(false);
 
   // 获取测试节点数据
   useEffect(() => {
@@ -577,100 +625,244 @@ function Flow() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [nodes, setNodes, setEdges]);
 
-  const handleSaveWorkflow = (name: string, description: string) => {
-    // 深度复制并清理节点和边的数据，去除可能导致循环引用的属性
-    const cleanedNodes = nodes.map(node => {
-      // 深度复制节点数据，去除可能导致 JSON 序列化问题的属性
-      const cleanData = {};
-      if (node.data) {
-        // 只复制简单的数据属性，避免方法和事件处理程序
-        Object.keys(node.data).forEach(key => {
-          const value = node.data[key];
-          if (
-            typeof value !== 'function' &&  // 排除函数
-            !(value instanceof Element) &&  // 排除 DOM 元素
-            key !== '__rf'                // 排除 ReactFlow 内部属性
-          ) {
-            cleanData[key] = value;
-          }
-        });
-      }
-      
+  /**
+   * Updates the execution status visual representation on the nodes.
+   * @param {string[]} executionOrder - Array of node IDs in execution order.
+   * @param {StepResult[]} results - Array of results for each step from the backend.
+   */
+  const updateNodesStatusFromResults = useCallback((executionOrder: string[], results: StepResult[]) => {
+    setNodes((currentNodes) => {
+      // Create a map for quick lookup of results by execution order index
+      const resultMap = new Map<string, StepResult>();
+      results.forEach((result, index) => {
+        // Use the node ID from executionOrder at the same index to map the result
+        if (executionOrder && executionOrder[index]) {
+           const nodeId = executionOrder[index];
+           resultMap.set(nodeId, result);
+        } else {
+           console.warn(`Result at index ${index} could not be mapped to execution order.`);
+        }
+      });
+
+      return currentNodes.map((node) => {
+        const result = resultMap.get(node.id);
+        if (result) {
+          // Update the node's data with the execution status
+          // Ensure data object exists
+          const newData = {
+             ...(node.data || {}), // Preserve existing data
+             executionStatus: result.status, // Add or update status
+             executionMessage: result.message // Optional: Add message if exists
+          };
+          return { ...node, data: newData };
+        }
+        // Reset status for nodes not in this run? Or keep previous status?
+        // For now, only update nodes that were part of this execution.
+        // Resetting might be better for clarity on subsequent runs.
+        // Let's reset status for nodes *not* in the current executionOrder:
+        else if (executionOrder.includes(node.id)) {
+             // Node was expected but no result? Should not happen if backend is correct. Mark as unknown?
+             // Or maybe the node wasn't executed due to upstream failure. Keep its status null/undefined.
+             return node; // Keep as is for now
+        } else {
+            // Node was not part of this execution run, reset its status
+            const newData = { ...(node.data || {}) };
+            delete newData.executionStatus; // Remove status from previous runs
+            delete newData.executionMessage;
+            return { ...node, data: newData };
+        }
+        // return node; // Keep nodes not in results unchanged
+      });
+    });
+    console.log("Node statuses updated based on execution results.");
+     // 📝 TODO: Trigger visual updates in BaseNode/specific nodes based on `data.executionStatus`
+  }, [setNodes]);
+
+  /**
+   * Generates the workflow payload in the format matching test.json.
+   * Includes global_config, structured nodes, and simplified edges.
+   * @returns {object | null} The workflow data object or null if generation fails.
+   */
+  const generateWorkflowPayload = useCallback(() => {
+    // --- Nodes Transformation ---
+    const transformedNodes = nodes.map(node => {
+      // Extract label and params from node.data, ensuring they exist
+      // IMPORTANT: Assumes node.data contains a 'label' string and a 'params' object
+      // structured exactly like in test.json.
+      const label = node.data?.label || node.type || 'Unnamed Node'; // Fallback label
+      const params = node.data?.params || {}; // Fallback to empty object if no params in data
+
+      // Construct the node object according to test.json format
       return {
         id: node.id,
         type: node.type,
-        position: node.position,
-        data: cleanData
+        label: label, // Top-level label
+        params: params  // Top-level params object (must match test.json structure internally)
       };
     });
 
-    const cleanedEdges = edges.map(edge => {
-      // 深度复制边数据，去除可能导致 JSON 序列化问题的属性
-      const cleanData = edge.data ? { ...edge.data } : undefined;
-      
+    // --- Edges Transformation ---
+    const transformedEdges = edges.map(edge => {
+      // Only include source and target
       return {
-        id: edge.id,
         source: edge.source,
-        target: edge.target,
-        type: edge.type,
-        data: cleanData
+        target: edge.target
       };
     });
-    
-    const workflowData = {
-      id: `workflow-${Date.now()}`,
-      name,
-      description,
-      nodes: cleanedNodes,
-      edges: cleanedEdges,
-      metadata: {
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        author: 'user',
-        version: '1.0',
-        tags: []
-      }
+
+    // --- Combine with Global Config ---
+    const finalPayload = {
+      global_config: DEFAULT_GLOBAL_CONFIG, // Using the default for now
+      nodes: transformedNodes,
+      edges: transformedEdges
     };
-    
-    console.log('准备保存的工作流数据:', {
-      id: workflowData.id,
-      name: workflowData.name,
-      nodesCount: workflowData.nodes.length,
-      edgesCount: workflowData.edges.length
-    });
-    
+
+     // Basic validation
+     if (!finalPayload.nodes || finalPayload.nodes.length === 0) {
+        console.error("Workflow generation failed: No nodes found.");
+        return null; // Return null if no nodes
+     }
+     if (!finalPayload.edges) { // Edges might be empty for single-node workflows
+        console.warn("Workflow generation: No edges found.");
+     }
+
+
+    return finalPayload;
+  }, [nodes, edges]); // Dependencies: nodes and edges
+
+  /**
+   * Handles saving the workflow to local storage and downloading as a JSON file.
+   * @param {string} name - The name for the workflow.
+   * @param {string} description - The description for the workflow.
+   */
+  const handleSaveWorkflow = useCallback((name: string, description: string) => {
+    const workflowPayload = generateWorkflowPayload(); // Use the new generator
+    if (!workflowPayload) {
+      console.error("Failed to generate workflow payload for saving.");
+      alert("保存工作流失败：无法生成符合格式的工作流数据。");
+      return;
+    }
+
+    // Add metadata separate from the core payload if needed for the file,
+    // but the core payload sent to execution should match test.json
+    const saveData = {
+       // Metadata for the saved file itself
+       metadata: {
+          id: `workflow-${Date.now()}`,
+          name,
+          description,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          author: 'user',
+          version: '1.0',
+          tags: []
+       },
+       // The actual workflow data matching test.json structure
+       workflow: workflowPayload
+    };
+
+
+    console.log('准备保存的工作流文件数据:', saveData);
+
     try {
-      // 保存到 localStorage
-      const savedWorkflow = WorkflowStorage.saveWorkflow(workflowData);
+      // Save to localStorage might need adjustment if WorkflowStorage expects the new format
+      // WorkflowStorage.saveWorkflow(saveData); // Or maybe save just saveData.workflow? Check implementation.
       setShowSaveDialog(false);
-      
-      // 直接使用处理好的 workflowData 创建 JSON 文件
-      const workflowJson = JSON.stringify(workflowData, null, 2);
+
+      // Create and download the JSON file using the combined save data
+      const workflowJson = JSON.stringify(saveData, null, 2); // Save the structure with metadata
       console.log('序列化后的 JSON 长度:', workflowJson.length);
-      
+
       const blob = new Blob([workflowJson], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
-      
-      // 创建临时下载链接
+
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${name.replace(/\s+/g, '_')}_workflow.json`;
+      const safeName = name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+      link.download = `${safeName || 'workflow'}_${saveData.metadata.id}.json`; // Use metadata id
       document.body.appendChild(link);
       link.click();
-      
-      // 清理
+
       setTimeout(() => {
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
       }, 100);
-      
-      // 提示保存成功
-      alert(`工作流 "${name}" 已保存并下载！包含 ${workflowData.nodes.length} 个节点和 ${workflowData.edges.length} 条连接。`);
+
+      alert(`工作流 "${name}" 已保存并下载！`);
     } catch (error) {
       console.error('Failed to save workflow:', error);
-      alert(`保存工作流失败: ${error}`);
+      alert(`保存工作流失败: ${error instanceof Error ? error.message : String(error)}`);
     }
-  };
+  }, [generateWorkflowPayload]); // Dependency includes the payload generator
+
+  /**
+   * Sends the current workflow JSON to the remote execution endpoint.
+   * Processes the structured response including step results and log file path.
+   * Only proceeds if isRealRunMode is true.
+   */
+  const handleRunExperiment = useCallback(async () => {
+    if (!isRealRunMode) {
+      alert("当前处于模拟模式。请切换到真实运行模式以发送到远程机器。");
+      console.log("Simulation mode active. Remote execution skipped.");
+      return;
+    }
+
+    // Reset statuses before sending the new run
+     setNodes((nds) =>
+         nds.map((n) => {
+             const newData = { ...(n.data || {}) };
+             delete newData.executionStatus;
+             delete newData.executionMessage;
+             return { ...n, data: newData };
+         })
+     );
+
+    const workflowPayload = generateWorkflowPayload(); // Generate the payload matching test.json
+    if (!workflowPayload) {
+        alert("无法生成工作流数据，无法发送实验请求。");
+        console.error("Failed to generate workflow payload for execution.");
+        return;
+    }
+
+    console.log("准备发送到远程执行:", JSON.stringify(workflowPayload, null, 2));
+    alert("正在发送实验请求到远程服务器...");
+
+    try {
+      const response = await fetch(REMOTE_EXECUTION_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(workflowPayload) // Send the correctly formatted payload
+      });
+
+      const responseData: WorkflowExecutionResponse = await response.json();
+
+      if (!response.ok) {
+        const errorMsg = responseData.message || `服务器错误: ${response.status} ${response.statusText}`;
+        throw new Error(errorMsg);
+      }
+
+      console.log("远程运行结果:", responseData);
+
+      if (responseData.results && responseData.execution_order) {
+        updateNodesStatusFromResults(responseData.execution_order, responseData.results);
+      } else {
+         console.warn("Backend response missing 'results' or 'execution_order', cannot update node statuses.");
+      }
+
+      if (responseData.log_file) {
+        console.log("远程日志文件:", responseData.log_file);
+        alert(`实验执行完成！状态: ${responseData.status}. 日志文件: ${responseData.log_file}`);
+      } else {
+         alert(`实验执行完成！状态: ${responseData.status}.`);
+      }
+
+    } catch (error) {
+      console.error("发送或处理实验请求失败:", error);
+      alert(`实验请求失败: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }, [generateWorkflowPayload, isRealRunMode, setNodes, updateNodesStatusFromResults]);
 
   const Toolbar = () => {
     const createButtonRef = useRef<HTMLButtonElement>(null);
@@ -682,7 +874,11 @@ function Flow() {
         right: 20,
         zIndex: 1000,
         display: 'flex',
-        gap: '8px'
+        gap: '8px',
+        background: 'rgba(255, 255, 255, 0.8)', // Added background for visibility
+        padding: '5px',
+        borderRadius: '4px',
+        boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
       }}>
         <button 
           ref={createButtonRef}
@@ -697,10 +893,18 @@ function Flow() {
           />
         )}
         <button onClick={() => setShowSaveDialog(true)}>
-          Save Workflow
+          💾 Save Workflow
         </button>
         <button onClick={() => {/* TODO: 添加加载功能 */}}>
-          Load Workflow
+          📂 Load Workflow
+        </button>
+        {/* Toggle Run Mode Button */}
+        <button onClick={() => setIsRealRunMode(!isRealRunMode)} title={isRealRunMode ? "Switch to Simulation Mode" : "Switch to Real Run Mode"}>
+          {isRealRunMode ? '🔬 Real Mode' : '💻 Sim Mode'}
+        </button>
+        {/* Run Experiment Button */}
+        <button onClick={handleRunExperiment} disabled={!nodes.length} title={isRealRunMode ? "Send workflow to remote lab" : "Run simulation (or switch mode)"}>
+           ▶️ Run Experiment
         </button>
       </div>
     );
@@ -957,3 +1161,4 @@ function App() {
 }
 
 export default App; 
+

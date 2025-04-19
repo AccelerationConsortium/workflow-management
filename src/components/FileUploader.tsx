@@ -44,7 +44,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ inputId, nodeId, onU
     };
 
     // Set up error handling
-    reader.onerror = (error) => {
+    reader.onerror = (error: ProgressEvent<FileReader>) => {
       console.error('Error reading file:', error);
       setFileName(null);
     };

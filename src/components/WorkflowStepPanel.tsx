@@ -49,7 +49,7 @@ export const WorkflowStepPanel: React.FC<WorkflowStepPanelProps> = ({ anchorEl }
 
   const handleSaveWorkflow = async () => {
     try {
-      // ��备完整的工作流数据
+      // 备完整的工作流数据
       const workflowData = {
         ...state.currentWorkflow,
         nodes: state.nodes.map(node => ({
@@ -75,9 +75,13 @@ export const WorkflowStepPanel: React.FC<WorkflowStepPanelProps> = ({ anchorEl }
       
       // 显示成功提示
       console.log('Workflow saved successfully');
-    } catch (error) {
-      console.error('Failed to save workflow:', error);
-      // TODO: 显示错误提示
+    } catch (error: unknown) {
+      console.error('Failed to save step:', error);
+      setSnackbar({
+        open: true,
+        message: `Error saving step: ${error instanceof Error ? error.message : String(error)}`,
+        severity: 'error'
+      });
     }
   };
 
