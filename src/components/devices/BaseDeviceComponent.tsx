@@ -53,8 +53,9 @@ export const BaseDeviceComponent: React.FC<BaseDeviceProps> = ({
       const response = await deviceService.sendCommand(deviceId, command, parameters);
       setDeviceState(prev => ({ ...prev, isLoading: false }));
       return response;
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    } catch (error: unknown) {
+      console.error('Command execution error:', error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       setDeviceState(prev => ({
         ...prev,
         isLoading: false,
