@@ -112,8 +112,12 @@ export const SearchPanel: React.FC<SearchPanelProps> = ({ isOpen, onClose, onSel
         // 4. 显示配置对话框
         setShowConfigDialog(true);
       }
-    } catch (error) {
-      console.error('Error finding compatible primitives:', error);
+    } catch (error: unknown) {
+      console.error('Search error:', error);
+      setResults({
+        items: [],
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
   };
 

@@ -33,8 +33,13 @@ export const WorkflowSimulator: React.FC<WorkflowSimulatorProps> = ({ workflow }
         setValidationError(result);
         setShowErrorDialog(true);
       }
-    } catch (error) {
-      console.error('Simulation failed:', error);
+    } catch (error: unknown) {
+      console.error('Simulation error:', error);
+      setValidationError({
+        isValid: false,
+        errors: [String(error)]
+      });
+      setShowErrorDialog(true);
     } finally {
       setIsSimulating(false);
       // Keep progress bar visible for a while after completion

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { NodeProps } from 'reactflow';
 import {
   Box,
@@ -18,6 +18,8 @@ import {
   Paper,
   Tooltip,
   ButtonGroup,
+  Switch,
+  FormControlLabel,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
@@ -30,20 +32,20 @@ import ScienceIcon from '@mui/icons-material/Science';
 import { BaseUONode } from '../BaseUONode';
 import * as XLSX from 'xlsx';
 
-interface CVAParameters {
+interface CVANodeParameters {
   cycles_per_measurement: number;
-  vs_ref: boolean;
+  vs_ref: string;
   sample_interval: number;
 }
 
-interface BatchParameters extends CVAParameters {
+interface BatchIterationParameters {
   iteration: number;
   start_voltage: number;
   end_voltage: number;
   scan_rate: number;
 }
 
-const parameters = {
+const baseParametersDefinition = {
   cycles_per_measurement: {
     type: 'number',
     label: 'Cycles Per Measurement',
@@ -53,10 +55,15 @@ const parameters = {
     required: true
   },
   vs_ref: {
-    type: 'boolean',
-    label: 'VS',
+    type: 'string',
+    label: 'VS Ref',
     description: 'Voltage measurement against reference electrode',
-    defaultValue: true
+    defaultValue: 'true',
+    options: [
+      { label: 'True', value: 'true' },
+      { label: 'False', value: 'false' }
+    ],
+    required: true
   },
   sample_interval: {
     type: 'number',
@@ -69,11 +76,16 @@ const parameters = {
   }
 };
 
+const defaultIterationParams: Omit<BatchIterationParameters, 'iteration'> = {
+    start_voltage: -0.5,
+    end_voltage: 0.5,
+    scan_rate: 0.1,
+};
+
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   padding: theme.spacing(1),
 }));
 
-// 文件上传按钮样式
 const UploadButton = styled('button')(({ theme }) => ({
   margin: theme.spacing(1),
   padding: theme.spacing(1, 2),
@@ -91,34 +103,63 @@ const UploadButton = styled('button')(({ theme }) => ({
 }));
 
 export const BatchCVANode: React.FC<NodeProps> = (props) => {
-  const [batchParameters, setBatchParameters] = useState<BatchParameters[]>([]);
+  const [baseParams, setBaseParams] = useState<CVANodeParameters>(() => ({
+      cycles_per_measurement: props.data?.params?.cycles_per_measurement ?? baseParametersDefinition.cycles_per_measurement.defaultValue,
+      vs_ref: props.data?.params?.vs_ref ?? baseParametersDefinition.vs_ref.defaultValue,
+      sample_interval: props.data?.params?.sample_interval ?? baseParametersDefinition.sample_interval.defaultValue,
+  }));
+
+  const [batchIterations, setBatchIterations] = useState<BatchIterationParameters[]>(
+      props.data?.params?.batch_iterations ?? []
+  );
+
   const [openDialog, setOpenDialog] = useState(false);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
   const [openUploadDialog, setOpenUploadDialog] = useState(false);
 
+  const handleBaseParameterChange = useCallback((newParams: Partial<CVANodeParameters>) => {
+     const updatedBaseParams = { ...baseParams, ...newParams };
+     setBaseParams(updatedBaseParams);
+
+     const fullNodeParams = {
+         ...updatedBaseParams,
+         batch_iterations: batchIterations
+     };
+
+     if (props.data.onParameterChange) {
+         props.data.onParameterChange(props.id, fullNodeParams);
+     }
+  }, [baseParams, batchIterations, props.data, props.id]);
+
   const handleAddIteration = () => {
-    setBatchParameters(prev => [
+    setBatchIterations(prev => [
       ...prev,
       {
         iteration: prev.length + 1,
-        start_voltage: -0.5,
-        end_voltage: 0.5,
-        scan_rate: 0.1,
-        cycles_per_measurement: parameters.cycles_per_measurement.defaultValue,
-        sample_interval: parameters.sample_interval.defaultValue,
-        vs_ref: parameters.vs_ref.defaultValue
+        ...defaultIterationParams
       }
     ]);
   };
 
   const handleRemoveIteration = (index: number) => {
-    setBatchParameters(prev => prev.filter((_, i) => i !== index));
+    setBatchIterations(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleParameterChange = (index: number, field: keyof BatchParameters, value: number) => {
-    setBatchParameters(prev => prev.map((param, i) => 
+  const handleIterationParameterChange = useCallback((index: number, field: keyof BatchIterationParameters, value: number) => {
+    setBatchIterations(prev => prev.map((param, i) =>
       i === index ? { ...param, [field]: value } : param
     ));
+  }, []);
+
+  const handleApplyBatchParams = () => {
+     const fullNodeParams = {
+         ...baseParams,
+         batch_iterations: batchIterations
+     };
+     if (props.data.onParameterChange) {
+         props.data.onParameterChange(props.id, fullNodeParams);
+     }
+    setOpenDialog(false);
   };
 
   const handleUploadClick = () => {
@@ -139,10 +180,10 @@ export const BatchCVANode: React.FC<NodeProps> = (props) => {
 
       reader.onload = async (e) => {
         const content = e.target?.result;
-        let parsedData: BatchParameters[] = [];
+        let parsedIterations: BatchIterationParameters[] = [];
+        const requiredHeaders = ['start_voltage', 'end_voltage', 'scan_rate'];
 
         if (file.name.endsWith('.csv')) {
-          // 解析 CSV
           const text = content as string;
           const rows = text.split('\n')
             .map(row => row.split(','))
@@ -150,15 +191,13 @@ export const BatchCVANode: React.FC<NodeProps> = (props) => {
           
           const headers = rows[0].map(h => h.trim().toLowerCase());
 
-          parsedData = rows.slice(1)
+          parsedIterations = rows.slice(1)
             .filter(row => row.some(cell => cell.trim() !== ''))
             .map((row, index) => {
               const rowData: any = {};
               headers.forEach((header, i) => {
                 const value = row[i]?.trim() || '';
-                if (header === 'vs_ref') {
-                  rowData[header] = value.toLowerCase() === 'true' || value === '1';
-                } else {
+                if (requiredHeaders.includes(header)) {
                   rowData[header] = value === '' ? null : (Number(value) || 0);
                 }
               });
@@ -168,13 +207,9 @@ export const BatchCVANode: React.FC<NodeProps> = (props) => {
                 start_voltage: rowData.start_voltage ?? -0.5,
                 end_voltage: rowData.end_voltage ?? 0.5,
                 scan_rate: rowData.scan_rate ?? 0.1,
-                cycles_per_measurement: rowData.cycles_per_measurement ?? parameters.cycles_per_measurement.defaultValue,
-                sample_interval: rowData.sample_interval ?? parameters.sample_interval.defaultValue,
-                vs_ref: typeof rowData.vs_ref === 'boolean' ? rowData.vs_ref : parameters.vs_ref.defaultValue
               };
             });
         } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-          // 解析 Excel
           const data = new Uint8Array(content as ArrayBuffer);
           const workbook = XLSX.read(data, { type: 'array' });
           const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -186,15 +221,13 @@ export const BatchCVANode: React.FC<NodeProps> = (props) => {
 
           const headers = (jsonData[0] as string[]).map(h => String(h).trim().toLowerCase());
           
-          parsedData = (jsonData.slice(1) as any[])
+          parsedIterations = (jsonData.slice(1) as any[])
             .filter(row => row.some((cell: unknown) => cell !== undefined && cell !== ''))
             .map((row, index) => {
               const rowData: any = {};
               headers.forEach((header, i) => {
                 const value = row[i];
-                if (header === 'vs_ref') {
-                  rowData[header] = String(value).toLowerCase() === 'true' || value === 1;
-                } else {
+                if (requiredHeaders.includes(header)) {
                   rowData[header] = value === undefined || value === '' ? null : (Number(value) || 0);
                 }
               });
@@ -204,23 +237,21 @@ export const BatchCVANode: React.FC<NodeProps> = (props) => {
                 start_voltage: rowData.start_voltage ?? -0.5,
                 end_voltage: rowData.end_voltage ?? 0.5,
                 scan_rate: rowData.scan_rate ?? 0.1,
-                cycles_per_measurement: rowData.cycles_per_measurement ?? parameters.cycles_per_measurement.defaultValue,
-                sample_interval: rowData.sample_interval ?? parameters.sample_interval.defaultValue,
-                vs_ref: typeof rowData.vs_ref === 'boolean' ? rowData.vs_ref : parameters.vs_ref.defaultValue
               };
             });
+        } else {
+          throw new Error('Unsupported file type.');
         }
 
-        if (parsedData.length > 0) {
-          setBatchParameters(parsedData);
+        if (parsedIterations.length > 0) {
+          setBatchIterations(parsedIterations);
           setOpenDialog(true);
-          handleUploadClose();
-          // 通知父组件参数更新
+          const fullNodeParams = { ...baseParams, batch_iterations: parsedIterations };
           if (props.data.onParameterChange) {
-            props.data.onParameterChange(parsedData);
+            props.data.onParameterChange(props.id, fullNodeParams);
           }
         } else {
-          throw new Error('没有找到有效的数据');
+          throw new Error('No valid iteration data found.');
         }
       };
 
@@ -239,14 +270,12 @@ export const BatchCVANode: React.FC<NodeProps> = (props) => {
       setUploadedFileName(null);
     }
 
-    // 清除 input 的值以支持重复上传
     if (event.target) {
       event.target.value = '';
     }
   };
 
   const handleExportExcel = () => {
-    // TODO: Implement Excel export logic
     console.log('Exporting parameters to Excel');
   };
 
@@ -275,28 +304,26 @@ export const BatchCVANode: React.FC<NodeProps> = (props) => {
         </Box>
       </DialogTitle>
       <DialogContent>
-        <TableContainer component={Paper}>
-          <Table size="small">
+        <TableContainer component={Paper} sx={{ maxHeight: 440 }}>
+          <Table size="small" stickyHeader>
             <TableHead>
               <TableRow>
-                <StyledTableCell>Iteration</StyledTableCell>
+                <StyledTableCell>Iter.</StyledTableCell>
                 <StyledTableCell>Start V (V)</StyledTableCell>
                 <StyledTableCell>End V (V)</StyledTableCell>
                 <StyledTableCell>Scan Rate (V/s)</StyledTableCell>
-                <StyledTableCell>Cycles/Measure</StyledTableCell>
-                <StyledTableCell>Sample Int. (s)</StyledTableCell>
                 <StyledTableCell>Actions</StyledTableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {batchParameters.map((param, index) => (
+              {batchIterations.map((param, index) => (
                 <TableRow key={param.iteration}>
                   <StyledTableCell>{param.iteration}</StyledTableCell>
                   <StyledTableCell>
                     <input
                       type="number"
                       value={param.start_voltage}
-                      onChange={(e) => handleParameterChange(index, 'start_voltage', Number(e.target.value))}
+                      onChange={(e) => handleIterationParameterChange(index, 'start_voltage', Number(e.target.value))}
                       style={{ width: '80px' }}
                     />
                   </StyledTableCell>
@@ -304,7 +331,7 @@ export const BatchCVANode: React.FC<NodeProps> = (props) => {
                     <input
                       type="number"
                       value={param.end_voltage}
-                      onChange={(e) => handleParameterChange(index, 'end_voltage', Number(e.target.value))}
+                      onChange={(e) => handleIterationParameterChange(index, 'end_voltage', Number(e.target.value))}
                       style={{ width: '80px' }}
                     />
                   </StyledTableCell>
@@ -312,23 +339,8 @@ export const BatchCVANode: React.FC<NodeProps> = (props) => {
                     <input
                       type="number"
                       value={param.scan_rate}
-                      onChange={(e) => handleParameterChange(index, 'scan_rate', Number(e.target.value))}
-                      style={{ width: '80px' }}
-                    />
-                  </StyledTableCell>
-                  <StyledTableCell>
-                    <input
-                      type="number"
-                      value={param.cycles_per_measurement}
-                      onChange={(e) => handleParameterChange(index, 'cycles_per_measurement', Number(e.target.value))}
-                      style={{ width: '80px' }}
-                    />
-                  </StyledTableCell>
-                  <StyledTableCell>
-                    <input
-                      type="number"
-                      value={param.sample_interval}
-                      onChange={(e) => handleParameterChange(index, 'sample_interval', Number(e.target.value))}
+                      onChange={(e) => handleIterationParameterChange(index, 'scan_rate', Number(e.target.value))}
+                      step="0.001"
                       style={{ width: '80px' }}
                     />
                   </StyledTableCell>
@@ -344,15 +356,14 @@ export const BatchCVANode: React.FC<NodeProps> = (props) => {
         </TableContainer>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => setOpenDialog(false)}>Close</Button>
-        <Button variant="contained" color="primary" onClick={() => setOpenDialog(false)}>
-          Apply
+        <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
+        <Button variant="contained" color="primary" onClick={handleApplyBatchParams}>
+          Apply Changes
         </Button>
       </DialogActions>
     </Dialog>
   );
 
-  // 自定义文件上传输入控件
   const FileUploadControl = () => (
     <Box>
       <input
@@ -375,6 +386,13 @@ export const BatchCVANode: React.FC<NodeProps> = (props) => {
     </Box>
   );
 
+  const internalCleanup = () => {
+    console.log(`Performing internal cleanup for BatchCVANode ${props.id}`);
+    setBatchIterations([]);
+    setOpenDialog(false);
+    setUploadedFileName(null);
+  };
+
   return (
     <>
       <BaseUONode
@@ -382,41 +400,24 @@ export const BatchCVANode: React.FC<NodeProps> = (props) => {
         data={{
           ...props.data,
           label: 'Batch CVA',
-          parameters: {
-            ...parameters,
-            uploadButton: {
-              type: 'custom',
-              label: '上传批量参数',
-              render: () => (
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleUploadClick}
-                  fullWidth
-                  startIcon={<FileUploadIcon />}
-                >
-                  {uploadedFileName || '上传 CSV/Excel 文件'}
-                </Button>
-              )
-            }
-          },
-          onDelete: (id: string) => {
-            // 清理当前节点的状态
-            setBatchParameters([]);
-            setOpenDialog(false);
-            setOpenUploadDialog(false);
-            setUploadedFileName(null);
-          },
-          onNodeDelete: (id: string) => {
-            // 通知父组件节点被删除
-            if (props.data.onNodeDelete) {
-              props.data.onNodeDelete(id);
-            }
-          },
-          onExport: () => {
-            console.log('Exporting CVA configuration');
-            console.log('Batch parameters:', batchParameters);
-          }
+          parameters: baseParametersDefinition,
+          params: baseParams,
+          onParameterChange: handleBaseParameterChange,
+          internalCleanup: internalCleanup,
+          customControls: (
+             <Box sx={{ p: 1, borderTop: '1px solid #eee', mt: 1}}>
+                 <Button
+                     variant="outlined"
+                     size="small"
+                     fullWidth
+                     onClick={() => setOpenDialog(true)}
+                     startIcon={<ScienceIcon />}
+                 >
+                    Configure Batch ({batchIterations.length} Iterations)
+                 </Button>
+                 {uploadedFileName && <Typography variant="caption" display="block" sx={{mt:0.5, textAlign:'center'}}>File: {uploadedFileName}</Typography>}
+             </Box>
+          )
         }}
       />
       <BatchParametersDialog />
