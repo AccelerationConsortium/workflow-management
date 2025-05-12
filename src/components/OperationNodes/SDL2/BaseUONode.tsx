@@ -222,7 +222,45 @@ export const BaseUONode: React.FC<BaseUONodeProps> = ({ data, selected }) => {
                 size="small"
                 color="primary"
                 startIcon={<UploadFileIcon />}
-                onClick={() => fileInputRef.current?.click()}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  // 直接使用DOM API打开文件选择窗口
+                  const input = document.createElement('input');
+                  input.type = 'file';
+                  input.accept = '.json';
+                  input.onchange = (event) => {
+                    const file = (event.target as HTMLInputElement).files?.[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                      try {
+                        const jsonData = JSON.parse(e.target?.result as string);
+                        // Update all parameters from the JSON file
+                        const newParams = { ...params };
+
+                        // Process the imported JSON data
+                        Object.entries(jsonData).forEach(([key, value]) => {
+                          if (data.parameters[key]) {
+                            newParams[key] = value;
+                          }
+                        });
+
+                        setParams(newParams);
+
+                        if (data.onParameterChange) {
+                          data.onParameterChange(newParams);
+                        }
+                      } catch (error) {
+                        console.error('Error parsing JSON file:', error);
+                        alert('Invalid JSON file. Please upload a valid JSON file.');
+                      }
+                    };
+                    reader.readAsText(file);
+                  };
+                  input.click();
+                }}
                 sx={{ mr: 1, flex: 1 }}
               >
                 Import JSON
