@@ -1,0 +1,60 @@
+.conditional-node {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: white;
+  width: 280px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.conditional-node.selected {
+  box-shadow: 0 0 0 2px #6b21a8;
+}
+
+.conditional-node .node-header {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  padding: 8px 12px;
+}
+
+.conditional-node .node-content {
+  padding: 12px;
+}
+
+.conditional-node .port-label {
+  position: absolute;
+  font-size: 10px;
+  bottom: 25px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.conditional-node .true-port {
+  left: 30%;
+  color: #10b981;
+}
+
+.conditional-node .false-port {
+  left: 70%;
+  color: #ef4444;
+}
+
+.conditional-node .case-port {
+  color: #6366f1;
+}
+
+/* 条件边的样式 */
+.conditional-edge-true {
+  stroke: #10b981;
+  stroke-width: 2;
+}
+
+.conditional-edge-false {
+  stroke: #ef4444;
+  stroke-width: 2;
+}
+
+.conditional-edge-case {
+  stroke: #6366f1;
+  stroke-width: 2;
+}
