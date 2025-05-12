@@ -209,7 +209,7 @@ export const BaseUONode: React.FC<BaseUONodeProps> = ({ data, selected }) => {
         </AccordionSummary>
         <AccordionDetails>
           {showJSONControls && (
-            <Box className="json-controls" sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+            <Box className="json-controls" sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, mt: 1 }}>
               <input
                 type="file"
                 accept=".json"
@@ -217,24 +217,26 @@ export const BaseUONode: React.FC<BaseUONodeProps> = ({ data, selected }) => {
                 style={{ display: 'none' }}
                 onChange={handleFileUpload}
               />
-              <Tooltip title="Import parameters from JSON">
-                <IconButton
-                  size="small"
-                  color="primary"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <UploadFileIcon />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Export parameters to JSON">
-                <IconButton
-                  size="small"
-                  color="primary"
-                  onClick={handleExportJSON}
-                >
-                  <DownloadIcon />
-                </IconButton>
-              </Tooltip>
+              <Button
+                variant="outlined"
+                size="small"
+                color="primary"
+                startIcon={<UploadFileIcon />}
+                onClick={() => fileInputRef.current?.click()}
+                sx={{ mr: 1, flex: 1 }}
+              >
+                Import JSON
+              </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                color="primary"
+                startIcon={<DownloadIcon />}
+                onClick={handleExportJSON}
+                sx={{ flex: 1 }}
+              >
+                Export JSON
+              </Button>
             </Box>
           )}
           <Box className="parameters-container">

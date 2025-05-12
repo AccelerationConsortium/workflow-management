@@ -931,25 +931,8 @@ function Flow() {
     event.preventDefault();
     event.stopPropagation();
 
-    // 检查点击的是否是节点标题区域
-    const target = event.target as HTMLElement;
-    if (!target.closest('.node-header')) {
-      return; // 如果不是标题区域，不显示属性面板
-    }
-
-    // 计算弹出位置，确保在视口内
-    const rect = target.getBoundingClientRect();
-    const position = {
-      x: Math.min(rect.right + 10, window.innerWidth - 290),
-      y: Math.min(rect.top, window.innerHeight - 400)
-    };
-
-    setSelectedNode({
-      id: node.id,
-      type: node.type,
-      data: node.data,
-      position
-    });
+    // 不再显示属性面板，取消basic/advance卡片功能
+    // 保留事件处理以防止其他副作用
   }, []);
 
   const handleNodeUpdate = useCallback(async (
