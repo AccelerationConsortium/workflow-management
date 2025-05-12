@@ -2,6 +2,9 @@ import React from 'react';
 import './styles.css';
 
 const operationGroups = {
+  'Workflow Control': [
+    { type: 'conditional', label: '条件节点' }
+  ],
   'Test': [
     { type: 'prepare_electrolyte', label: 'Prepare Electrolyte' },
     { type: 'mix_solution', label: 'Mix Solution' },
@@ -86,4 +89,4 @@ export function Sidebar() {
       </div>
     </aside>
   );
-} 
+}

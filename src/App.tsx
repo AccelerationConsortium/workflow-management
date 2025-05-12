@@ -60,6 +60,7 @@ import {
   BalanceControl,
   Activation
 } from './components/OperationNodes';
+import ConditionalNode from './components/OperationNodes/ConditionalNode';
 
 // Import other components and contexts
 import { DnDProvider, useDnD } from './context/DnDContext';
@@ -73,6 +74,7 @@ import { ValidationResult } from './types/validation';
 import { NodeProperties } from './components/NodeProperties';
 import { unitOperationService } from './services/unitOperationService';
 import { CustomEdge } from './components/CustomEdge';
+import ConditionalEdge from './components/edges/ConditionalEdge';
 import { WorkflowProvider, useWorkflow } from './context/WorkflowContext';
 import { WorkflowStepCreator } from './components/WorkflowStepCreator';
 import { WorkflowStepPanel } from './components/WorkflowStepPanel';
@@ -180,6 +182,7 @@ const ALL_NODE_TYPES = {
   ...baseNodeTypes,
   ...MemoizedSDLCatalystNodes,
   ...MemoizedSDL2Nodes,
+  conditional: memo(ConditionalNode),
   custom: CustomEdge
 };
 
@@ -241,7 +244,8 @@ function Flow() {
   const nodeTypes = ALL_NODE_TYPES;
 
   const edgeTypes = useMemo(() => ({
-    custom: CustomEdge
+    custom: CustomEdge,
+    conditional: ConditionalEdge
   }), []);
 
   const [selectedConnection, setSelectedConnection] = useState<Connection | null>(null);
@@ -291,22 +295,46 @@ function Flow() {
   }, []);
 
   const onConnect = useCallback((params) => {
+    // 获取源节点和源句柄ID
+    const sourceNode = nodes.find(node => node.id === params.source);
+    const sourceNodeType = sourceNode?.type;
+    const sourceHandleId = params.sourceHandle;
+
+    // 设置连接配置对话框的参数
     setShowEdgeConfig(true);
-    setSelectedEdge(params);
-  }, []);
+    setSelectedEdge({
+      ...params,
+      // 添加源节点类型和源句柄ID，以便在EdgeConfig中使用
+      sourceNodeType,
+      sourceHandleId
+    });
+  }, [nodes]);
 
   const handleEdgeConfig = useCallback((config: EdgeConfig) => {
     if (selectedEdge) {
+      // 获取源节点类型
+      const sourceNode = nodes.find(node => node.id === selectedEdge.source);
+      const sourceNodeType = sourceNode?.type;
+
+      // 确定边的类型
+      const edgeType = config.mode === 'conditional' || sourceNodeType === 'conditional'
+        ? 'conditional'
+        : 'custom';
+
       const edge = {
         ...selectedEdge,
         data: config,
-        type: 'custom',
+        type: edgeType,
+        label: config.label,
+        style: config.style,
+        animated: config.animated
       };
+
       setEdges((eds) => addEdge(edge, eds));
       setShowEdgeConfig(false);
       setSelectedEdge(null);
     }
-  }, [selectedEdge, setEdges]);
+  }, [selectedEdge, setEdges, nodes]);
 
   const addConnection = useCallback(
     (type: ConnectionType) => {
@@ -1097,6 +1125,9 @@ function Flow() {
             setSelectedEdge(null);
           }}
           onSave={handleEdgeConfig}
+          sourceNodeType={selectedEdge?.sourceNodeType}
+          sourceHandleId={selectedEdge?.sourceHandleId}
+          connection={selectedEdge}
         />
         <Toolbar />
         {selectedNode && (

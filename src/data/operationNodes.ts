@@ -24,7 +24,7 @@ export interface OperationNode {
   description: string;
   category: "SDL Catalyst" | "SDL2" | "Sample Processing" | "Analysis & Measurement" | "Reaction Control" |
              "Separation & Purification" | "Data Acquisition" | "Environment Control" |
-             "Test" | "Catalyst Workflow";
+             "Test" | "Catalyst Workflow" | "Workflow Control";
   expanded?: boolean;
   icon?: string;
   parameters?: {
@@ -72,6 +72,35 @@ export interface OperationNode {
 }
 
 export const operationNodes: OperationNode[] = [
+  // 条件节点
+  {
+    type: 'conditional',
+    label: '条件节点',
+    description: '根据条件判断执行不同的路径',
+    category: 'Workflow Control',
+    expanded: false,
+    parameters: [
+      {
+        name: 'conditionType',
+        label: '条件类型',
+        type: 'string',
+        default: 'boolean'
+      },
+      {
+        name: 'conditionSource',
+        label: '条件来源',
+        type: 'string',
+        default: 'parameter'
+      },
+      {
+        name: 'expression',
+        label: '条件表达式',
+        type: 'string',
+        default: '',
+        description: '例如: pH > 7 或 temperature < 50'
+      }
+    ]
+  },
   ...SDL_CATALYST_NODE_TYPES.map(nodeType => ({
     ...nodeType,
     expanded: false
