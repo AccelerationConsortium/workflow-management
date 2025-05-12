@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState, useEffect, useMemo, memo } from 'react';
 import { operationNodes } from './data/operationNodes';
-import ReactFlow, { 
-  Background, 
+import ReactFlow, {
+  Background,
   Controls,
   useNodesState,
   useEdgesState,
@@ -79,6 +79,7 @@ import { WorkflowStepPanel } from './components/WorkflowStepPanel';
 import { ControlPanel } from './components/ControlPanel';
 import { useControlPanelState } from './hooks/useControlPanelState';
 import { SDLCatalystNodes } from './components/OperationNodes/SDLCatalyst';
+import { SDL2Nodes } from './components/OperationNodes/SDL2';
 import Sidebar from './components/Sidebar';
 import TestStylePage from './components/TestStylePage';
 
@@ -168,10 +169,17 @@ const MemoizedSDLCatalystNodes = Object.entries(SDLCatalystNodes).reduce((acc, [
   [key]: memo((props) => React.createElement(component, { ...props }))
 }), {});
 
+// Define SDL2 node types
+const MemoizedSDL2Nodes = Object.entries(SDL2Nodes).reduce((acc, [key, component]) => ({
+  ...acc,
+  [key]: memo((props) => React.createElement(component, { ...props }))
+}), {});
+
 // Define all node types
 const ALL_NODE_TYPES = {
   ...baseNodeTypes,
   ...MemoizedSDLCatalystNodes,
+  ...MemoizedSDL2Nodes,
   custom: CustomEdge
 };
 
@@ -307,12 +315,12 @@ function Flow() {
       const newEdge = {
         ...selectedConnection,
         type,
-        label: type === 'parallel' ? 'Parallel' : 
-               type === 'conditional' ? 'If' : 
+        label: type === 'parallel' ? 'Parallel' :
+               type === 'conditional' ? 'If' :
                'Sequential',
         animated: type === 'parallel',
         style: {
-          stroke: type === 'parallel' ? '#1a90ff' : 
+          stroke: type === 'parallel' ? '#1a90ff' :
                  type === 'conditional' ? '#722ed1' : '#000',
         },
       };
@@ -346,7 +354,7 @@ function Flow() {
 
       // 从 operationNodes 中找到对应的节点定义
       const nodeDefinition = operationNodes.find(node => node.type === type);
-      
+
       if (!nodeDefinition) {
         console.warn(`No definition found for node type: ${type}`);
         return;
@@ -375,8 +383,8 @@ function Flow() {
   }, []);
 
   const handleEdgeUpdate = useCallback((updatedEdge) => {
-    setEdges(eds => 
-      eds.map(edge => 
+    setEdges(eds =>
+      eds.map(edge =>
         edge.id === updatedEdge.id ? updatedEdge : edge
       )
     );
@@ -390,13 +398,13 @@ function Flow() {
     (event: React.MouseEvent, node: Node) => {
       event.preventDefault();
       event.stopPropagation();
-      
+
       const menuPosition = {
         x: event.clientX,
         y: event.clientY,
         nodeId: node.id
       };
-      
+
       setContextMenu(menuPosition);
     },
     []
@@ -404,7 +412,7 @@ function Flow() {
 
   const handleDeleteNode = useCallback(() => {
     if (!contextMenu) return;
-    
+
     setNodes((nodes) => nodes.filter((node) => node.id !== contextMenu.nodeId));
     setEdges((edges) => edges.filter(
       (edge) => edge.source !== contextMenu.nodeId && edge.target !== contextMenu.nodeId
@@ -414,7 +422,7 @@ function Flow() {
 
   const handleDuplicateNode = useCallback(() => {
     if (!contextMenu) return;
-    
+
     const sourceNode = nodes.find(node => node.id === contextMenu.nodeId);
     if (sourceNode) {
       const newNode = {
@@ -479,7 +487,7 @@ function Flow() {
             y: sourceNode.position.y
           }
         };
-        
+
         setNodes((nds) => [...nds, newNode]);
       }
       setContextMenu(null);
@@ -509,14 +517,14 @@ function Flow() {
   }) => {
     const deltaX = Math.abs(targetX - sourceX);
     const deltaY = Math.abs(targetY - sourceY);
-    
+
     const controlPointOffset = Math.min(deltaX * 0.5, 150);
-    
+
     const controlPoint1X = sourceX + (targetX > sourceX ? controlPointOffset : -controlPointOffset);
     const controlPoint1Y = sourceY;
     const controlPoint2X = targetX - (targetX > sourceX ? controlPointOffset : -controlPointOffset);
     const controlPoint2Y = targetY;
-    
+
     const edgePath = `M ${sourceX},${sourceY} C ${controlPoint1X},${controlPoint1Y} ${controlPoint2X},${controlPoint2Y} ${targetX},${targetY}`;
 
     return (
@@ -880,7 +888,7 @@ function Flow() {
         borderRadius: '4px',
         boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
       }}>
-        <button 
+        <button
           ref={createButtonRef}
           onClick={handleCreateWorkflow}
           className={state.isCreatingWorkflow ? 'active' : ''}
@@ -888,8 +896,8 @@ function Flow() {
           Create Workflow
         </button>
         {state.isCreatingWorkflow && (
-          <WorkflowStepPanel 
-            anchorEl={createButtonRef.current} 
+          <WorkflowStepPanel
+            anchorEl={createButtonRef.current}
           />
         )}
         <button onClick={() => setShowSaveDialog(true)}>
@@ -922,13 +930,13 @@ function Flow() {
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
     event.preventDefault();
     event.stopPropagation();
-    
+
     // 检查点击的是否是节点标题区域
     const target = event.target as HTMLElement;
     if (!target.closest('.node-header')) {
       return; // 如果不是标题区域，不显示属性面板
     }
-    
+
     // 计算弹出位置，确保在视口内
     const rect = target.getBoundingClientRect();
     const position = {
@@ -945,17 +953,17 @@ function Flow() {
   }, []);
 
   const handleNodeUpdate = useCallback(async (
-    nodeId: string, 
+    nodeId: string,
     data: Partial<UnitOperation>
   ) => {
     try {
       // 调用API更新节点数据
       const updatedUO = await unitOperationService.updateUnitOperation(nodeId, data);
-      
+
       // 更新本地状态
-      setNodes(nds => 
-        nds.map(node => 
-          node.id === nodeId 
+      setNodes(nds =>
+        nds.map(node =>
+          node.id === nodeId
             ? { ...node, data: { ...node.data, ...updatedUO } }
             : node
         )
@@ -989,8 +997,8 @@ function Flow() {
 
   // 确保在创建工作流时初始化 currentWorkflow
   const handleCreateWorkflow = () => {
-    dispatch({ 
-      type: 'SET_CURRENT_WORKFLOW', 
+    dispatch({
+      type: 'SET_CURRENT_WORKFLOW',
       payload: {
         id: `workflow-${Date.now()}`,
         name: '',
@@ -1017,8 +1025,8 @@ function Flow() {
   return (
     <Box sx={{ position: 'relative', height: '100vh' }}>
       <Sidebar />
-      <div 
-        className="flow-container" 
+      <div
+        className="flow-container"
         ref={reactFlowWrapper}
         onContextMenu={handleContextMenu}
       >
@@ -1126,8 +1134,8 @@ function App() {
       {showTestPage ? (
         <>
           <Box sx={{ position: 'fixed', top: 10, left: 10, zIndex: 9999 }}>
-            <Button 
-              variant="contained" 
+            <Button
+              variant="contained"
               onClick={() => setShowTestPage(false)}
               size="small"
             >
@@ -1139,8 +1147,8 @@ function App() {
       ) : (
         <>
           <Box sx={{ position: 'fixed', top: 10, right: 10, zIndex: 9999 }}>
-            <Button 
-              variant="contained" 
+            <Button
+              variant="contained"
               onClick={() => setShowTestPage(true)}
               size="small"
             >
@@ -1160,5 +1168,5 @@ function App() {
   );
 }
 
-export default App; 
+export default App;
 
