@@ -4,6 +4,7 @@ import { FileNode } from './FileNode';
 import { DataUploadNode } from './DataUploadNode';
 import { OperationNode } from '@/types/workflow';
 import { SDLCatalystNodes } from './SDLCatalyst';
+import { SDL2Nodes } from './SDL2';
 
 // Create a map to store node components
 const nodeComponentMap = new Map();
@@ -13,7 +14,7 @@ const getNodeComponent = (category: string) => {
   if (!nodeComponentMap.has(category)) {
     const NodeComponent = memo(({ data, id }: { data: OperationNode; id: string }) => {
       console.log('Creating node component:', { category, data, id });
-      
+
       const nodeData = {
         ...data,
         id,
@@ -91,11 +92,13 @@ export const nodeComponents = {
   HotplateControl,
   BalanceControl,
   Activation,
-  ...SDLCatalystNodes
+  ...SDLCatalystNodes,
+  ...SDL2Nodes
 };
 
 export {
   FileNodeComponent as FileNode,
   DataUploadNodeComponent as DataUploadNode,
-  SDLCatalystNodes
-}; 
+  SDLCatalystNodes,
+  SDL2Nodes
+};

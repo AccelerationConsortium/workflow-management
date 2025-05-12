@@ -1,4 +1,5 @@
 import { SDL_CATALYST_NODE_TYPES } from '../components/OperationNodes/SDLCatalyst';
+import { SDL2_NODE_TYPES } from '../components/OperationNodes/SDL2';
 
 interface PrimitiveParameter {
   name: string;
@@ -21,8 +22,8 @@ export interface OperationNode {
   type: string;
   label: string;
   description: string;
-  category: "SDL Catalyst" | "Sample Processing" | "Analysis & Measurement" | "Reaction Control" | 
-             "Separation & Purification" | "Data Acquisition" | "Environment Control" | 
+  category: "SDL Catalyst" | "SDL2" | "Sample Processing" | "Analysis & Measurement" | "Reaction Control" |
+             "Separation & Purification" | "Data Acquisition" | "Environment Control" |
              "Test" | "Catalyst Workflow";
   expanded?: boolean;
   icon?: string;
@@ -72,6 +73,10 @@ export interface OperationNode {
 
 export const operationNodes: OperationNode[] = [
   ...SDL_CATALYST_NODE_TYPES.map(nodeType => ({
+    ...nodeType,
+    expanded: false
+  })),
+  ...SDL2_NODE_TYPES.map(nodeType => ({
     ...nodeType,
     expanded: false
   })),
@@ -1760,4 +1765,4 @@ export const operationNodes: OperationNode[] = [
       }
     ]
   },
-]; 
+];
