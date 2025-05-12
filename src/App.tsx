@@ -1049,14 +1049,6 @@ function Flow() {
           <Background />
           <Controls />
           {contextMenu && (
-            <ContextMenu
-              x={contextMenu.x}
-              y={contextMenu.y}
-              nodeId={contextMenu.nodeId}
-              onClose={() => setContextMenu(null)}
-            />
-          )}
-          {contextMenu && (
             <div
               className="context-menu"
               style={{
@@ -1064,13 +1056,48 @@ function Flow() {
                 left: contextMenu.x,
                 top: contextMenu.y,
                 zIndex: 1000,
+                background: 'white',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+                borderRadius: '4px',
+                padding: '8px 0',
+                minWidth: '150px'
               }}
             >
-              <button onClick={handleDeleteNode}>
-                <span role="img" aria-label="delete">🗑️</span> Delete Node
+              <button
+                onClick={handleDeleteNode}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  width: '100%',
+                  padding: '8px 16px',
+                  border: 'none',
+                  background: 'none',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  fontSize: '14px'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                <span role="img" aria-label="delete" style={{ marginRight: '8px' }}>🗑️</span> Delete Node
               </button>
-              <button onClick={handleDuplicateNode}>
-                <span role="img" aria-label="duplicate">📋</span> Duplicate Node
+              <button
+                onClick={handleDuplicateNode}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  width: '100%',
+                  padding: '8px 16px',
+                  border: 'none',
+                  background: 'none',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  fontSize: '14px'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                <span role="img" aria-label="duplicate" style={{ marginRight: '8px' }}>📋</span> Duplicate Node
               </button>
             </div>
           )}

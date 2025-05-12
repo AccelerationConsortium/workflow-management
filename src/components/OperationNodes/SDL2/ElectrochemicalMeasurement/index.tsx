@@ -25,7 +25,8 @@ export const ElectrochemicalMeasurementNode: React.FC<NodeProps> = (props) => {
         description: 'Perform electrochemical measurements on prepared compounds',
         parameters: PARAMETERS,
         onParameterChange: handleParameterChange,
-        onExport: handleExport
+        onExport: handleExport,
+        canImportJSON: true // Enable JSON import/export
       }}
     />
   );

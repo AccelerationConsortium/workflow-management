@@ -25,7 +25,8 @@ export const CompoundPreparationNode: React.FC<NodeProps> = (props) => {
         description: 'Prepare compounds by mixing metal salts, ligands, and buffers',
         parameters: PARAMETERS,
         onParameterChange: handleParameterChange,
-        onExport: handleExport
+        onExport: handleExport,
+        canImportJSON: true // Enable JSON import/export
       }}
     />
   );

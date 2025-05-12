@@ -25,7 +25,8 @@ export const DataAnalysisNode: React.FC<NodeProps> = (props) => {
         description: 'Analyze experimental data and generate reports',
         parameters: PARAMETERS,
         onParameterChange: handleParameterChange,
-        onExport: handleExport
+        onExport: handleExport,
+        canImportJSON: true // Enable JSON import/export
       }}
     />
   );
