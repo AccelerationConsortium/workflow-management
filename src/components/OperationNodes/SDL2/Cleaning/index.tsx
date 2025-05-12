@@ -25,7 +25,8 @@ export const CleaningNode: React.FC<NodeProps> = (props) => {
         description: 'Clean the system after experiments',
         parameters: PARAMETERS,
         onParameterChange: handleParameterChange,
-        onExport: handleExport
+        onExport: handleExport,
+        canImportJSON: false // Disable JSON import/export for Cleaning
       }}
     />
   );

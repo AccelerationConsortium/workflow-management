@@ -1,7 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, ChangeEvent } from 'react';
 import { Handle, Position } from 'reactflow';
-import { Box, Typography, Accordion, AccordionSummary, AccordionDetails, TextField, Select, MenuItem, FormControl, InputLabel, Switch, FormControlLabel } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Switch,
+  FormControlLabel,
+  Button,
+  IconButton,
+  Tooltip
+} from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import DownloadIcon from '@mui/icons-material/Download';
 import { SDL2NodeProps, ParameterDefinition } from './types';
 import './styles.css';
 
@@ -12,25 +30,86 @@ interface BaseUONodeProps extends SDL2NodeProps {
     parameters: Record<string, ParameterDefinition>;
     onParameterChange?: (params: Record<string, any>) => void;
     onExport?: () => void;
+    canImportJSON?: boolean;
   };
 }
 
 export const BaseUONode: React.FC<BaseUONodeProps> = ({ data, selected }) => {
   const [expanded, setExpanded] = useState(true);
   const [params, setParams] = useState<Record<string, any>>({});
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (paramName: string, value: any) => {
     const newParams = { ...params, [paramName]: value };
     setParams(newParams);
-    
+
     if (data.onParameterChange) {
       data.onParameterChange(newParams);
     }
   };
 
+  const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const jsonData = JSON.parse(e.target?.result as string);
+        // Update all parameters from the JSON file
+        const newParams = { ...params };
+
+        // Process the imported JSON data
+        Object.entries(jsonData).forEach(([key, value]) => {
+          if (data.parameters[key]) {
+            newParams[key] = value;
+          }
+        });
+
+        setParams(newParams);
+
+        if (data.onParameterChange) {
+          data.onParameterChange(newParams);
+        }
+
+        // Reset file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      } catch (error) {
+        console.error('Error parsing JSON file:', error);
+        alert('Invalid JSON file. Please upload a valid JSON file.');
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleExportJSON = () => {
+    const exportData = { ...params };
+
+    // Add default values for parameters that haven't been set
+    Object.entries(data.parameters).forEach(([key, param]) => {
+      if (exportData[key] === undefined && param.defaultValue !== undefined) {
+        exportData[key] = param.defaultValue;
+      }
+    });
+
+    const jsonString = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${data.label.replace(/\s+/g, '_').toLowerCase()}_parameters.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const renderParameter = (name: string, param: ParameterDefinition) => {
     const value = params[name] !== undefined ? params[name] : param.defaultValue;
-    
+
     switch (param.type) {
       case 'number':
         return (
@@ -52,7 +131,7 @@ export const BaseUONode: React.FC<BaseUONodeProps> = ({ data, selected }) => {
             }}
           />
         );
-      
+
       case 'string':
         return (
           <TextField
@@ -64,7 +143,7 @@ export const BaseUONode: React.FC<BaseUONodeProps> = ({ data, selected }) => {
             helperText={param.description}
           />
         );
-      
+
       case 'boolean':
         return (
           <FormControlLabel
@@ -77,7 +156,7 @@ export const BaseUONode: React.FC<BaseUONodeProps> = ({ data, selected }) => {
             label={param.label}
           />
         );
-      
+
       case 'select':
         return (
           <FormControl fullWidth margin="dense">
@@ -98,16 +177,19 @@ export const BaseUONode: React.FC<BaseUONodeProps> = ({ data, selected }) => {
             </Typography>
           </FormControl>
         );
-      
+
       default:
         return null;
     }
   };
 
+  // Only show JSON import/export for CompoundPreparation, ElectrochemicalMeasurement, and DataAnalysis
+  const showJSONControls = data.canImportJSON !== false;
+
   return (
     <div className={`sdl2-node ${selected ? 'selected' : ''}`}>
       <Handle type="target" position={Position.Top} />
-      
+
       <Box className="node-header">
         <Typography variant="h6">{data.label}</Typography>
         {data.description && (
@@ -116,7 +198,7 @@ export const BaseUONode: React.FC<BaseUONodeProps> = ({ data, selected }) => {
           </Typography>
         )}
       </Box>
-      
+
       <Accordion
         expanded={expanded}
         onChange={() => setExpanded(!expanded)}
@@ -126,6 +208,35 @@ export const BaseUONode: React.FC<BaseUONodeProps> = ({ data, selected }) => {
           <Typography>Parameters</Typography>
         </AccordionSummary>
         <AccordionDetails>
+          {showJSONControls && (
+            <Box className="json-controls" sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+              <input
+                type="file"
+                accept=".json"
+                ref={fileInputRef}
+                style={{ display: 'none' }}
+                onChange={handleFileUpload}
+              />
+              <Tooltip title="Import parameters from JSON">
+                <IconButton
+                  size="small"
+                  color="primary"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <UploadFileIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Export parameters to JSON">
+                <IconButton
+                  size="small"
+                  color="primary"
+                  onClick={handleExportJSON}
+                >
+                  <DownloadIcon />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          )}
           <Box className="parameters-container">
             {Object.entries(data.parameters).map(([name, param]) => (
               <Box key={name} className="parameter-field">
@@ -135,7 +246,7 @@ export const BaseUONode: React.FC<BaseUONodeProps> = ({ data, selected }) => {
           </Box>
         </AccordionDetails>
       </Accordion>
-      
+
       <Handle type="source" position={Position.Bottom} />
     </div>
   );
