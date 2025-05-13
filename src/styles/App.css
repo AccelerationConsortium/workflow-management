@@ -110,26 +110,12 @@
   stroke: #1a90ff;
 }
 
-.toolbar button.active {
-  background-color: #3da9c1;
-  color: white;
+.toolbar {
+  position: relative;
+  z-index: 100;
+  margin: 0 auto;
+  max-width: 800px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
-
-.toolbar button svg {
-  width: 16px;
-  height: 16px;
-  margin-right: 8px;
-}
-
-.toolbar button:first-child {
-  background-color: #4BBCD4;
-  color: white;
-}
-
-.toolbar button:first-child:hover {
-  background-color: #3da9c1;
-}
-
-.toolbar button:first-child.active {
-  background-color: #2d8fa6;
-} 
