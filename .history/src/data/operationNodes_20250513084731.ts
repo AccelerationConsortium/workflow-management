@@ -1672,7 +1672,7 @@ export const operationNodes: OperationNode[] = [
     type: 'Activation',
     label: 'Activation',
     description: 'Control activation and deactivation of catalyst',
-    category: 'Catalyst Workflow' as const,
+    category: 'Catalyst Workflow',
     expanded: false,
     specs: {
       model: 'Generic Catalyst Activator',

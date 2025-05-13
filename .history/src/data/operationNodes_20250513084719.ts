@@ -1149,7 +1149,7 @@ export const operationNodes: OperationNode[] = [
     type: 'crystallizer',
     label: 'Crystallizer',
     description: 'Compound crystallization and purification',
-    category: 'Separation & Purification' as const,
+    category: 'Separation & Purification',
     parameters: [
       { name: 'temperature', type: 'number', label: 'Temperature', unit: '°C', range: [-20, 100] }
     ]
@@ -1160,7 +1160,7 @@ export const operationNodes: OperationNode[] = [
     type: 'flowReactor',
     label: 'Flow Reactor',
     description: 'Continuous flow reaction control',
-    category: 'Reaction Control' as const,
+    category: 'Reaction Control',
     parameters: [
       { name: 'flowRate', type: 'number', label: 'Flow Rate', unit: 'mL/min', range: [0.01, 10] },
       { name: 'temperature', type: 'number', label: 'Temperature', unit: '°C', range: [0, 200] }
@@ -1170,7 +1170,7 @@ export const operationNodes: OperationNode[] = [
     type: 'photoreactor',
     label: 'Photoreactor',
     description: 'Photochemical reaction control',
-    category: 'Reaction Control' as const,
+    category: 'Reaction Control',
     parameters: [
       { name: 'wavelength', type: 'number', label: 'Wavelength', unit: 'nm', range: [200, 800] },
       { name: 'intensity', type: 'number', label: 'Intensity', unit: 'mW/cm²', range: [1, 1000] }
@@ -1182,7 +1182,7 @@ export const operationNodes: OperationNode[] = [
     type: 'glovebox',
     label: 'Glovebox',
     description: 'Inert atmosphere operation environment',
-    category: 'Environment Control' as const,
+    category: 'Environment Control',
     parameters: [
       { name: 'oxygen', type: 'number', label: 'Oxygen Content', unit: 'ppm', range: [0, 100] },
       { name: 'humidity', type: 'number', label: 'Humidity', unit: 'ppm', range: [0, 100] }
@@ -1192,7 +1192,7 @@ export const operationNodes: OperationNode[] = [
     type: 'temperatureController',
     label: 'Temperature Controller',
     description: 'Precise temperature control',
-    category: 'Environment Control' as const,
+    category: 'Environment Control',
     parameters: [
       { name: 'temperature', type: 'number', label: 'Temperature', unit: '°C', range: [-80, 200] },
       { name: 'rampRate', type: 'number', label: 'Ramp Rate', unit: '°C/min', range: [0.1, 20] }
@@ -1204,7 +1204,7 @@ export const operationNodes: OperationNode[] = [
     type: 'multiChannelAnalyzer',
     label: 'Multi-Channel Analyzer',
     description: 'Multi-parameter synchronous acquisition',
-    category: 'Data Acquisition' as const,
+    category: 'Data Acquisition',
     parameters: [
       { name: 'channels', type: 'number', label: 'Channel Number', range: [1, 32] },
       { name: 'sampleRate', type: 'number', label: 'Sampling Rate', unit: 'Hz', range: [1, 10000] }
@@ -1214,7 +1214,7 @@ export const operationNodes: OperationNode[] = [
     type: 'thermalImager',
     label: 'Thermal Imager',
     description: 'Temperature distribution imaging',
-    category: 'Data Acquisition' as const,
+    category: 'Data Acquisition',
     parameters: [
       { name: 'resolution', type: 'number', label: 'Resolution', unit: 'px', range: [160, 1024] },
       { name: 'frameRate', type: 'number', label: 'Frame Rate', unit: 'fps', range: [9, 60] }
@@ -1226,7 +1226,7 @@ export const operationNodes: OperationNode[] = [
     type: 'balancer',
     label: 'Electronic Balance',
     description: 'High-precision sample weighing',
-    category: 'Sample Processing' as const,
+    category: 'Sample Processing',
     parameters: [
       { name: 'maxWeight', type: 'number', label: 'Maximum Weight', unit: 'g', range: [0, 1000] },
       { name: 'precision', type: 'number', label: 'Precision', unit: 'mg', range: [0.01, 1] },
@@ -1237,7 +1237,7 @@ export const operationNodes: OperationNode[] = [
     type: 'homogenizer',
     label: 'Homogenizer',
     description: 'Sample homogenization processing',
-    category: 'Sample Processing' as const,
+    category: 'Sample Processing',
     parameters: [
       { name: 'speed', type: 'number', label: 'Speed', unit: 'rpm', range: [1000, 30000] },
       { name: 'time', type: 'number', label: 'Processing Time', unit: 'min', range: [1, 30] },
@@ -1250,7 +1250,7 @@ export const operationNodes: OperationNode[] = [
     type: 'filterSystem',
     label: 'Filter System',
     description: 'Sample filtration and purification',
-    category: 'Separation & Purification' as const,
+    category: 'Separation & Purification',
     parameters: [
       { name: 'poreSize', type: 'number', label: 'Pore Size', unit: 'μm', range: [0.22, 100] },
       { name: 'pressure', type: 'number', label: 'Pressure', unit: 'bar', range: [0, 6] },
@@ -1261,7 +1261,7 @@ export const operationNodes: OperationNode[] = [
     type: 'gelElectrophoresis',
     label: 'Gel Electrophoresis',
     description: 'Biomolecular separation',
-    category: 'Separation & Purification' as const,
+    category: 'Separation & Purification',
     parameters: [
       { name: 'voltage', type: 'number', label: 'Voltage', unit: 'V', range: [50, 300] },
       { name: 'time', type: 'number', label: 'Electrophoresis Time', unit: 'min', range: [30, 180] },
@@ -1274,7 +1274,7 @@ export const operationNodes: OperationNode[] = [
     type: 'massSpectrometer',
     label: 'Mass Spectrometer',
     description: 'Molecular mass analysis',
-    category: 'Analysis & Measurement' as const,
+    category: 'Analysis & Measurement',
     parameters: [
       { name: 'massRange', type: 'number', label: 'Mass Range', unit: 'm/z', range: [50, 2000] },
       { name: 'resolution', type: 'number', label: 'Resolution', unit: 'FWHM', range: [1000, 100000] },
@@ -1285,7 +1285,7 @@ export const operationNodes: OperationNode[] = [
     type: 'fluorometer',
     label: 'Fluorometer',
     description: 'Fluorescence intensity measurement',
-    category: 'Analysis & Measurement' as const,
+    category: 'Analysis & Measurement',
     parameters: [
       { name: 'excitationWavelength', type: 'number', label: 'Excitation Wavelength', unit: 'nm', range: [200, 1000] },
       { name: 'emissionWavelength', type: 'number', label: 'Emission Wavelength', unit: 'nm', range: [200, 1000] },
@@ -1298,7 +1298,7 @@ export const operationNodes: OperationNode[] = [
     type: 'thermocycler',
     label: 'Thermocycler',
     description: 'PCR amplification reaction',
-    category: 'Reaction Control' as const,
+    category: 'Reaction Control',
     parameters: [
       { name: 'temperature', type: 'number', label: 'Temperature', unit: '°C', range: [4, 100] },
       { name: 'rampRate', type: 'number', label: 'Ramp Rate', unit: '°C/s', range: [0.1, 5] },
@@ -1309,7 +1309,7 @@ export const operationNodes: OperationNode[] = [
     type: 'bioreactor',
     label: 'Bioreactor',
     description: 'Cell culture process control',
-    category: 'Reaction Control' as const,
+    category: 'Reaction Control',
     parameters: [
       { name: 'temperature', type: 'number', label: 'Temperature', unit: '°C', range: [4, 60] },
       { name: 'pH', type: 'number', label: 'pH Value', range: [2, 12] },
@@ -1323,7 +1323,7 @@ export const operationNodes: OperationNode[] = [
     type: 'co2Incubator',
     label: 'CO2 Incubator',
     description: 'Cell culture environment control',
-    category: 'Environment Control' as const,
+    category: 'Environment Control',
     parameters: [
       { name: 'temperature', type: 'number', label: 'Temperature', unit: '°C', range: [20, 50] },
       { name: 'co2Level', type: 'number', label: 'CO2 Level', unit: '%', range: [0, 20] },
@@ -1334,7 +1334,7 @@ export const operationNodes: OperationNode[] = [
     type: 'cleanBench',
     label: 'Clean Bench',
     description: 'Sterile operation environment',
-    category: 'Environment Control' as const,
+    category: 'Environment Control',
     parameters: [
       { name: 'flowRate', type: 'number', label: 'Flow Rate', unit: 'm/s', range: [0.3, 0.5] },
       { name: 'uvSterilization', type: 'boolean', label: 'UV Sterilization' },
@@ -1347,7 +1347,7 @@ export const operationNodes: OperationNode[] = [
     type: 'dataLogger',
     label: 'Data Logger',
     description: 'Multi-parameter real-time monitoring',
-    category: 'Data Acquisition' as const,
+    category: 'Data Acquisition',
     parameters: [
       { name: 'samplingRate', type: 'number', label: 'Sampling Rate', unit: 'Hz', range: [0.1, 1000] },
       { name: 'channelCount', type: 'number', label: 'Channel Number', range: [1, 32] },
@@ -1358,7 +1358,7 @@ export const operationNodes: OperationNode[] = [
     type: 'microscope',
     label: 'Microscope',
     description: 'Sample microscopic observation',
-    category: 'Data Acquisition' as const,
+    category: 'Data Acquisition',
     parameters: [
       { name: 'magnification', type: 'number', label: 'Magnification', range: [40, 1000] },
       { name: 'resolution', type: 'number', label: 'Resolution', unit: 'MP', range: [1, 20] },
@@ -1371,7 +1371,7 @@ export const operationNodes: OperationNode[] = [
     type: 'ultraLowFreezer',
     label: 'Ultra-Low Freezer',
     description: 'Sample low-temperature storage',
-    category: 'Environment Control' as const,
+    category: 'Environment Control',
     parameters: [
       { name: 'temperature', type: 'number', label: 'Temperature', unit: '°C', range: [-150, -20] },
       { name: 'alarmThreshold', type: 'number', label: 'Alarm Threshold', unit: '°C', range: [-140, -30] },
@@ -1382,7 +1382,7 @@ export const operationNodes: OperationNode[] = [
     type: 'sampleLibrary',
     label: 'Sample Library',
     description: 'Sample classification storage',
-    category: 'Sample Processing' as const,
+    category: 'Sample Processing',
     parameters: [
       { name: 'capacity', type: 'number', label: 'Storage Capacity', unit: '位', range: [100, 10000] },
       { name: 'temperature', type: 'number', label: 'Storage Temperature', unit: '°C', range: [-80, 25] },
@@ -1394,7 +1394,7 @@ export const operationNodes: OperationNode[] = [
     type: 'hplc',
     label: 'HPLC System',
     description: 'High Performance Liquid Chromatography',
-    category: 'Separation & Purification' as const,
+    category: 'Separation & Purification',
     inputs: [
       {
         id: 'sample-in',
@@ -1450,7 +1450,7 @@ export const operationNodes: OperationNode[] = [
     type: 'massSpectrometer',
     label: 'Mass Spectrometer',
     description: 'High Resolution Mass Analysis',
-    category: 'Analysis & Measurement' as const,
+    category: 'Analysis & Measurement',
     inputs: [
       {
         id: 'sample-in',
@@ -1494,7 +1494,7 @@ export const operationNodes: OperationNode[] = [
     type: 'HotplateControl',
     label: 'Hotplate Control',
     description: 'Control temperature and stirring of a magnetic hotplate',
-    category: 'Sample Processing' as const,
+    category: 'Sample Processing',
     expanded: false,
     specs: {
       model: 'IKA RET',
@@ -1550,7 +1550,7 @@ export const operationNodes: OperationNode[] = [
     type: 'BalanceControl',
     label: 'Balance Control',
     description: 'High-precision weight measurement and control',
-    category: 'Sample Processing' as const,
+    category: 'Sample Processing',
     expanded: false,
     specs: {
       model: 'Mettler Toledo XPE205',
@@ -1672,7 +1672,7 @@ export const operationNodes: OperationNode[] = [
     type: 'Activation',
     label: 'Activation',
     description: 'Control activation and deactivation of catalyst',
-    category: 'Catalyst Workflow' as const,
+    category: 'Catalyst Workflow',
     expanded: false,
     specs: {
       model: 'Generic Catalyst Activator',

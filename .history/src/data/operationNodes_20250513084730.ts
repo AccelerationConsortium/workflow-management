@@ -1550,7 +1550,7 @@ export const operationNodes: OperationNode[] = [
     type: 'BalanceControl',
     label: 'Balance Control',
     description: 'High-precision weight measurement and control',
-    category: 'Sample Processing' as const,
+    category: 'Sample Processing',
     expanded: false,
     specs: {
       model: 'Mettler Toledo XPE205',
@@ -1672,7 +1672,7 @@ export const operationNodes: OperationNode[] = [
     type: 'Activation',
     label: 'Activation',
     description: 'Control activation and deactivation of catalyst',
-    category: 'Catalyst Workflow' as const,
+    category: 'Catalyst Workflow',
     expanded: false,
     specs: {
       model: 'Generic Catalyst Activator',
