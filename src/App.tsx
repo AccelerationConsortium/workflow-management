@@ -92,14 +92,26 @@ import { EdgeConfig as EdgeConfigFromComponent } from './components/EdgeConfig';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#4BBCD4',
+      main: '#105A73', // Deep Sea / Dark Cyan
     },
     secondary: {
-      main: '#19857b',
+      main: '#198492', // Teal me teal / Lighter Teal
     },
     background: {
-      default: '#f5f5f5',
+      default: '#FFFFFF', // Pure White
+      paper: '#FFFFFF',   // Pure White for surfaces like cards, dialogs
     },
+    text: {
+      primary: '#212121',   // Near Black for primary text
+      secondary: '#757575', // Medium Grey for secondary text
+    },
+    divider: '#E0E0E0', // Light Grey for dividers
+  },
+  typography: {
+    fontFamily: '"Nunito", "Roboto", "Helvetica", "Arial", sans-serif',
+    button: {
+      textTransform: 'none', // Keep button text as is (e.g., "Click Me" instead of "CLICK ME")
+    }
   },
   components: {
     MuiDialog: {
@@ -650,14 +662,16 @@ function Flow() {
 
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Delete' || event.key === 'Backspace') {
-        // Delete selected nodes
+      const targetElement = event.target as HTMLElement;
+      const isInputFocused = targetElement.tagName === 'INPUT' || targetElement.tagName === 'TEXTAREA' || targetElement.isContentEditable;
+
+      if ((event.key === 'Delete' || event.key === 'Backspace') && !isInputFocused) {
+        // Only delete nodes if not focused on an input/textarea
         setNodes(nds => nds.filter(n => !n.selected));
-        // Delete related edges
         setEdges(eds => eds.filter(
           e => !nodes.find(n => n.selected && (e.source === n.id || e.target === n.id))
         ));
-      } else if (event.ctrlKey || event.metaKey) {
+      } else if ((event.ctrlKey || event.metaKey) && !isInputFocused) { // Also check for input focus for copy/paste
         if (event.key === 'c') {
           // Copy selected nodes
           const selectedNodes = nodes.filter(n => n.selected);
