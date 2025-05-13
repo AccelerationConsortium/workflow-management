@@ -119,12 +119,28 @@ export const BaseUONode: React.FC<BaseUONodeProps> = ({ data, selected }) => {
 
     switch (param.type) {
       case 'number':
+        const currentValueForNumber = params[name] !== undefined ? params[name] : param.defaultValue;
+        const displayValueForNumber = currentValueForNumber === undefined || currentValueForNumber === null || (typeof currentValueForNumber === 'number' && isNaN(currentValueForNumber)) ? '' : String(currentValueForNumber);
+
         return (
           <TextField
             label={param.label}
             type="number"
-            value={value || ''}
-            onChange={(e) => handleChange(name, parseFloat(e.target.value))}
+            value={displayValueForNumber}
+            onChange={(e) => {
+              const rawValue = e.target.value;
+              if (rawValue === '') {
+                handleChange(name, undefined);
+              } else {
+                const numValue = parseFloat(rawValue);
+                if (!isNaN(numValue)) {
+                  handleChange(name, numValue);
+                } else {
+                  // Optional: handle invalid number input, e.g., show error, revert, or do nothing
+                  // For now, do nothing and let TextField manage its state if input is invalid (e.g. "abc")
+                }
+              }
+            }}
             fullWidth
             margin="dense"
             helperText={param.description}
@@ -134,7 +150,7 @@ export const BaseUONode: React.FC<BaseUONodeProps> = ({ data, selected }) => {
             inputProps={{
               min: param.min,
               max: param.max,
-              step: 0.1,
+              step: param.step !== undefined ? param.step : 0.1,
             }}
           />
         );
@@ -172,16 +188,19 @@ export const BaseUONode: React.FC<BaseUONodeProps> = ({ data, selected }) => {
               value={value || ''}
               onChange={(e) => handleChange(name, e.target.value)}
               label={param.label}
+              displayEmpty
             >
               {param.options?.map((option) => (
-                <MenuItem key={option} value={option}>
-                  {option}
+                <MenuItem key={option.value || option} value={option.value || option}>
+                  {option.label || option}
                 </MenuItem>
               ))}
             </Select>
-            <Typography variant="caption" color="textSecondary">
-              {param.description}
-            </Typography>
+            {param.description && (
+              <Typography variant="caption" color="textSecondary" sx={{ mt: 0.5, ml: 1.5 }}>
+                {param.description}
+              </Typography>
+            )}
           </FormControl>
         );
 
