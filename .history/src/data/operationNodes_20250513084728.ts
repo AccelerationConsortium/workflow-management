@@ -1450,7 +1450,7 @@ export const operationNodes: OperationNode[] = [
     type: 'massSpectrometer',
     label: 'Mass Spectrometer',
     description: 'High Resolution Mass Analysis',
-    category: 'Analysis & Measurement' as const,
+    category: 'Analysis & Measurement',
     inputs: [
       {
         id: 'sample-in',
@@ -1494,7 +1494,7 @@ export const operationNodes: OperationNode[] = [
     type: 'HotplateControl',
     label: 'Hotplate Control',
     description: 'Control temperature and stirring of a magnetic hotplate',
-    category: 'Sample Processing' as const,
+    category: 'Sample Processing',
     expanded: false,
     specs: {
       model: 'IKA RET',
@@ -1550,7 +1550,7 @@ export const operationNodes: OperationNode[] = [
     type: 'BalanceControl',
     label: 'Balance Control',
     description: 'High-precision weight measurement and control',
-    category: 'Sample Processing' as const,
+    category: 'Sample Processing',
     expanded: false,
     specs: {
       model: 'Mettler Toledo XPE205',
@@ -1672,7 +1672,7 @@ export const operationNodes: OperationNode[] = [
     type: 'Activation',
     label: 'Activation',
     description: 'Control activation and deactivation of catalyst',
-    category: 'Catalyst Workflow' as const,
+    category: 'Catalyst Workflow',
     expanded: false,
     specs: {
       model: 'Generic Catalyst Activator',

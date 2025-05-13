@@ -3,7 +3,7 @@ import './styles.css';
 
 const operationGroups = {
   'Workflow Control': [
-    { type: 'conditional', label: '条件节点' }
+    // { type: 'conditional', label: '条件节点' } // 移除条件节点
   ],
   'Test': [
     { type: 'prepare_electrolyte', label: 'Prepare Electrolyte' },

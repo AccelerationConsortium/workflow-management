@@ -1,4 +1,4 @@
-import React, { useState, useRef, ChangeEvent } from 'react';
+import React, { useState, useRef, ChangeEvent, useEffect } from 'react';
 import { Handle, Position } from 'reactflow';
 import {
   Box,
@@ -31,13 +31,20 @@ interface BaseUONodeProps extends SDL2NodeProps {
     onParameterChange?: (params: Record<string, any>) => void;
     onExport?: () => void;
     canImportJSON?: boolean;
+    expanded?: boolean;
   };
 }
 
 export const BaseUONode: React.FC<BaseUONodeProps> = ({ data, selected }) => {
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(data.expanded === undefined ? false : data.expanded);
   const [params, setParams] = useState<Record<string, any>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (data.expanded !== undefined && data.expanded !== expanded) {
+      setExpanded(data.expanded);
+    }
+  }, [data.expanded]);
 
   const handleChange = (paramName: string, value: any) => {
     const newParams = { ...params, [paramName]: value };

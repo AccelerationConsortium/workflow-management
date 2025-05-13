@@ -12,12 +12,14 @@ import ReactFlow, {
   ReactFlowProvider,
   EdgeProps,
   NodeTypes,
-  Node
+  Node,
+  ReactFlowInstance,
+  NodeProps
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import './styles/theme.css';
 import './styles/App.css';
-import { ConnectionType, OperationNode, UnitOperation } from './types/workflow';
+import { ConnectionType, OperationNode, UnitOperation, WorkflowData } from './types/workflow';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { Box, Button } from '@mui/material';
@@ -84,6 +86,7 @@ import { SDLCatalystNodes } from './components/OperationNodes/SDLCatalyst';
 import { SDL2Nodes } from './components/OperationNodes/SDL2';
 import Sidebar from './components/Sidebar';
 import TestStylePage from './components/TestStylePage';
+import { EdgeConfig as EdgeConfigFromComponent } from './components/EdgeConfig';
 
 // 创建主题
 const theme = createTheme({
@@ -117,7 +120,7 @@ const theme = createTheme({
   },
 });
 
-const initialNodes = [
+const initialNodes: Node[] = [
   {
     id: '1',
     type: 'input',
@@ -168,22 +171,21 @@ const baseNodeTypes = {
 // Define SDL Catalyst node types
 const MemoizedSDLCatalystNodes = Object.entries(SDLCatalystNodes).reduce((acc, [key, component]) => ({
   ...acc,
-  [key]: memo((props) => React.createElement(component, { ...props }))
+  [key]: memo((props: NodeProps) => React.createElement(component as React.ComponentType<NodeProps>, props))
 }), {});
 
 // Define SDL2 node types
 const MemoizedSDL2Nodes = Object.entries(SDL2Nodes).reduce((acc, [key, component]) => ({
   ...acc,
-  [key]: memo((props) => React.createElement(component, { ...props }))
+  [key]: memo((props: NodeProps) => React.createElement(component as React.ComponentType<NodeProps>, props))
 }), {});
 
 // Define all node types
-const ALL_NODE_TYPES = {
+const ALL_NODE_TYPES: NodeTypes = {
   ...baseNodeTypes,
   ...MemoizedSDLCatalystNodes,
   ...MemoizedSDL2Nodes,
-  conditional: memo(ConditionalNode),
-  custom: CustomEdge
+  // custom: CustomEdge, // Removed: CustomEdge is an edge type, should be in edgeTypes
 };
 
 // Define the remote execution endpoint
@@ -235,10 +237,10 @@ const DEFAULT_GLOBAL_CONFIG = {
 function Flow() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge<any>>([]);
   const { screenToFlowPosition } = useReactFlow();
   const [type] = useDnD();
-  const [reactFlowInstance, setReactFlowInstance] = useState(null);
+  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
 
   // Use ALL_NODE_TYPES directly
   const nodeTypes = ALL_NODE_TYPES;
@@ -261,10 +263,10 @@ function Flow() {
     errors: [],
     warnings: []
   });
-  const [selectedNode, setSelectedNode] = useState(null);
-  const [propertiesPosition, setPropertiesPosition] = useState(null);
+  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [propertiesPosition, setPropertiesPosition] = useState<{ x: number; y: number } | null>(null);
   const [showEdgeConfig, setShowEdgeConfig] = useState(false);
-  const [testUOs, setTestUOs] = useState<OperationNode[]>([]);
+  const [testUOs, setTestUOs] = useState<any[]>([]);
   const { state, dispatch } = useWorkflow();
 
   const {
@@ -286,51 +288,70 @@ function Flow() {
     setTestUOs(testNodes);
   }, []);
 
-  const onConnectStart = useCallback((_, { nodeId, handleId }) => {
+  const onConnectStart = useCallback((event: React.MouseEvent | React.TouchEvent, { nodeId, handleId }: { nodeId: string | null, handleId: string | null }) => {
     console.log('Connection started:', nodeId, handleId);
   }, []);
 
-  const onConnectEnd = useCallback((event) => {
+  const onConnectEnd = useCallback((event: MouseEvent | TouchEvent) => {
     console.log('Connection ended:', event);
   }, []);
 
-  const onConnect = useCallback((params) => {
-    // 获取源节点和源句柄ID
+  const onConnect = useCallback((params: Connection) => {
     const sourceNode = nodes.find(node => node.id === params.source);
     const sourceNodeType = sourceNode?.type;
     const sourceHandleId = params.sourceHandle;
 
-    // 设置连接配置对话框的参数
     setShowEdgeConfig(true);
     setSelectedEdge({
       ...params,
-      // 添加源节点类型和源句柄ID，以便在EdgeConfig中使用
-      sourceNodeType,
-      sourceHandleId
-    });
+      data: { sourceNodeType, sourceHandleId } // Storing source info for context in EdgeConfig if needed later or for edge type determination
+    } as Edge);
   }, [nodes]);
 
-  const handleEdgeConfig = useCallback((config: EdgeConfig) => {
+  const handleEdgeConfig = useCallback((config: EdgeConfigFromComponent) => {
     if (selectedEdge) {
-      // 获取源节点类型
       const sourceNode = nodes.find(node => node.id === selectedEdge.source);
-      const sourceNodeType = sourceNode?.type;
+      // Retrieve sourceNodeType from selectedEdge.data if it was stored there, or directly from sourceNode
+      const sourceNodeTypeFromData = selectedEdge.data?.sourceNodeType || sourceNode?.type;
 
-      // 确定边的类型
-      const edgeType = config.mode === 'conditional' || sourceNodeType === 'conditional'
-        ? 'conditional'
-        : 'custom';
+      let edgeType = 'custom'; // Default edge type
+      let edgeLabel = config.mode === 'sequential' ? 'Sequential' : 
+                      config.mode === 'parallel' ? 'Parallel' : 
+                      'Conditional';
+      let edgeStyle: React.CSSProperties = {};
+      let edgeAnimated = false;
 
-      const edge = {
-        ...selectedEdge,
-        data: config,
+      const edgeData = { ...selectedEdge.data, ...config }; // Merge existing data with new config from EdgeConfig
+
+      if (config.mode === 'conditional') {
+        edgeType = 'conditional'; // Always use conditional edge type for this mode
+        edgeStyle = { stroke: '#722ed1' }; // Style for conditional edges
+        if (config.conditionType === 'boolean') {
+          edgeLabel = config.expression ? `If: ${config.expression}` : 'Boolean Condition';
+        } else if (config.conditionType === 'switch') {
+          edgeLabel = config.expression ? `Switch: ${config.expression}` : 'Switch Condition';
+          // Potentially add case count to label or other info if desired
+        }
+      } else if (config.mode === 'parallel') {
+        edgeType = 'custom'; // Or a specific parallel edge type if you have one
+        edgeStyle = { stroke: '#1a90ff' };
+        edgeAnimated = true;
+      } else { // Sequential
+        edgeType = 'custom';
+        if (config.delay) edgeLabel += ` (Delay: ${config.delay}ms)`;
+        if (config.retries) edgeLabel += ` (Retries: ${config.retries}retries)`;
+      }
+
+      const newEdge: Edge = {
+        ...selectedEdge, // Includes id, source, target, sourceHandle, targetHandle
+        data: edgeData,  // All config from EdgeConfig is now here, plus original sourceNodeType etc.
         type: edgeType,
-        label: config.label,
-        style: config.style,
-        animated: config.animated
+        label: edgeLabel,
+        style: edgeStyle,
+        animated: edgeAnimated,
       };
 
-      setEdges((eds) => addEdge(edge, eds));
+      setEdges((eds) => addEdge(newEdge, eds));
       setShowEdgeConfig(false);
       setSelectedEdge(null);
     }
@@ -367,15 +388,19 @@ function Flow() {
   const onDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault();
+      const reactFlowWrapperCurrent = reactFlowWrapper.current;
+      if (!reactFlowWrapperCurrent) return; // Null check
 
-      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
+      const reactFlowBounds = reactFlowWrapperCurrent.getBoundingClientRect();
       const type = event.dataTransfer.getData('application/reactflow');
 
       if (typeof type === 'undefined' || !type) {
         return;
       }
+      const currentReactFlowInstance = reactFlowInstance;
+      if (!currentReactFlowInstance) return; // Null check
 
-      const position = reactFlowInstance.screenToFlowPosition({
+      const position = currentReactFlowInstance.screenToFlowPosition({
         x: event.clientX - reactFlowBounds.left,
         y: event.clientY - reactFlowBounds.top,
       });
@@ -405,12 +430,12 @@ function Flow() {
     [reactFlowInstance, state.currentWorkflow]
   );
 
-  const onEdgeClick = useCallback((event, edge) => {
+  const onEdgeClick = useCallback((event: React.MouseEvent, edge: Edge) => {
     event.preventDefault();
     setSelectedEdge(edge);
   }, []);
 
-  const handleEdgeUpdate = useCallback((updatedEdge) => {
+  const handleEdgeUpdate = useCallback((updatedEdge: Edge) => {
     setEdges(eds =>
       eds.map(edge =>
         edge.id === updatedEdge.id ? updatedEdge : edge
@@ -722,27 +747,29 @@ function Flow() {
   const generateWorkflowPayload = useCallback(() => {
     // --- Nodes Transformation ---
     const transformedNodes = nodes.map(node => {
-      // Extract label and params from node.data, ensuring they exist
-      // IMPORTANT: Assumes node.data contains a 'label' string and a 'params' object
-      // structured exactly like in test.json.
-      const label = node.data?.label || node.type || 'Unnamed Node'; // Fallback label
-      const params = node.data?.params || {}; // Fallback to empty object if no params in data
-
-      // Construct the node object according to test.json format
+      const label = node.data?.label || node.type || 'Unnamed Node';
+      const params = node.data?.params || {};
       return {
         id: node.id,
         type: node.type,
-        label: label, // Top-level label
-        params: params  // Top-level params object (must match test.json structure internally)
+        label: label,
+        params: params
       };
     });
 
-    // --- Edges Transformation ---
+    // --- Edges Transformation (FIXED) ---
     const transformedEdges = edges.map(edge => {
-      // Only include source and target
       return {
+        id: edge.id,                     // Include edge id
         source: edge.source,
-        target: edge.target
+        target: edge.target,
+        sourceHandle: edge.sourceHandle, // Include sourceHandle
+        targetHandle: edge.targetHandle, // Include targetHandle
+        type: edge.type,                 // Include edge type (e.g., 'conditional', 'custom')
+        data: edge.data,                // CRITICAL: Include all data from EdgeConfig
+        label: edge.label,              // Optional: include label if backend uses it
+        animated: edge.animated,        // Optional: include animated status
+        style: edge.style               // Optional: include style object
       };
     });
 
@@ -775,7 +802,7 @@ function Flow() {
     const workflowPayload = generateWorkflowPayload(); // Use the new generator
     if (!workflowPayload) {
       console.error("Failed to generate workflow payload for saving.");
-      alert("保存工作流失败：无法生成符合格式的工作流数据。");
+      alert("can't generate workflow data, can't save workflow.");
       return;
     }
 
@@ -798,7 +825,7 @@ function Flow() {
     };
 
 
-    console.log('准备保存的工作流文件数据:', saveData);
+    console.log('ready to save workflow file', saveData);
 
     try {
       // Save to localStorage might need adjustment if WorkflowStorage expects the new format
@@ -807,7 +834,7 @@ function Flow() {
 
       // Create and download the JSON file using the combined save data
       const workflowJson = JSON.stringify(saveData, null, 2); // Save the structure with metadata
-      console.log('序列化后的 JSON 长度:', workflowJson.length);
+      console.log('json length:', workflowJson.length);
 
       const blob = new Blob([workflowJson], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -824,10 +851,10 @@ function Flow() {
         URL.revokeObjectURL(url);
       }, 100);
 
-      alert(`工作流 "${name}" 已保存并下载！`);
+      alert(`workflow "${name}" saved and downloaded!`);
     } catch (error) {
       console.error('Failed to save workflow:', error);
-      alert(`保存工作流失败: ${error instanceof Error ? error.message : String(error)}`);
+      alert(`Failed to save workflow: ${error instanceof Error ? error.message : String(error)}`);
     }
   }, [generateWorkflowPayload]); // Dependency includes the payload generator
 
@@ -838,7 +865,7 @@ function Flow() {
    */
   const handleRunExperiment = useCallback(async () => {
     if (!isRealRunMode) {
-      alert("当前处于模拟模式。请切换到真实运行模式以发送到远程机器。");
+      alert("current mode: simulation. please switch to real run mode to send to remote machine."); 
       console.log("Simulation mode active. Remote execution skipped.");
       return;
     }
@@ -855,13 +882,13 @@ function Flow() {
 
     const workflowPayload = generateWorkflowPayload(); // Generate the payload matching test.json
     if (!workflowPayload) {
-        alert("无法生成工作流数据，无法发送实验请求。");
+        alert("can't generate workflow data, can't send experiment request.");
         console.error("Failed to generate workflow payload for execution.");
         return;
     }
 
-    console.log("准备发送到远程执行:", JSON.stringify(workflowPayload, null, 2));
-    alert("正在发送实验请求到远程服务器...");
+    console.log("ready to send to remote execution:", JSON.stringify(workflowPayload, null, 2));
+    alert("sending experiment request to remote server...");
 
     try {
       const response = await fetch(REMOTE_EXECUTION_URL, {
@@ -875,11 +902,11 @@ function Flow() {
       const responseData: WorkflowExecutionResponse = await response.json();
 
       if (!response.ok) {
-        const errorMsg = responseData.message || `服务器错误: ${response.status} ${response.statusText}`;
+        const errorMsg = responseData.message || `server error: ${response.status} ${response.statusText}`;
         throw new Error(errorMsg);
       }
 
-      console.log("远程运行结果:", responseData);
+      console.log("remote execution result:", responseData);
 
       if (responseData.results && responseData.execution_order) {
         updateNodesStatusFromResults(responseData.execution_order, responseData.results);
@@ -888,15 +915,15 @@ function Flow() {
       }
 
       if (responseData.log_file) {
-        console.log("远程日志文件:", responseData.log_file);
-        alert(`实验执行完成！状态: ${responseData.status}. 日志文件: ${responseData.log_file}`);
+        console.log("remote log file:", responseData.log_file);
+        alert(`experiment execution completed! status: ${responseData.status}. log file: ${responseData.log_file}`);
       } else {
-         alert(`实验执行完成！状态: ${responseData.status}.`);
+         alert(`experiment execution completed! status: ${responseData.status}.`);
       }
 
     } catch (error) {
-      console.error("发送或处理实验请求失败:", error);
-      alert(`实验请求失败: ${error instanceof Error ? error.message : String(error)}`);
+      console.error("failed to send or process experiment request:", error);
+      alert(`experiment request failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }, [generateWorkflowPayload, isRealRunMode, setNodes, updateNodesStatusFromResults]);
 
@@ -905,16 +932,8 @@ function Flow() {
 
     return (
       <div className="toolbar" style={{
-        position: 'fixed',
-        top: 20,
-        right: 20,
-        zIndex: 1000,
         display: 'flex',
-        gap: '8px',
-        background: 'rgba(255, 255, 255, 0.8)', // Added background for visibility
-        padding: '5px',
-        borderRadius: '4px',
-        boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+        gap: '8px'
       }}>
         <button
           ref={createButtonRef}
@@ -1040,7 +1059,12 @@ function Flow() {
         className="flow-container"
         ref={reactFlowWrapper}
         onContextMenu={handleContextMenu}
+        style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
       >
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 1, borderBottom: '1px solid #eee', width: '100%', flexShrink: 0 }}>
+          <Toolbar />
+        </Box>
+
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -1051,11 +1075,12 @@ function Flow() {
           edgeTypes={edgeTypes}
           onNodeClick={onNodeClick}
           onPaneClick={onPaneClick}
-          onInit={setReactFlowInstance}
+          onInit={(instance: ReactFlowInstance) => setReactFlowInstance(instance)}
           onDragOver={onDragOver}
           onDrop={onDrop}
           fitView
           onNodeContextMenu={onNodeContextMenu}
+          style={{ flexGrow: 1 }}
         >
           <Background />
           <Controls />
@@ -1113,9 +1138,7 @@ function Flow() {
             </div>
           )}
           <WorkflowSimulator
-            nodes={nodes}
-            edges={edges}
-            onValidationComplete={handleValidationComplete}
+            workflow={generateWorkflowPayload() as WorkflowData | null}
           />
         </ReactFlow>
         <EdgeConfig
@@ -1125,14 +1148,10 @@ function Flow() {
             setSelectedEdge(null);
           }}
           onSave={handleEdgeConfig}
-          sourceNodeType={selectedEdge?.sourceNodeType}
-          sourceHandleId={selectedEdge?.sourceHandleId}
-          connection={selectedEdge}
         />
-        <Toolbar />
-        {selectedNode && (
+        {selectedNode && selectedNode.type && selectedNode.data && (
           <NodeProperties
-            node={selectedNode}
+            node={{ ...selectedNode, type: selectedNode.type as string } as Node<UnitOperation>}
             position={selectedNode.position}
             onClose={() => setSelectedNode(null)}
             onUpdate={handleNodeUpdate}
@@ -1149,7 +1168,11 @@ function Flow() {
           visualizationTemplates={visualizationTemplates}
           shortcuts={shortcuts}
           operationGroups={operationGroups}
-          onParameterChange={handleParameterChange}
+          onParameterChange={(paramId, value) => {
+            if (selectedNode) {
+              handleParameterChange(selectedNode.id, paramId, value);
+            }
+          }}
           onUndo={handleUndo}
         />
       </div>
