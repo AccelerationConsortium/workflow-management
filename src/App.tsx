@@ -23,6 +23,12 @@ import { ConnectionType, OperationNode, UnitOperation, WorkflowData } from './ty
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { Box, Button } from '@mui/material';
+import CreateIcon from '@mui/icons-material/Create';
+import SaveIcon from '@mui/icons-material/Save';
+import FileOpenIcon from '@mui/icons-material/FileOpen';
+import ComputerIcon from '@mui/icons-material/Computer';
+import ScienceIcon from '@mui/icons-material/Science';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 
 // Import BaseNode separately
 import { BaseNode } from './components/BaseNode';
@@ -69,6 +75,7 @@ import { DnDProvider, useDnD } from './context/DnDContext';
 import { EdgeConfig } from './components/EdgeConfig';
 import { ContextMenu } from './components/ContextMenu';
 import { SaveWorkflowDialog } from './components/SaveWorkflowDialog';
+import { LoadWorkflowDialog } from './components/LoadWorkflowDialog';
 import { WorkflowStorage } from './services/workflowStorage';
 import { WorkflowSimulator } from './components/WorkflowSimulator';
 import { ValidatedNode } from './components/ValidatedNode';
@@ -270,6 +277,7 @@ function Flow() {
     nodeId: string;
   } | null>(null);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [showLoadDialog, setShowLoadDialog] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationResult>({
     isValid: true,
     errors: [],
@@ -327,8 +335,8 @@ function Flow() {
       const sourceNodeTypeFromData = selectedEdge.data?.sourceNodeType || sourceNode?.type;
 
       let edgeType = 'custom'; // Default edge type
-      let edgeLabel = config.mode === 'sequential' ? 'Sequential' : 
-                      config.mode === 'parallel' ? 'Parallel' : 
+      let edgeLabel = config.mode === 'sequential' ? 'Sequential' :
+                      config.mode === 'parallel' ? 'Parallel' :
                       'Conditional';
       let edgeStyle: React.CSSProperties = {};
       let edgeAnimated = false;
@@ -873,13 +881,95 @@ function Flow() {
   }, [generateWorkflowPayload]); // Dependency includes the payload generator
 
   /**
+   * Handles loading a workflow from a JSON file.
+   * Parses the file and updates the canvas with the loaded nodes and edges.
+   * @param {File} file - The JSON file to load.
+   */
+  const handleLoadWorkflow = useCallback((file: File) => {
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string;
+        const workflowData = JSON.parse(content);
+
+        if (!workflowData || !workflowData.workflow) {
+          throw new Error('Invalid workflow file format');
+        }
+
+        const { workflow, metadata } = workflowData;
+
+        // Extract nodes from the workflow
+        const loadedNodes = workflow.nodes.map((node: any) => {
+          // Find the node definition from operationNodes
+          const nodeDefinition = operationNodes.find(n => n.type === node.type);
+
+          // Create a position for the node if it doesn't have one
+          // In a real implementation, positions would be saved in the JSON
+          const position = {
+            x: Math.random() * 500,
+            y: Math.random() * 300
+          };
+
+          return {
+            id: node.id,
+            type: node.type,
+            position,
+            data: {
+              ...nodeDefinition,
+              id: node.id,
+              label: node.label,
+              params: node.params || {},
+              workflowId: metadata?.id
+            }
+          };
+        });
+
+        // Extract edges from the workflow
+        const loadedEdges = workflow.edges.map((edge: any) => {
+          return {
+            id: edge.id,
+            source: edge.source,
+            target: edge.target,
+            sourceHandle: edge.sourceHandle,
+            targetHandle: edge.targetHandle,
+            type: edge.type || 'custom',
+            data: edge.data || {},
+            label: edge.label || '',
+            animated: edge.animated || false,
+            style: edge.style || {}
+          };
+        });
+
+        // Update the canvas with the loaded nodes and edges
+        setNodes(loadedNodes);
+        setEdges(loadedEdges);
+        setShowLoadDialog(false);
+
+        console.log('Workflow loaded successfully:', metadata?.name);
+        alert(`Workflow "${metadata?.name}" loaded successfully!`);
+      } catch (error) {
+        console.error('Failed to load workflow:', error);
+        alert(`Failed to load workflow: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    };
+
+    reader.onerror = () => {
+      console.error('Error reading file');
+      alert('Error reading file');
+    };
+
+    reader.readAsText(file);
+  }, [operationNodes, setNodes, setEdges]);
+
+  /**
    * Sends the current workflow JSON to the remote execution endpoint.
    * Processes the structured response including step results and log file path.
    * Only proceeds if isRealRunMode is true.
    */
   const handleRunExperiment = useCallback(async () => {
     if (!isRealRunMode) {
-      alert("current mode: simulation. please switch to real run mode to send to remote machine."); 
+      alert("current mode: simulation. please switch to real run mode to send to remote machine.");
       console.log("Simulation mode active. Remote execution skipped.");
       return;
     }
@@ -944,37 +1034,151 @@ function Flow() {
   const Toolbar = () => {
     const createButtonRef = useRef<HTMLButtonElement>(null);
 
+    // 定义按钮样式
+    const buttonStyle = {
+      borderRadius: '12px',
+      padding: '10px 16px',
+      fontWeight: 600,
+      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+      transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '10px',
+      fontSize: '16px',
+      textTransform: 'none' as const,
+      minWidth: '160px',
+      height: '48px',
+      '&:hover': {
+        transform: 'translateY(-2px)',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+      }
+    };
+
+    // 定义不同按钮的颜色 - 使用赛博柔和色调
+    const buttonColors = {
+      create: {
+        backgroundColor: '#41C4A9', // Deep Aqua
+        color: 'white',
+        '&:hover': {
+          backgroundColor: '#35A38B',
+        },
+        '&.active': {
+          backgroundColor: '#2A8270',
+        }
+      },
+      save: {
+        backgroundColor: '#F08A7E', // Techno Coral
+        color: 'white',
+        '&:hover': {
+          backgroundColor: '#E57A6E',
+        }
+      },
+      load: {
+        backgroundColor: '#8F7FE8', // Matrix Purple
+        color: 'white',
+        '&:hover': {
+          backgroundColor: '#7A6BD0',
+        }
+      },
+      mode: {
+        backgroundColor: '#A3E048', // Lime
+        color: '#1A3A3A',
+        '&:hover': {
+          backgroundColor: '#8BC53F',
+        }
+      },
+      run: {
+        backgroundColor: '#00A3B4', // Teal
+        color: 'white',
+        '&:hover': {
+          backgroundColor: '#008A99',
+        },
+        '&:disabled': {
+          backgroundColor: '#cccccc',
+          color: '#666666',
+        }
+      }
+    };
+
     return (
       <div className="toolbar" style={{
         display: 'flex',
-        gap: '8px'
+        justifyContent: 'center',
+        gap: '16px',
+        padding: '20px 24px',
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        borderRadius: '16px',
+        boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255, 255, 255, 0.3)',
+        maxWidth: '900px',
+        margin: '0 auto'
       }}>
-        <button
+        <Button
           ref={createButtonRef}
           onClick={handleCreateWorkflow}
-          className={state.isCreatingWorkflow ? 'active' : ''}
+          sx={{
+            ...buttonStyle,
+            ...buttonColors.create,
+            ...(state.isCreatingWorkflow ? buttonColors.create['&.active'] : {})
+          }}
+          startIcon={<CreateIcon sx={{ fontSize: 22 }} />}
         >
           Create Workflow
-        </button>
+        </Button>
         {state.isCreatingWorkflow && (
           <WorkflowStepPanel
             anchorEl={createButtonRef.current}
           />
         )}
-        <button onClick={() => setShowSaveDialog(true)}>
-          💾 Save Workflow
-        </button>
-        <button onClick={() => {/* TODO: 添加加载功能 */}}>
-          📂 Load Workflow
-        </button>
+        <Button
+          onClick={() => setShowSaveDialog(true)}
+          sx={{
+            ...buttonStyle,
+            ...buttonColors.save
+          }}
+          startIcon={<SaveIcon sx={{ fontSize: 22 }} />}
+        >
+          Save Workflow
+        </Button>
+        <Button
+          onClick={() => setShowLoadDialog(true)}
+          sx={{
+            ...buttonStyle,
+            ...buttonColors.load
+          }}
+          startIcon={<FileOpenIcon sx={{ fontSize: 22 }} />}
+        >
+          Load Workflow
+        </Button>
         {/* Toggle Run Mode Button */}
-        <button onClick={() => setIsRealRunMode(!isRealRunMode)} title={isRealRunMode ? "Switch to Simulation Mode" : "Switch to Real Run Mode"}>
-          {isRealRunMode ? '🔬 Real Mode' : '💻 Sim Mode'}
-        </button>
+        <Button
+          onClick={() => setIsRealRunMode(!isRealRunMode)}
+          title={isRealRunMode ? "Switch to Simulation Mode" : "Switch to Real Run Mode"}
+          sx={{
+            ...buttonStyle,
+            ...buttonColors.mode
+          }}
+          startIcon={isRealRunMode ? <ScienceIcon sx={{ fontSize: 22 }} /> : <ComputerIcon sx={{ fontSize: 22 }} />}
+        >
+          {isRealRunMode ? 'Real Mode' : 'Sim Mode'}
+        </Button>
         {/* Run Experiment Button */}
-        <button onClick={handleRunExperiment} disabled={!nodes.length} title={isRealRunMode ? "Send workflow to remote lab" : "Run simulation (or switch mode)"}>
-           ▶️ Run Experiment
-        </button>
+        <Button
+          onClick={handleRunExperiment}
+          disabled={!nodes.length}
+          title={isRealRunMode ? "Send workflow to remote lab" : "Run simulation (or switch mode)"}
+          sx={{
+            ...buttonStyle,
+            ...buttonColors.run,
+            ...(nodes.length ? {} : buttonColors.run['&:disabled'])
+          }}
+          startIcon={<PlayArrowIcon sx={{ fontSize: 22 }} />}
+        >
+          Run Experiment
+        </Button>
       </div>
     );
   };
@@ -1075,7 +1279,14 @@ function Flow() {
         onContextMenu={handleContextMenu}
         style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
       >
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 1, borderBottom: '1px solid #eee', width: '100%', flexShrink: 0 }}>
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          p: 2,
+          width: '100%',
+          flexShrink: 0,
+          background: 'linear-gradient(180deg, rgba(16,90,115,0.05) 0%, rgba(255,255,255,0) 100%)'
+        }}>
           <Toolbar />
         </Box>
 
@@ -1196,6 +1407,14 @@ function Flow() {
         <SaveWorkflowDialog
           onSave={handleSaveWorkflow}
           onCancel={() => setShowSaveDialog(false)}
+        />
+      )}
+
+      {/* 添加加载工作流的对话框 */}
+      {showLoadDialog && (
+        <LoadWorkflowDialog
+          onLoad={handleLoadWorkflow}
+          onCancel={() => setShowLoadDialog(false)}
         />
       )}
     </Box>
