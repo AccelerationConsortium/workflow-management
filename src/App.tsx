@@ -32,6 +32,8 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 
 // Import BaseNode separately
 import { BaseNode } from './components/BaseNode';
+import { CustomUONode } from './components/OperationNodes/CustomUONode';
+import { customUOService } from './services/customUOService';
 
 // Import all node components
 import {
@@ -93,6 +95,7 @@ import { SDLCatalystNodes } from './components/OperationNodes/SDLCatalyst';
 import { SDL2Nodes } from './components/OperationNodes/SDL2';
 import Sidebar from './components/Sidebar';
 import TestStylePage from './components/TestStylePage';
+import { UORegistrationButton } from './components/UOBuilder/UORegistrationButton';
 import { EdgeConfig as EdgeConfigFromComponent } from './components/EdgeConfig';
 
 // 创建主题
@@ -204,6 +207,7 @@ const ALL_NODE_TYPES: NodeTypes = {
   ...baseNodeTypes,
   ...MemoizedSDLCatalystNodes,
   ...MemoizedSDL2Nodes,
+  customUO: memo(CustomUONode), // 添加自定义UO节点类型
   // custom: CustomEdge, // Removed: CustomEdge is an edge type, should be in edgeTypes
 };
 
@@ -425,22 +429,42 @@ function Flow() {
         y: event.clientY - reactFlowBounds.top,
       });
 
-      // 从 operationNodes 中找到对应的节点定义
-      const nodeDefinition = operationNodes.find(node => node.type === type);
+      // 检查是否是自定义UO
+      const customUO = customUOService.getUOById(type);
 
-      if (!nodeDefinition) {
-        console.warn(`No definition found for node type: ${type}`);
-        return;
+      let nodeDefinition;
+      let nodeType = type;
+
+      if (customUO) {
+        // 自定义UO
+        nodeDefinition = {
+          type: type,
+          label: customUO.name,
+          description: customUO.description,
+          category: customUO.category,
+          isCustom: true
+        };
+        nodeType = 'customUO'; // 使用通用的customUO节点类型
+      } else {
+        // 标准节点
+        nodeDefinition = operationNodes.find(node => node.type === type);
+
+        if (!nodeDefinition) {
+          console.warn(`No definition found for node type: ${type}`);
+          return;
+        }
       }
 
       const newNode = {
         id: `${type}_${getId()}`,
-        type,
+        type: nodeType,
         position,
         data: {
           ...nodeDefinition,
           id: `${type}_${getId()}`,
           workflowId: state.currentWorkflow?.id || undefined,
+          customUOId: customUO ? type : undefined,
+          schema: customUO || undefined,
         },
       };
 
@@ -1113,9 +1137,22 @@ function Flow() {
         backdropFilter: 'blur(10px)',
         WebkitBackdropFilter: 'blur(10px)',
         border: '1px solid rgba(255, 255, 255, 0.3)',
-        maxWidth: '900px',
+        maxWidth: '1100px',
         margin: '0 auto'
       }}>
+        {/* UO Registration Button */}
+        <UORegistrationButton
+          onUORegistered={(result) => {
+            if (result.success) {
+              console.log('UO registered successfully:', result.schema);
+              // Show success message
+              alert(`Unit Operation "${result.schema?.name}" registered successfully! Check the sidebar to see your new custom UO.`);
+            } else {
+              console.error('UO registration failed:', result.error);
+              alert(`Registration failed: ${result.error}`);
+            }
+          }}
+        />
         <Button
           ref={createButtonRef}
           onClick={handleCreateWorkflow}
@@ -1393,12 +1430,30 @@ function Flow() {
           visualizationTemplates={visualizationTemplates}
           shortcuts={shortcuts}
           operationGroups={operationGroups}
+          currentNodeId={selectedNode?.id || null}
+          workflowId={state.currentWorkflow?.id || 'default-workflow'}
+          optimizationParameters={selectedNode?.data?.parameters?.map(p => ({
+            id: p.id,
+            name: p.name,
+            min: p.min || 0,
+            max: p.max || 100,
+            currentValue: p.value,
+            unit: p.unit
+          })) || []}
           onParameterChange={(paramId, value) => {
             if (selectedNode) {
               handleParameterChange(selectedNode.id, paramId, value);
             }
           }}
           onUndo={handleUndo}
+          onApplyOptimizationSuggestion={(parameters) => {
+            if (selectedNode) {
+              // 应用优化建议到节点参数
+              Object.entries(parameters).forEach(([paramId, value]) => {
+                handleParameterChange(selectedNode.id, paramId, value);
+              });
+            }
+          }}
         />
       </div>
 

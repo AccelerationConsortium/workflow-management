@@ -24,9 +24,10 @@ export interface OperationNode {
   description?: string;
   category: "SDL Catalyst" | "SDL2" | "Sample Processing" | "Analysis & Measurement" | "Reaction Control" |
              "Separation & Purification" | "Data Acquisition" | "Environment Control" |
-             "Test" | "Catalyst Workflow" | "Workflow Control";
+             "Test" | "Catalyst Workflow" | "Workflow Control" | string; // Allow custom categories
   expanded?: boolean;
   icon?: string;
+  isCustom?: boolean; // Flag for custom UOs
   parameters?: {
     name: string;
     type: 'string' | 'number' | 'boolean' | 'int' | 'float' | 'list';

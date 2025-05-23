@@ -1,25 +1,27 @@
 import React, { useState } from 'react';
-import { 
-  Box, 
-  Paper, 
-  IconButton, 
+import {
+  Box,
+  Paper,
+  IconButton,
   Slide,
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Typography 
+  Typography
 } from '@mui/material';
-import { 
+import {
   ChevronRight as ChevronRightIcon,
   Settings as SettingsIcon,
-  ExpandMore as ExpandMoreIcon 
+  ExpandMore as ExpandMoreIcon
 } from '@mui/icons-material';
 import { ParameterLinkagePanel } from './ParameterLinkagePanel';
 import { VisualizationTemplateSelector } from './VisualizationTemplateSelector';
 import { ShortcutHintPanel } from './ShortcutHintPanel';
+import { OptimizerPanel } from './OptimizerPanel';
 import { OperationHistoryPanel } from './OperationHistoryPanel';
 import { ParameterImpact } from '../services/parameterLinkageService';
 import { VisualizationTemplate } from '../services/visualizationTemplateService';
+import { OptimizationParameter } from '../services/optimizer/optimizerService';
 import { OperationGroup } from '../services/historyGroupingService';
 
 interface ControlPanelProps {
@@ -27,8 +29,12 @@ interface ControlPanelProps {
   visualizationTemplates: VisualizationTemplate[];
   shortcuts: Record<string, any>;
   operationGroups: OperationGroup[];
+  currentNodeId: string | null;
+  workflowId: string;
+  optimizationParameters: OptimizationParameter[];
   onParameterChange: (paramId: string, value: number) => void;
   onUndo: (groupId: string) => void;
+  onApplyOptimizationSuggestion: (parameters: Record<string, number>) => void;
 }
 
 export const ControlPanel: React.FC<ControlPanelProps> = ({
@@ -36,8 +42,12 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   visualizationTemplates,
   shortcuts,
   operationGroups,
+  currentNodeId,
+  workflowId,
+  optimizationParameters,
   onParameterChange,
-  onUndo
+  onUndo,
+  onApplyOptimizationSuggestion
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [expandedPanel, setExpandedPanel] = useState<string | false>(false);
@@ -48,7 +58,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   ) => {
     setExpandedPanel(isExpanded ? panel : false);
   };
-  
+
   return (
     <>
       <IconButton
@@ -70,8 +80,8 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       </IconButton>
 
       <Slide direction="left" in={isExpanded} mountOnEnter unmountOnExit>
-        <Paper 
-          sx={{ 
+        <Paper
+          sx={{
             width: 320,
             position: 'fixed',
             right: 0,
@@ -123,17 +133,22 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
           </Accordion>
 
           <Accordion
-            expanded={expandedPanel === 'shortcuts'}
-            onChange={handlePanelChange('shortcuts')}
+            expanded={expandedPanel === 'optimizer'}
+            onChange={handlePanelChange('optimizer')}
           >
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
               sx={{ borderBottom: 1, borderColor: 'divider' }}
             >
-              <Typography>Shortcuts</Typography>
+              <Typography>Optimizer</Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <ShortcutHintPanel shortcuts={shortcuts} />
+              <OptimizerPanel
+                workflowId={workflowId}
+                nodeId={currentNodeId}
+                parameters={optimizationParameters}
+                onApplySuggestion={onApplyOptimizationSuggestion}
+              />
             </AccordionDetails>
           </Accordion>
 
@@ -158,4 +173,4 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       </Slide>
     </>
   );
-}; 
+};
