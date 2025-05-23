@@ -12,28 +12,58 @@
 }
 
 .sidebar-header {
-  padding: 16px;
-  border-bottom: 1px solid var(--node-border);
+  padding: 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  background: linear-gradient(135deg, #41C4A9 0%, #00A3B4 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .sidebar-header h3 {
   margin: 0 0 16px;
-  font-size: 16px;
-  color: var(--node-text);
+  font-size: 20px;
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.5px;
 }
 
 .search-box {
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+  position: relative;
 }
 
 .search-box input {
   width: 100%;
-  padding: 8px 12px;
-  border: 1px solid var(--node-border);
-  border-radius: 4px;
-  font-size: 14px;
-  background: var(--node-header);
-  color: var(--node-text);
+  padding: 12px 16px 12px 40px;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.search-box input:hover {
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.search-box input:focus {
+  outline: none;
+  background: white;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.search-box svg {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  color: #888;
+  pointer-events: none;
 }
 
 .category-filters {
@@ -256,20 +286,27 @@
 }
 
 .search-shortcut-hint {
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 8px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 12px;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  font-weight: 500;
 }
 
 .search-shortcut-hint kbd {
-  background: #f0f0f0;
-  border: 1px solid #ddd;
-  border-radius: 3px;
-  padding: 1px 4px;
-  font-size: 11px;
-  font-family: monospace;
-  box-shadow: 0 1px 1px rgba(0,0,0,0.2);
-} 
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-size: 12px;
+  font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: white;
+  min-width: 20px;
+  text-align: center;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}

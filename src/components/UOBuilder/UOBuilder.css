@@ -1,0 +1,182 @@
+/**
+ * UO Builder Styles
+ */
+
+.uo-registration-button {
+  background: linear-gradient(135deg, #8F7FE8 0%, #7A6BD0 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-weight: 600;
+  font-size: 16px;
+  min-width: 160px;
+  height: 48px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.uo-registration-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  background: linear-gradient(135deg, #7A6BD0 0%, #6B5BC7 100%);
+}
+
+.uo-registration-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.uo-registration-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Custom UO Node Styles */
+.custom-uo-node {
+  background: linear-gradient(135deg, #8F7FE8 0%, #7A6BD0 100%);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: white;
+  position: relative;
+}
+
+.custom-uo-node::before {
+  content: "🔧";
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #FFD700;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Sidebar Custom UO Section */
+.custom-uo-section {
+  border-top: 2px solid #8F7FE8;
+  margin-top: 16px;
+  padding-top: 16px;
+}
+
+.custom-uo-section .category-header {
+  background: linear-gradient(135deg, #8F7FE8 0%, #7A6BD0 100%);
+  color: white;
+}
+
+/* Modal Styles */
+.uo-builder-modal {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.uo-builder-modal .MuiDialog-paper {
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+/* Form Styles */
+.uo-form-field {
+  margin-bottom: 16px;
+}
+
+.uo-form-field .MuiTextField-root {
+  width: 100%;
+}
+
+.uo-form-field .MuiInputLabel-root {
+  color: #666;
+}
+
+.uo-form-field .MuiOutlinedInput-root {
+  border-radius: 8px;
+}
+
+.uo-form-field .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #8F7FE8;
+}
+
+.uo-form-field .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #8F7FE8;
+}
+
+/* Success/Error States */
+.uo-success {
+  color: #4CAF50;
+}
+
+.uo-error {
+  color: #F44336;
+}
+
+/* Animation for new UO registration */
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.new-custom-uo {
+  animation: slideInFromRight 0.5s ease-out;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .uo-registration-button {
+    min-width: 120px;
+    font-size: 14px;
+    padding: 8px 12px;
+    height: 40px;
+  }
+}
+
+/* Tooltip Styles */
+.uo-tooltip {
+  background: #333;
+  color: white;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 12px;
+  max-width: 200px;
+}
+
+/* Loading States */
+.uo-loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.uo-loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid #fff;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
