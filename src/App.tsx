@@ -455,16 +455,29 @@ function Flow() {
         }
       }
 
+      const nodeId = `${type}_${getId()}`;
       const newNode = {
-        id: `${type}_${getId()}`,
+        id: nodeId,
         type: nodeType,
         position,
         data: {
           ...nodeDefinition,
-          id: `${type}_${getId()}`,
+          id: nodeId,
           workflowId: state.currentWorkflow?.id || undefined,
           customUOId: customUO ? type : undefined,
           schema: customUO || undefined,
+          // Add parameter change callback for custom UO nodes
+          onParameterChange: customUO ? (parameters: Record<string, any>) => {
+            console.log(`Parameters changed for custom UO ${nodeId}:`, parameters);
+            // Update the node's data with the new parameters
+            setNodes(nds =>
+              nds.map(node =>
+                node.id === nodeId
+                  ? { ...node, data: { ...node.data, params: parameters } }
+                  : node
+              )
+            );
+          } : undefined,
         },
       };
 
@@ -792,12 +805,30 @@ function Flow() {
    */
   const generateWorkflowPayload = useCallback(() => {
     // --- Nodes Transformation ---
-    const transformedNodes = nodes.map(node => {
+    // Filter out default Start Node (id: '1', type: 'input') unless user has modified it
+    const filteredNodes = nodes.filter(node => {
+      // Keep the Start Node only if it has been modified (has connections or custom params)
+      if (node.id === '1' && node.type === 'input') {
+        const hasConnections = edges.some(edge => edge.source === node.id || edge.target === node.id);
+        const hasCustomParams = node.data?.params && Object.keys(node.data.params).length > 0;
+        return hasConnections || hasCustomParams;
+      }
+      return true; // Keep all other nodes
+    });
+
+    const transformedNodes = filteredNodes.map(node => {
       const label = node.data?.label || node.type || 'Unnamed Node';
       const params = node.data?.params || {};
+
+      // For custom UO nodes, use the original custom UO type instead of 'customUO'
+      let nodeType = node.type;
+      if (node.type === 'customUO' && node.data?.customUOId) {
+        nodeType = node.data.customUOId;
+      }
+
       return {
         id: node.id,
-        type: node.type,
+        type: nodeType,
         label: label,
         params: params
       };
@@ -821,7 +852,8 @@ function Flow() {
 
     // --- Combine with Global Config ---
     const finalPayload = {
-      global_config: DEFAULT_GLOBAL_CONFIG, // Using the default for now
+      // Don't include default global_config unless explicitly needed
+      // Users should add their own global_config if needed
       nodes: transformedNodes,
       edges: transformedEdges
     };
