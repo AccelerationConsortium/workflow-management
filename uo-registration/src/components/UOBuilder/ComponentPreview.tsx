@@ -192,6 +192,106 @@ export const ComponentPreview: React.FC<ComponentPreviewProps> = ({
           </Box>
         );
 
+      // Workflow components
+      case ComponentType.DEVICE_INITIALIZATION:
+        const deviceInitComp = component as any;
+        return (
+          <Box sx={{ p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+              🧪 Device Initialization
+            </Typography>
+            <Typography variant="body2">Device: {deviceInitComp.deviceId}</Typography>
+            <Typography variant="body2">Type: {deviceInitComp.deviceType || 'N/A'}</Typography>
+            <Typography variant="body2">Mode: {deviceInitComp.initMode || 'soft'}</Typography>
+            <Typography variant="caption" color="text.secondary">
+              Timeout: {deviceInitComp.timeoutS || 30}s, Retries: {deviceInitComp.retryCount || 2}
+            </Typography>
+          </Box>
+        );
+
+      case ComponentType.USER_CONFIRMATION:
+        const userConfComp = component as any;
+        return (
+          <Box sx={{ p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+              ✅ User Confirmation
+            </Typography>
+            <Typography variant="body2" sx={{ fontStyle: 'italic', mb: 1 }}>
+              "{userConfComp.promptText}"
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              Expected: {userConfComp.expectedResponse || 'yes'} | Timeout: {userConfComp.timeoutS || 120}s
+            </Typography>
+          </Box>
+        );
+
+      case ComponentType.LIQUID_TRANSFER:
+        const liquidComp = component as any;
+        return (
+          <Box sx={{ p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+              🔁 Liquid Transfer
+            </Typography>
+            <Typography variant="body2">
+              {liquidComp.sourceContainer} → {liquidComp.targetContainer}
+            </Typography>
+            <Typography variant="body2">Volume: {liquidComp.volumeMl} mL</Typography>
+            <Typography variant="caption" color="text.secondary">
+              Speed: {liquidComp.speedUlPerS || 300} μL/s | {liquidComp.pipetteType || 'single'} pipette
+            </Typography>
+          </Box>
+        );
+
+      case ComponentType.START_REACTION:
+        const reactionComp = component as any;
+        return (
+          <Box sx={{ p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+              🔆 Start Reaction
+            </Typography>
+            <Typography variant="body2">Device: {reactionComp.deviceId}</Typography>
+            <Typography variant="body2">Mode: {reactionComp.mode || 'Default'}</Typography>
+            <Typography variant="caption" color="text.secondary">
+              Duration: {reactionComp.durationS || 0}s | Intensity: {reactionComp.intensityPct || 100}%
+            </Typography>
+          </Box>
+        );
+
+      case ComponentType.TRIGGER_MEASUREMENT:
+        const measureComp = component as any;
+        return (
+          <Box sx={{ p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+              📏 Trigger Measurement
+            </Typography>
+            <Typography variant="body2">Device: {measureComp.deviceId}</Typography>
+            <Typography variant="body2">Type: {measureComp.measurementType || 'OD600'}</Typography>
+            <Typography variant="caption" color="text.secondary">
+              {measureComp.wavelengthNm ? `${measureComp.wavelengthNm}nm` : ''} |
+              Export: {measureComp.exportFormat || 'csv'}
+            </Typography>
+          </Box>
+        );
+
+      case ComponentType.PAUSE_DELAY:
+        const pauseComp = component as any;
+        return (
+          <Box sx={{ p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+              ⏸️ Pause / Delay
+            </Typography>
+            <Typography variant="body2">Duration: {pauseComp.durationS} seconds</Typography>
+            {pauseComp.reason && (
+              <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
+                Reason: {pauseComp.reason}
+              </Typography>
+            )}
+            <Typography variant="caption" color="text.secondary">
+              {pauseComp.skippable ? 'Skippable' : 'Required'}
+            </Typography>
+          </Box>
+        );
+
       default:
         return (
           <Box sx={{ p: 2, backgroundColor: 'grey.100', borderRadius: 1 }}>

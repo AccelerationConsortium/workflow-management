@@ -131,6 +131,108 @@ export const COMPONENT_LIBRARY: ComponentLibraryItem[] = [
       maxLength: 1000,
       position: { x: 0, y: 0 }
     }
+  },
+
+  // Workflow components for lab automation
+  {
+    type: ComponentType.DEVICE_INITIALIZATION,
+    label: 'Device Initialization',
+    description: 'Initialize one or multiple lab instruments before workflow begins',
+    icon: '🧪',
+    defaultProps: {
+      type: ComponentType.DEVICE_INITIALIZATION,
+      label: 'Device Initialization',
+      required: false,
+      deviceId: 'cytation5',
+      deviceType: 'cytation',
+      initMode: 'soft',
+      timeoutS: 30,
+      retryCount: 2,
+      position: { x: 0, y: 0 }
+    }
+  },
+  {
+    type: ComponentType.USER_CONFIRMATION,
+    label: 'User Confirmation',
+    description: 'Ask user to confirm a physical setup step before proceeding',
+    icon: '✅',
+    defaultProps: {
+      type: ComponentType.USER_CONFIRMATION,
+      label: 'User Confirmation',
+      required: false,
+      promptText: 'Confirm vial placement',
+      expectedResponse: 'yes',
+      timeoutS: 120,
+      abortOnTimeout: true,
+      position: { x: 0, y: 0 }
+    }
+  },
+  {
+    type: ComponentType.LIQUID_TRANSFER,
+    label: 'Liquid Transfer',
+    description: 'Transfer a specified volume from a source to a target container',
+    icon: '🔁',
+    defaultProps: {
+      type: ComponentType.LIQUID_TRANSFER,
+      label: 'Liquid Transfer',
+      required: false,
+      sourceContainer: 'stock_A',
+      targetContainer: 'reactor_tube',
+      volumeMl: 0.5,
+      speedUlPerS: 300,
+      pipetteType: 'single',
+      mixAfter: true,
+      position: { x: 0, y: 0 }
+    }
+  },
+  {
+    type: ComponentType.START_REACTION,
+    label: 'Start Reaction',
+    description: 'Activate a device to start a chemical or biological reaction',
+    icon: '🔆',
+    defaultProps: {
+      type: ComponentType.START_REACTION,
+      label: 'Start Reaction',
+      required: false,
+      deviceId: 'photoreactor_1',
+      mode: 'UV-A 365nm',
+      durationS: 300,
+      intensityPct: 80,
+      position: { x: 0, y: 0 }
+    }
+  },
+  {
+    type: ComponentType.TRIGGER_MEASUREMENT,
+    label: 'Trigger Measurement',
+    description: 'Trigger a device to measure sample or system status',
+    icon: '📏',
+    defaultProps: {
+      type: ComponentType.TRIGGER_MEASUREMENT,
+      label: 'Trigger Measurement',
+      required: false,
+      deviceId: 'cytation5',
+      measurementType: 'OD600',
+      wavelengthNm: 600,
+      integrationTimeMs: 500,
+      exportFormat: 'csv',
+      saveTo: 'results/exp001_cytation.csv',
+      position: { x: 0, y: 0 }
+    }
+  },
+  {
+    type: ComponentType.PAUSE_DELAY,
+    label: 'Pause / Delay Step',
+    description: 'Pause the workflow execution for a fixed duration',
+    icon: '⏸️',
+    defaultProps: {
+      type: ComponentType.PAUSE_DELAY,
+      label: 'Pause / Delay Step',
+      required: false,
+      durationS: 300,
+      reason: 'Allow reaction to settle',
+      skippable: true,
+      position: { x: 0, y: 0 }
+    }
   }
 ];
 
@@ -161,6 +263,18 @@ export const COMPONENT_CATEGORIES = {
     components: [
       ComponentType.UNIT_LABEL,
       ComponentType.PARAMETER_NAME
+    ]
+  },
+  WORKFLOW: {
+    name: 'Workflow Components',
+    description: 'Lab automation and workflow control components',
+    components: [
+      ComponentType.DEVICE_INITIALIZATION,
+      ComponentType.USER_CONFIRMATION,
+      ComponentType.LIQUID_TRANSFER,
+      ComponentType.START_REACTION,
+      ComponentType.TRIGGER_MEASUREMENT,
+      ComponentType.PAUSE_DELAY
     ]
   }
 };
@@ -255,6 +369,31 @@ export const VALIDATION_RULES = {
   [ComponentType.TEXT_AREA]: {
     required: ['label'],
     optional: ['placeholder', 'defaultValue', 'rows', 'maxLength', 'description']
+  },
+  // Workflow component validation rules
+  [ComponentType.DEVICE_INITIALIZATION]: {
+    required: ['label', 'deviceId'],
+    optional: ['deviceType', 'initMode', 'timeoutS', 'retryCount', 'description']
+  },
+  [ComponentType.USER_CONFIRMATION]: {
+    required: ['label', 'promptText'],
+    optional: ['expectedResponse', 'timeoutS', 'abortOnTimeout', 'description']
+  },
+  [ComponentType.LIQUID_TRANSFER]: {
+    required: ['label', 'sourceContainer', 'targetContainer', 'volumeMl'],
+    optional: ['speedUlPerS', 'pipetteType', 'mixAfter', 'description']
+  },
+  [ComponentType.START_REACTION]: {
+    required: ['label', 'deviceId'],
+    optional: ['mode', 'durationS', 'intensityPct', 'description']
+  },
+  [ComponentType.TRIGGER_MEASUREMENT]: {
+    required: ['label', 'deviceId'],
+    optional: ['measurementType', 'wavelengthNm', 'integrationTimeMs', 'exportFormat', 'saveTo', 'description']
+  },
+  [ComponentType.PAUSE_DELAY]: {
+    required: ['label', 'durationS'],
+    optional: ['reason', 'skippable', 'description']
   }
 };
 
