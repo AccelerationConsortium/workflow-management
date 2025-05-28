@@ -12,7 +12,14 @@ export enum ComponentType {
   UNIT_LABEL = 'unit_label',
   PARAMETER_NAME = 'parameter_name',
   RANGE_SLIDER = 'range_slider',
-  TEXT_AREA = 'text_area'
+  TEXT_AREA = 'text_area',
+  // Workflow components for lab automation
+  DEVICE_INITIALIZATION = 'device_initialization',
+  USER_CONFIRMATION = 'user_confirmation',
+  LIQUID_TRANSFER = 'liquid_transfer',
+  START_REACTION = 'start_reaction',
+  TRIGGER_MEASUREMENT = 'trigger_measurement',
+  PAUSE_DELAY = 'pause_delay'
 }
 
 // Base interface for all draggable components
@@ -93,17 +100,76 @@ export interface TextAreaComponent extends BaseComponent {
   maxLength?: number;
 }
 
+// Workflow component interfaces for lab automation
+export interface DeviceInitializationComponent extends BaseComponent {
+  type: ComponentType.DEVICE_INITIALIZATION;
+  deviceId: string;
+  deviceType?: 'photoreactor' | 'cytation' | 'robot' | 'other';
+  initMode?: 'soft' | 'hard';
+  timeoutS?: number;
+  retryCount?: number;
+}
+
+export interface UserConfirmationComponent extends BaseComponent {
+  type: ComponentType.USER_CONFIRMATION;
+  promptText: string;
+  expectedResponse?: 'yes' | 'ok' | 'done';
+  timeoutS?: number;
+  abortOnTimeout?: boolean;
+}
+
+export interface LiquidTransferComponent extends BaseComponent {
+  type: ComponentType.LIQUID_TRANSFER;
+  sourceContainer: string;
+  targetContainer: string;
+  volumeMl: number;
+  speedUlPerS?: number;
+  pipetteType?: 'single' | 'multi';
+  mixAfter?: boolean;
+}
+
+export interface StartReactionComponent extends BaseComponent {
+  type: ComponentType.START_REACTION;
+  deviceId: string;
+  mode?: string;
+  durationS?: number;
+  intensityPct?: number;
+}
+
+export interface TriggerMeasurementComponent extends BaseComponent {
+  type: ComponentType.TRIGGER_MEASUREMENT;
+  deviceId: string;
+  measurementType?: 'OD600' | 'fluorescence' | 'absorbance' | 'other';
+  wavelengthNm?: number;
+  integrationTimeMs?: number;
+  exportFormat?: 'csv' | 'json';
+  saveTo?: string;
+}
+
+export interface PauseDelayComponent extends BaseComponent {
+  type: ComponentType.PAUSE_DELAY;
+  durationS: number;
+  reason?: string;
+  skippable?: boolean;
+}
+
 // Union type for all components
-export type UOComponent = 
-  | SelectComponent 
-  | InputComponent 
-  | NumberInputComponent 
-  | BooleanComponent 
-  | DatePickerComponent 
-  | UnitLabelComponent 
-  | ParameterNameComponent 
-  | RangeSliderComponent 
-  | TextAreaComponent;
+export type UOComponent =
+  | SelectComponent
+  | InputComponent
+  | NumberInputComponent
+  | BooleanComponent
+  | DatePickerComponent
+  | UnitLabelComponent
+  | ParameterNameComponent
+  | RangeSliderComponent
+  | TextAreaComponent
+  | DeviceInitializationComponent
+  | UserConfirmationComponent
+  | LiquidTransferComponent
+  | StartReactionComponent
+  | TriggerMeasurementComponent
+  | PauseDelayComponent;
 
 // UO Builder state
 export interface UOBuilderState {
@@ -197,7 +263,7 @@ export interface DragDropContext {
 }
 
 // Builder actions
-export type BuilderAction = 
+export type BuilderAction =
   | { type: 'SET_NAME'; payload: string }
   | { type: 'SET_DESCRIPTION'; payload: string }
   | { type: 'SET_CATEGORY'; payload: string }

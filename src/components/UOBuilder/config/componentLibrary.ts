@@ -179,6 +179,114 @@ export const COMPONENT_LIBRARY: ComponentLibraryItem[] = [
       rows: 3,
       tooltip: 'Additional notes or comments'
     }
+  },
+
+  // 工作流模块 - Workflow Components for Lab Automation
+  {
+    type: 'DEVICE_INITIALIZATION',
+    label: 'Device Initialization',
+    description: 'Initialize one or multiple lab instruments before workflow begins',
+    icon: '🧪',
+    category: 'workflow',
+    defaultProps: {
+      type: 'DEVICE_INITIALIZATION',
+      label: 'Device Initialization',
+      required: false,
+      deviceId: 'cytation5',
+      deviceType: 'cytation',
+      initMode: 'soft',
+      timeoutS: 30,
+      retryCount: 2,
+      tooltip: 'Initialize lab equipment'
+    }
+  },
+  {
+    type: 'USER_CONFIRMATION',
+    label: 'User Confirmation',
+    description: 'Ask user to confirm a physical setup step before proceeding',
+    icon: '✅',
+    category: 'workflow',
+    defaultProps: {
+      type: 'USER_CONFIRMATION',
+      label: 'User Confirmation',
+      required: false,
+      promptText: 'Confirm vial placement',
+      expectedResponse: 'yes',
+      timeoutS: 120,
+      abortOnTimeout: true,
+      tooltip: 'User confirmation prompt'
+    }
+  },
+  {
+    type: 'LIQUID_TRANSFER',
+    label: 'Liquid Transfer',
+    description: 'Transfer a specified volume from a source to a target container',
+    icon: '🔁',
+    category: 'workflow',
+    defaultProps: {
+      type: 'LIQUID_TRANSFER',
+      label: 'Liquid Transfer',
+      required: false,
+      sourceContainer: 'stock_A',
+      targetContainer: 'reactor_tube',
+      volumeMl: 0.5,
+      speedUlPerS: 300,
+      pipetteType: 'single',
+      mixAfter: true,
+      tooltip: 'Transfer liquid between containers'
+    }
+  },
+  {
+    type: 'START_REACTION',
+    label: 'Start Reaction',
+    description: 'Activate a device to start a chemical or biological reaction',
+    icon: '🔆',
+    category: 'workflow',
+    defaultProps: {
+      type: 'START_REACTION',
+      label: 'Start Reaction',
+      required: false,
+      deviceId: 'photoreactor_1',
+      mode: 'UV-A 365nm',
+      durationS: 300,
+      intensityPct: 80,
+      tooltip: 'Start chemical reaction'
+    }
+  },
+  {
+    type: 'TRIGGER_MEASUREMENT',
+    label: 'Trigger Measurement',
+    description: 'Trigger a device to measure sample or system status',
+    icon: '📏',
+    category: 'workflow',
+    defaultProps: {
+      type: 'TRIGGER_MEASUREMENT',
+      label: 'Trigger Measurement',
+      required: false,
+      deviceId: 'cytation5',
+      measurementType: 'OD600',
+      wavelengthNm: 600,
+      integrationTimeMs: 500,
+      exportFormat: 'csv',
+      saveTo: 'results/exp001_cytation.csv',
+      tooltip: 'Trigger device measurement'
+    }
+  },
+  {
+    type: 'PAUSE_DELAY',
+    label: 'Pause / Delay Step',
+    description: 'Pause the workflow execution for a fixed duration',
+    icon: '⏸️',
+    category: 'workflow',
+    defaultProps: {
+      type: 'PAUSE_DELAY',
+      label: 'Pause / Delay Step',
+      required: false,
+      durationS: 300,
+      reason: 'Allow reaction to settle',
+      skippable: true,
+      tooltip: 'Pause workflow execution'
+    }
   }
 ];
 
@@ -201,6 +309,12 @@ export const COMPONENT_CATEGORIES = {
     description: 'Control switches, file operations, and notes',
     icon: '⚙️',
     color: '#4CAF50'
+  },
+  workflow: {
+    label: 'Workflow Components',
+    description: 'Lab automation and workflow control components',
+    icon: '🔄',
+    color: '#9C27B0'
   }
 };
 
