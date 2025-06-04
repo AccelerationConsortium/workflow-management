@@ -65,16 +65,24 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
         onClick={() => setIsExpanded(!isExpanded)}
         sx={{
           position: 'fixed',
-          right: isExpanded ? 340 : 0,
-          top: 80,
-          zIndex: 1000,
-          backgroundColor: 'background.paper',
-          boxShadow: 2,
-          borderRadius: '4px 0 0 4px',
+          right: isExpanded ? 370 : 10, // 调整展开时的位置以匹配面板宽度
+          top: 120, // 调整位置避免与Test Styles按钮重叠
+          zIndex: 10000,
+          backgroundColor: '#2196F3', // 使用蓝色背景使其更明显
+          color: 'white',
+          boxShadow: 3,
+          borderRadius: '8px',
+          border: '2px solid #1976D2',
+          width: 48,
+          height: 48,
           '&:hover': {
-            backgroundColor: 'action.hover'
-          }
+            backgroundColor: '#1976D2',
+            boxShadow: 4,
+            transform: 'scale(1.05)'
+          },
+          transition: 'all 0.2s ease'
         }}
+        title={isExpanded ? "Close BO Control Panel" : "Open BO Control Panel (Bayesian Optimization)"}
       >
         {isExpanded ? <ChevronRightIcon /> : <SettingsIcon />}
       </IconButton>
@@ -82,16 +90,17 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       <Slide direction="left" in={isExpanded} mountOnEnter unmountOnExit>
         <Paper
           sx={{
-            width: 320,
+            width: 360, // 稍微增加宽度
             position: 'fixed',
             right: 0,
-            top: 80,
-            zIndex: 900,
+            top: 120, // 与按钮位置对齐
+            zIndex: 9999,
             backgroundColor: 'background.paper',
-            boxShadow: 2,
-            borderRadius: '4px 0 0 4px',
-            maxHeight: 'calc(100vh - 100px)',
-            overflow: 'auto'
+            boxShadow: 4,
+            borderRadius: '8px 0 0 8px',
+            maxHeight: 'calc(100vh - 140px)',
+            overflow: 'auto',
+            border: '2px solid #2196F3' // 使用蓝色边框与按钮匹配
           }}
         >
           <Accordion
@@ -138,9 +147,11 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
           >
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
-              sx={{ borderBottom: 1, borderColor: 'divider' }}
+              sx={{ borderBottom: 1, borderColor: 'divider', backgroundColor: '#f3f8ff' }}
             >
-              <Typography>Optimizer</Typography>
+              <Typography sx={{ fontWeight: 600, color: '#2196F3' }}>
+                🧠 BO Optimizer (Bayesian Optimization)
+              </Typography>
             </AccordionSummary>
             <AccordionDetails>
               <OptimizerPanel
