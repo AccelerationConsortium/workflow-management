@@ -1,0 +1,183 @@
+{
+  "dispense_powder": {
+    "template": {
+      "unit_operation": "dispense_powder",
+      "category": "material_handling",
+      "description": "Dispense powder material with specified parameters"
+    },
+    "parameter_mappings": [
+      {
+        "bo_field": "flow_rate",
+        "uo_parameter": "flow_rate",
+        "unit_conversion": 1.0,
+        "validation_range": [0.1, 100.0],
+        "required": true
+      },
+      {
+        "bo_field": "powder_type",
+        "uo_parameter": "material_type",
+        "required": true
+      },
+      {
+        "bo_field": "volume",
+        "uo_parameter": "target_volume",
+        "unit_conversion": 1.0,
+        "validation_range": [1.0, 1000.0],
+        "default_value": 10.0,
+        "required": true
+      },
+      {
+        "bo_field": "temperature",
+        "uo_parameter": "temperature",
+        "unit_conversion": 1.0,
+        "validation_range": [20.0, 200.0],
+        "default_value": 25.0,
+        "required": false
+      },
+      {
+        "bo_field": "pressure",
+        "uo_parameter": "pressure",
+        "unit_conversion": 1.0,
+        "validation_range": [0.1, 10.0],
+        "default_value": 1.0,
+        "required": false
+      }
+    ]
+  },
+  "mixing": {
+    "template": {
+      "unit_operation": "mixing",
+      "category": "process",
+      "description": "Mix materials with specified parameters"
+    },
+    "parameter_mappings": [
+      {
+        "bo_field": "flow_rate",
+        "uo_parameter": "mixing_speed",
+        "unit_conversion": 10.0,
+        "validation_range": [100, 2000],
+        "required": true
+      },
+      {
+        "bo_field": "volume",
+        "uo_parameter": "mixing_volume",
+        "unit_conversion": 1.0,
+        "validation_range": [1.0, 1000.0],
+        "required": true
+      },
+      {
+        "bo_field": "temperature",
+        "uo_parameter": "mixing_temperature",
+        "unit_conversion": 1.0,
+        "validation_range": [20.0, 100.0],
+        "default_value": 25.0,
+        "required": false
+      }
+    ]
+  },
+  "heating": {
+    "template": {
+      "unit_operation": "heating",
+      "category": "thermal",
+      "description": "Heat materials to specified temperature"
+    },
+    "parameter_mappings": [
+      {
+        "bo_field": "temperature",
+        "uo_parameter": "target_temperature",
+        "unit_conversion": 1.0,
+        "validation_range": [20.0, 300.0],
+        "required": true
+      },
+      {
+        "bo_field": "volume",
+        "uo_parameter": "sample_volume",
+        "unit_conversion": 1.0,
+        "validation_range": [1.0, 1000.0],
+        "default_value": 50.0,
+        "required": false
+      },
+      {
+        "bo_field": "pressure",
+        "uo_parameter": "heating_pressure",
+        "unit_conversion": 1.0,
+        "validation_range": [0.1, 5.0],
+        "default_value": 1.0,
+        "required": false
+      }
+    ]
+  },
+  "electrochemical_measurement": {
+    "template": {
+      "unit_operation": "electrochemical_measurement",
+      "category": "analysis",
+      "description": "Perform electrochemical measurements"
+    },
+    "parameter_mappings": [
+      {
+        "bo_field": "flow_rate",
+        "uo_parameter": "scan_rate",
+        "unit_conversion": 0.1,
+        "validation_range": [0.01, 10.0],
+        "default_value": 0.1,
+        "required": false
+      },
+      {
+        "bo_field": "volume",
+        "uo_parameter": "electrolyte_volume",
+        "unit_conversion": 1.0,
+        "validation_range": [1.0, 100.0],
+        "default_value": 10.0,
+        "required": false
+      },
+      {
+        "bo_field": "temperature",
+        "uo_parameter": "measurement_temperature",
+        "unit_conversion": 1.0,
+        "validation_range": [15.0, 80.0],
+        "default_value": 25.0,
+        "required": false
+      }
+    ]
+  },
+  "catalyst_synthesis": {
+    "template": {
+      "unit_operation": "catalyst_synthesis",
+      "category": "synthesis",
+      "description": "Synthesize catalyst with specified conditions"
+    },
+    "parameter_mappings": [
+      {
+        "bo_field": "temperature",
+        "uo_parameter": "synthesis_temperature",
+        "unit_conversion": 1.0,
+        "validation_range": [100.0, 800.0],
+        "required": true
+      },
+      {
+        "bo_field": "pressure",
+        "uo_parameter": "synthesis_pressure",
+        "unit_conversion": 1.0,
+        "validation_range": [0.1, 50.0],
+        "default_value": 1.0,
+        "required": false
+      },
+      {
+        "bo_field": "flow_rate",
+        "uo_parameter": "gas_flow_rate",
+        "unit_conversion": 1.0,
+        "validation_range": [1.0, 1000.0],
+        "default_value": 50.0,
+        "required": false
+      },
+      {
+        "bo_field": "volume",
+        "uo_parameter": "precursor_volume",
+        "unit_conversion": 1.0,
+        "validation_range": [0.1, 100.0],
+        "default_value": 5.0,
+        "required": false
+      }
+    ]
+  }
+}

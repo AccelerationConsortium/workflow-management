@@ -114,11 +114,23 @@ export const UOBuilderModal: React.FC<UOBuilderModalProps> = ({
         open={open}
         onClose={onClose}
         maxWidth={false}
-        fullScreen
         PaperProps={{
           sx: {
-            height: '100vh',
-            maxHeight: '100vh'
+            width: '66.67vw', // 2/3 of viewport width
+            height: '90vh',   // 90% of viewport height for better visibility
+            maxWidth: '66.67vw',
+            maxHeight: '90vh',
+            margin: 0,
+            marginLeft: '2vw', // Position towards left side
+            marginTop: '5vh',  // Center vertically with some top margin
+            borderRadius: '12px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.12)'
+          }
+        }}
+        sx={{
+          '& .MuiDialog-container': {
+            alignItems: 'flex-start',
+            justifyContent: 'flex-start'
           }
         }}
       >

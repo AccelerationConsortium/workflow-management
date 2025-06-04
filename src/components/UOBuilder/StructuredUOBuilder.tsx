@@ -257,12 +257,14 @@ export const StructuredUOBuilder: React.FC<StructuredUOBuilderProps> = ({
         type: getParameterTypeFromComponent(slot.component!.type),
         required: slot.config.required || false,
         defaultValue: slot.config.defaultValue,
-        unit: slot.config.unit,
+        unit: slot.config.unit || getDefaultUnit(slot.component!.type),
         description: slot.config.tooltip || slot.component!.description,
         validation: {
           min: slot.config.min,
           max: slot.config.max,
-          options: slot.config.options
+          step: slot.config.step,
+          options: slot.config.options,
+          maxLength: slot.config.maxLength
         }
       }));
 
@@ -304,6 +306,30 @@ export const StructuredUOBuilder: React.FC<StructuredUOBuilderProps> = ({
     console.log('Generated UO:', uoData);
   };
 
+  // 辅助函数：获取组件类型对应的默认单位
+  const getDefaultUnit = (componentType: string): string => {
+    switch (componentType) {
+      case 'VOLUME_INPUT':
+        return 'mL';
+      case 'CONCENTRATION_INPUT':
+        return 'mM';
+      case 'TIME_INPUT':
+        return 's';
+      case 'TEMPERATURE_INPUT':
+        return '°C';
+      case 'POSITION_INPUT':
+        return 'mm';
+      case 'SPEED_INPUT':
+        return 'mm/s';
+      case 'PRESSURE_INPUT':
+        return 'bar';
+      case 'FLOW_RATE_INPUT':
+        return 'mL/min';
+      default:
+        return '';
+    }
+  };
+
   // 辅助函数：将组件类型转换为参数类型
   const getParameterTypeFromComponent = (componentType: string): 'string' | 'number' | 'boolean' | 'date' | 'enum' | 'range' => {
     switch (componentType) {
@@ -311,6 +337,10 @@ export const StructuredUOBuilder: React.FC<StructuredUOBuilderProps> = ({
       case 'CONCENTRATION_INPUT':
       case 'TIME_INPUT':
       case 'TEMPERATURE_INPUT':
+      case 'POSITION_INPUT':
+      case 'SPEED_INPUT':
+      case 'PRESSURE_INPUT':
+      case 'FLOW_RATE_INPUT':
         return 'number';
       case 'MATERIAL_SELECT':
       case 'CONTAINER_SELECT':
@@ -326,7 +356,7 @@ export const StructuredUOBuilder: React.FC<StructuredUOBuilderProps> = ({
   };
 
   return (
-    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
       <Paper elevation={1} sx={{ p: 2, borderRadius: 0 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

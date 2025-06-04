@@ -9,137 +9,134 @@ export const COMPONENT_LIBRARY: ComponentLibraryItem[] = [
   {
     type: 'VOLUME_INPUT',
     label: 'Volume Parameter',
-    description: 'Volume input with mL/μL units (e.g., Metal Salt Volume)',
+    description: 'Volume input with unit selection (mL, μL, L)',
     icon: '🧪',
     category: 'basic',
+    useCase: 'Set reaction volume, transfer volume',
     defaultProps: {
       type: 'VOLUME_INPUT',
       label: 'Volume',
       required: true,
+      defaultValue: 1.0,
       min: 0,
-      max: 1000,
+      max: 100,
       step: 0.1,
-      defaultValue: 1,
       unit: 'mL',
-      unitOptions: ['mL', 'μL', 'L'],
-      tooltip: 'Volume of solution'
+      tooltip: 'Enter volume value'
     }
   },
   {
     type: 'CONCENTRATION_INPUT',
     label: 'Concentration Parameter',
-    description: 'Concentration input with mM/μM units (e.g., Metal Salt Concentration)',
+    description: 'Concentration input with unit selection (mM, μM, M, mg/mL)',
     icon: '⚗️',
     category: 'basic',
+    useCase: 'Set solution concentration, buffer concentration',
     defaultProps: {
       type: 'CONCENTRATION_INPUT',
       label: 'Concentration',
       required: true,
+      defaultValue: 10.0,
       min: 0,
       max: 1000,
-      step: 0.01,
-      defaultValue: 10,
+      step: 0.1,
       unit: 'mM',
-      unitOptions: ['mM', 'μM', 'nM', 'M', 'mg/mL', '%'],
-      tooltip: 'Concentration of solution'
-    }
-  },
-  {
-    type: 'MATERIAL_SELECT',
-    label: 'Material Selection',
-    description: 'Select material type (e.g., Metal Salt Type, Ligand Type)',
-    icon: '🔬',
-    category: 'basic',
-    defaultProps: {
-      type: 'MATERIAL_SELECT',
-      label: 'Material Type',
-      required: true,
-      options: ['Cu', 'Fe', 'Zn', 'Ni'],
-      defaultValue: 'Cu',
-      allowCustomInput: true,
-      tooltip: 'Select the material type'
+      tooltip: 'Enter concentration value'
     }
   },
   {
     type: 'TIME_INPUT',
     label: 'Time Parameter',
-    description: 'Time input with s/min/h units (e.g., Mixing Time)',
+    description: 'Time input with unit selection (s, min, h)',
     icon: '⏱️',
     category: 'basic',
+    useCase: 'Set reaction time, mixing time, delay time',
     defaultProps: {
       type: 'TIME_INPUT',
       label: 'Time',
       required: true,
+      defaultValue: 30,
       min: 0,
       max: 3600,
       step: 1,
-      defaultValue: 30,
       unit: 's',
-      unitOptions: ['s', 'min', 'h'],
-      tooltip: 'Duration in time units'
+      tooltip: 'Enter time value'
     }
   },
   {
     type: 'TEMPERATURE_INPUT',
     label: 'Temperature Parameter',
-    description: 'Temperature input with °C/K units (e.g., Reaction Temperature)',
+    description: 'Temperature input with unit selection (°C, K, °F)',
     icon: '🌡️',
     category: 'basic',
+    useCase: 'Set reaction temperature, heating temperature',
     defaultProps: {
       type: 'TEMPERATURE_INPUT',
       label: 'Temperature',
       required: true,
-      min: -273,
-      max: 1000,
-      step: 0.1,
       defaultValue: 25,
+      min: -50,
+      max: 200,
+      step: 0.1,
       unit: '°C',
-      unitOptions: ['°C', 'K', '°F'],
-      tooltip: 'Temperature value'
+      tooltip: 'Enter temperature value'
     }
   },
-
-  // 设备参数类型 - Equipment Parameter Types
+  {
+    type: 'MATERIAL_SELECT',
+    label: 'Material Selection',
+    description: 'Select from predefined material options',
+    icon: '🔬',
+    category: 'basic',
+    useCase: 'Select metal salt, ligand, catalyst',
+    defaultProps: {
+      type: 'MATERIAL_SELECT',
+      label: 'Material',
+      required: true,
+      options: ['Option 1', 'Option 2', 'Option 3'],
+      defaultValue: 'Option 1',
+      tooltip: 'Select material type'
+    }
+  },
   {
     type: 'CONTAINER_SELECT',
     label: 'Container Selection',
-    description: 'Select container type (e.g., Output Destination)',
+    description: 'Select from available containers',
     icon: '🥤',
-    category: 'equipment',
+    category: 'basic',
+    useCase: 'Select reaction vessel, storage container',
     defaultProps: {
       type: 'CONTAINER_SELECT',
       label: 'Container',
       required: true,
-      options: ['Mixing Container', 'Storage Vial', 'Reaction Tube', 'Collection Plate'],
-      defaultValue: 'Mixing Container',
-      allowCustomInput: false,
-      tooltip: 'Select destination container'
+      options: ['Container 1', 'Container 2', 'Container 3'],
+      defaultValue: 'Container 1',
+      tooltip: 'Select container type'
     }
   },
   {
     type: 'BUFFER_SELECT',
     label: 'Buffer Selection',
-    description: 'Select buffer type (e.g., Buffer Type)',
+    description: 'Select from available buffer solutions',
     icon: '🧴',
-    category: 'equipment',
+    category: 'basic',
+    useCase: 'Select buffer type for reaction',
     defaultProps: {
       type: 'BUFFER_SELECT',
-      label: 'Buffer Type',
+      label: 'Buffer',
       required: true,
-      options: ['Buffer1', 'Buffer2', 'PBS', 'HEPES', 'Tris'],
-      defaultValue: 'Buffer1',
-      allowCustomInput: true,
-      tooltip: 'Select buffer solution'
+      options: ['Buffer 1', 'Buffer 2', 'PBS', 'HEPES'],
+      defaultValue: 'Buffer 1',
+      tooltip: 'Select buffer type'
     }
   },
-
-  // 控制参数类型 - Control Parameter Types
   {
     type: 'ENABLE_TOGGLE',
     label: 'Enable/Disable Toggle',
-    description: 'Enable or disable a feature (e.g., Enable Heating)',
+    description: 'Boolean toggle for enable/disable options',
     icon: '🔘',
-    category: 'control',
+    category: 'basic',
+    useCase: 'Enable mixing, enable heating, enable monitoring',
     defaultProps: {
       type: 'ENABLE_TOGGLE',
       label: 'Enable Feature',
@@ -149,35 +146,198 @@ export const COMPONENT_LIBRARY: ComponentLibraryItem[] = [
     }
   },
   {
-    type: 'FILE_OPERATIONS',
-    label: 'Import/Export Files',
-    description: 'Import or export configuration files',
-    icon: '📁',
-    category: 'control',
+    type: 'TEXT_NOTE',
+    label: 'Text Note',
+    description: 'Text input for notes and descriptions',
+    icon: '📝',
+    category: 'basic',
+    useCase: 'Add experiment notes, procedure description',
     defaultProps: {
-      type: 'FILE_OPERATIONS',
-      label: 'Configuration',
+      type: 'TEXT_NOTE',
+      label: 'Note',
       required: false,
-      allowImport: true,
-      allowExport: true,
-      fileTypes: ['.json', '.csv'],
-      tooltip: 'Import or export configuration'
+      defaultValue: '',
+      maxLength: 255,
+      tooltip: 'Enter text note'
+    }
+  },
+
+  // 核心功能模块 - Core Functional Modules
+  {
+    type: 'DEVICE_INITIALIZATION',
+    label: 'Device Initialization',
+    description: 'Initialize one or multiple lab instruments before workflow begins',
+    icon: '🧪',
+    category: 'control',
+    useCase: 'Initialize photoreactor, robot arm, cytation reader',
+    defaultProps: {
+      type: 'DEVICE_INITIALIZATION',
+      label: 'Device Initialization',
+      required: true,
+      device_id: 'cytation5',
+      device_type: 'cytation',
+      init_mode: 'soft',
+      timeout_s: 30,
+      retry_count: 2,
+      tooltip: 'Initialize lab instruments before workflow begins'
     }
   },
   {
-    type: 'TEXT_NOTE',
-    label: 'Text Note',
-    description: 'Add notes or comments (e.g., Procedure Notes)',
-    icon: '📝',
+    type: 'USER_CONFIRMATION',
+    label: 'User Confirmation Prompt',
+    description: 'Ask user to confirm a physical setup step before proceeding',
+    icon: '✅',
     category: 'control',
+    useCase: 'Have you placed the vials on the rack?',
     defaultProps: {
-      type: 'TEXT_NOTE',
-      label: 'Notes',
+      type: 'USER_CONFIRMATION',
+      label: 'User Confirmation',
+      required: true,
+      prompt_text: 'Confirm vial placement',
+      expected_response: 'yes',
+      timeout_s: 120,
+      abort_on_timeout: true,
+      tooltip: 'Ask user to confirm a physical setup step'
+    }
+  },
+  {
+    type: 'LIQUID_TRANSFER',
+    label: 'Liquid Transfer',
+    description: 'Transfer a specified volume from a source to a target container',
+    icon: '🔁',
+    category: 'equipment',
+    useCase: 'Transfer 0.5 mL from stock A to reactor tube',
+    defaultProps: {
+      type: 'LIQUID_TRANSFER',
+      label: 'Liquid Transfer',
+      required: true,
+      source_container: 'stock_A',
+      target_container: 'reactor_tube',
+      volume_ml: 0.5,
+      speed_ul_per_s: 300,
+      pipette_type: 'single',
+      mix_after: true,
+      tooltip: 'Transfer liquid between containers'
+    }
+  },
+  {
+    type: 'START_REACTION',
+    label: 'Start Reaction',
+    description: 'Activate a device to start a chemical or biological reaction',
+    icon: '🔆',
+    category: 'equipment',
+    useCase: 'Start photoreactor after transfer',
+    defaultProps: {
+      type: 'START_REACTION',
+      label: 'Start Reaction',
+      required: true,
+      device_id: 'photoreactor_1',
+      mode: 'UV-A 365nm',
+      duration_s: 300,
+      intensity_pct: 80,
+      tooltip: 'Activate device to start reaction'
+    }
+  },
+  {
+    type: 'TRIGGER_MEASUREMENT',
+    label: 'Trigger Measurement',
+    description: 'Trigger a device to measure sample or system status',
+    icon: '📏',
+    category: 'equipment',
+    useCase: 'Trigger a read on the Cytation5',
+    defaultProps: {
+      type: 'TRIGGER_MEASUREMENT',
+      label: 'Trigger Measurement',
+      required: true,
+      device_id: 'cytation5',
+      measurement_type: 'OD600',
+      wavelength_nm: 600,
+      integration_time_ms: 500,
+      export_format: 'csv',
+      save_to: 'results/exp001_cytation.csv',
+      tooltip: 'Trigger device to measure sample'
+    }
+  },
+  {
+    type: 'PAUSE_DELAY',
+    label: 'Pause / Delay Step',
+    description: 'Pause the workflow execution for a fixed duration',
+    icon: '⏸️',
+    category: 'control',
+    useCase: 'Wait 5 minutes after mixing before measurement',
+    defaultProps: {
+      type: 'PAUSE_DELAY',
+      label: 'Pause / Delay',
+      required: true,
+      duration_s: 300,
+      reason: 'Allow reaction to settle',
+      skippable: true,
+      tooltip: 'Pause workflow for fixed duration'
+    }
+  },
+
+  // 新增的4个组件 - Additional 4 Components for Flexibility
+  {
+    type: 'DEVICE_SELECTOR',
+    label: 'Device Selector',
+    description: 'Select specific device for operation',
+    icon: '🔧',
+    category: 'equipment',
+    useCase: 'Select photoreactor_1 for UV reaction',
+    defaultProps: {
+      type: 'DEVICE_SELECTOR',
+      label: 'Device Selection',
+      required: true,
+      device_id: 'photoreactor_1',
+      device_type: 'photoreactor',
+      tooltip: 'Select device for this operation'
+    }
+  },
+  {
+    type: 'BOOLEAN_INPUT',
+    label: 'Boolean Input',
+    description: 'Boolean parameter for yes/no, enable/disable options',
+    icon: '✓',
+    category: 'basic',
+    useCase: 'Enable mixing after transfer',
+    defaultProps: {
+      type: 'BOOLEAN_INPUT',
+      label: 'Enable Feature',
       required: false,
-      placeholder: 'Enter notes or comments...',
-      maxLength: 500,
-      rows: 3,
-      tooltip: 'Additional notes or comments'
+      default: false,
+      tooltip: 'Boolean parameter for enable/disable'
+    }
+  },
+  {
+    type: 'ENUM_SELECTOR',
+    label: 'Enum Selector',
+    description: 'Select from predefined options (modes, methods, types)',
+    icon: '📋',
+    category: 'basic',
+    useCase: 'Select heating mode or light wavelength',
+    defaultProps: {
+      type: 'ENUM_SELECTOR',
+      label: 'Selection',
+      required: true,
+      options: ['Option 1', 'Option 2', 'Option 3'],
+      default: 'Option 1',
+      tooltip: 'Select from available options'
+    }
+  },
+  {
+    type: 'REPEAT_CONTROL',
+    label: 'Repeat/Loop Control',
+    description: 'Control repetition of operations with delay',
+    icon: '🔄',
+    category: 'control',
+    useCase: 'Mix 10 times with 2 second delay between',
+    defaultProps: {
+      type: 'REPEAT_CONTROL',
+      label: 'Repeat Control',
+      required: true,
+      repeat_times: 10,
+      delay_between: 2,
+      tooltip: 'Control operation repetition'
     }
   }
 ];
@@ -186,19 +346,19 @@ export const COMPONENT_LIBRARY: ComponentLibraryItem[] = [
 export const COMPONENT_CATEGORIES = {
   basic: {
     label: 'Basic Parameters',
-    description: 'Essential experimental parameters (volume, concentration, material, time, temperature)',
+    description: 'Boolean inputs, enum selectors, and basic parameter types',
     icon: '🧪',
     color: '#2196F3'
   },
   equipment: {
-    label: 'Equipment Parameters',
-    description: 'Equipment and container selection parameters',
+    label: 'Equipment Operations',
+    description: 'Device selection, liquid transfer, reaction control, and measurement operations',
     icon: '🔬',
     color: '#FF9800'
   },
   control: {
-    label: 'Control Parameters',
-    description: 'Control switches, file operations, and notes',
+    label: 'Control Operations',
+    description: 'Device initialization, user confirmation, workflow control, and repeat operations',
     icon: '⚙️',
     color: '#4CAF50'
   }

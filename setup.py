@@ -8,6 +8,10 @@ setup(
         "pytest",
         "pytest-asyncio",
         "pyyaml",
+        "duckdb>=0.9.0",
+        "fastapi>=0.100.0",
+        "uvicorn>=0.23.0",
+        "websockets>=11.0",
     ],
     python_requires=">=3.9",
-) 
+)

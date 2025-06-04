@@ -97,6 +97,7 @@ import Sidebar from './components/Sidebar';
 import TestStylePage from './components/TestStylePage';
 import { UORegistrationButton } from './components/UOBuilder/UORegistrationButton';
 import { EdgeConfig as EdgeConfigFromComponent } from './components/EdgeConfig';
+import BOControlPanel from './components/BOControlPanel';
 
 // 创建主题
 const theme = createTheme({
@@ -1511,11 +1512,26 @@ function Flow() {
 function App() {
   // 添加一个状态来控制是否显示测试页面
   const [showTestPage, setShowTestPage] = useState(false);
+  // 添加一个状态来控制是否显示 BO 控制面板
+  const [showBOPanel, setShowBOPanel] = useState(false);
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      {showTestPage ? (
+      {showBOPanel ? (
+        <>
+          <Box sx={{ position: 'fixed', top: 10, left: 10, zIndex: 9999 }}>
+            <Button
+              variant="contained"
+              onClick={() => setShowBOPanel(false)}
+              size="small"
+            >
+              Back to Main App
+            </Button>
+          </Box>
+          <BOControlPanel />
+        </>
+      ) : showTestPage ? (
         <>
           <Box sx={{ position: 'fixed', top: 10, left: 10, zIndex: 9999 }}>
             <Button
@@ -1530,7 +1546,15 @@ function App() {
         </>
       ) : (
         <>
-          <Box sx={{ position: 'fixed', top: 10, right: 10, zIndex: 9999 }}>
+          <Box sx={{ position: 'fixed', top: 10, right: 10, zIndex: 9999, display: 'flex', gap: 1 }}>
+            <Button
+              variant="contained"
+              onClick={() => setShowBOPanel(true)}
+              size="small"
+              color="secondary"
+            >
+              BO Control Panel
+            </Button>
             <Button
               variant="contained"
               onClick={() => setShowTestPage(true)}

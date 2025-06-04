@@ -3,7 +3,7 @@
  * 通用自定义单元操作节点组件 - 遵循SDL2设计模式
  */
 
-import React, { useState, useCallback, useRef, memo } from 'react';
+import React, { useState, useCallback, useRef, memo, useEffect } from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
 import {
   Box,
@@ -46,6 +46,19 @@ export const CustomUONode: React.FC<CustomUONodeProps> = memo(({ data, selected 
 
   // Get custom UO schema
   const customUO = customUOService.getUOById(data.type);
+
+  // Initialize parameters with default values
+  useEffect(() => {
+    if (customUO && Object.keys(parameters).length === 0) {
+      const defaultParams: Record<string, any> = {};
+      customUO.parameters.forEach(param => {
+        if (param.defaultValue !== undefined) {
+          defaultParams[param.id] = param.defaultValue;
+        }
+      });
+      setParameters(defaultParams);
+    }
+  }, [customUO, parameters]);
 
   if (!customUO) {
     return (
@@ -214,7 +227,7 @@ export const CustomUONode: React.FC<CustomUONodeProps> = memo(({ data, selected 
             inputProps={{
               min: param.validation?.min,
               max: param.validation?.max,
-              step: 0.1,
+              step: param.validation?.step || 0.1,
             }}
           />
         );
