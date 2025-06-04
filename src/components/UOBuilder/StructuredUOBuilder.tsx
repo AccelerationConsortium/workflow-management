@@ -101,38 +101,57 @@ export const StructuredUOBuilder: React.FC<StructuredUOBuilderProps> = ({
     );
   };
 
-  // 加载示例UO（类似截图2的Compound Preparation）
+  // 加载示例UO（包含工作流组件的自动化实验）
   const loadExampleUO = () => {
     // 设置基本信息
-    actions.setName('Compound Preparation');
-    actions.setDescription('Prepare compounds by mixing metal salts, ligands, and buffers');
+    actions.setName('Automated Lab Workflow');
+    actions.setDescription('Complete automated workflow with device control, liquid handling, and measurements');
     actions.setCategory('reaction');
 
-    // 设置示例参数插槽
+    // 设置示例参数插槽（包含新的工作流组件）
     const exampleSlots = [
       {
         id: '1',
         slotNumber: 1,
-        component: COMPONENT_LIBRARY.find(c => c.type === 'MATERIAL_SELECT'),
+        component: COMPONENT_LIBRARY.find(c => c.type === 'DEVICE_INITIALIZATION'),
         config: {
-          label: 'Metal Salt Type',
-          options: ['Cu', 'Fe', 'Zn', 'Ni'],
-          defaultValue: 'Cu',
-          tooltip: 'Select the metal salt type to use',
+          label: 'Initialize Cytation Reader',
+          deviceId: 'cytation5',
+          deviceType: 'cytation',
+          initMode: 'soft',
+          timeoutS: 30,
+          retryCount: 2,
+          tooltip: 'Initialize the Cytation5 reader before starting',
           required: true
         }
       },
       {
         id: '2',
         slotNumber: 2,
-        component: COMPONENT_LIBRARY.find(c => c.type === 'VOLUME_INPUT'),
+        component: COMPONENT_LIBRARY.find(c => c.type === 'USER_CONFIRMATION'),
         config: {
-          label: 'Metal Salt Volume',
-          min: 0,
-          max: 100,
-          defaultValue: 1,
-          unit: 'mL',
-          tooltip: 'Volume of metal salt solution',
+          label: 'Confirm Sample Placement',
+          promptText: 'Please confirm that all sample vials are properly placed in the rack',
+          expectedResponse: 'yes',
+          timeoutS: 120,
+          abortOnTimeout: true,
+          tooltip: 'User confirmation for sample setup',
+          required: true
+        }
+      },
+      {
+        id: '3',
+        slotNumber: 3,
+        component: COMPONENT_LIBRARY.find(c => c.type === 'LIQUID_TRANSFER'),
+        config: {
+          label: 'Transfer Reagent A',
+          sourceContainer: 'reagent_A_stock',
+          targetContainer: 'reaction_tube_1',
+          volumeMl: 0.5,
+          speedUlPerS: 300,
+          pipetteType: 'single',
+          mixAfter: true,
+          tooltip: 'Transfer reagent A to reaction tube',
           required: true
         }
       },
@@ -153,92 +172,43 @@ export const StructuredUOBuilder: React.FC<StructuredUOBuilderProps> = ({
       {
         id: '4',
         slotNumber: 4,
-        component: COMPONENT_LIBRARY.find(c => c.type === 'MATERIAL_SELECT'),
+        component: COMPONENT_LIBRARY.find(c => c.type === 'START_REACTION'),
         config: {
-          label: 'Ligand Type',
-          options: ['EDTA', 'DTPA', 'EGTA', 'NTA'],
-          defaultValue: 'EDTA',
-          tooltip: 'Select the ligand to use',
+          label: 'Start Photoreaction',
+          deviceId: 'photoreactor_1',
+          mode: 'UV-A 365nm',
+          durationS: 300,
+          intensityPct: 80,
+          tooltip: 'Start the photochemical reaction',
           required: true
         }
       },
       {
         id: '5',
         slotNumber: 5,
-        component: COMPONENT_LIBRARY.find(c => c.type === 'VOLUME_INPUT'),
+        component: COMPONENT_LIBRARY.find(c => c.type === 'PAUSE_DELAY'),
         config: {
-          label: 'Ligand Volume',
-          min: 0,
-          max: 100,
-          defaultValue: 1,
-          unit: 'mL',
-          tooltip: 'Volume of ligand solution',
+          label: 'Reaction Incubation',
+          durationS: 300,
+          reason: 'Allow reaction to proceed',
+          skippable: false,
+          tooltip: 'Wait for reaction completion',
           required: true
         }
       },
       {
         id: '6',
         slotNumber: 6,
-        component: COMPONENT_LIBRARY.find(c => c.type === 'CONCENTRATION_INPUT'),
+        component: COMPONENT_LIBRARY.find(c => c.type === 'TRIGGER_MEASUREMENT'),
         config: {
-          label: 'Ligand Concentration',
-          min: 0,
-          max: 1000,
-          defaultValue: 10,
-          unit: 'mM',
-          tooltip: 'Concentration of ligand solution',
-          required: true
-        }
-      },
-      {
-        id: '7',
-        slotNumber: 7,
-        component: COMPONENT_LIBRARY.find(c => c.type === 'BUFFER_SELECT'),
-        config: {
-          label: 'Buffer Type',
-          options: ['Buffer1', 'Buffer2', 'PBS', 'HEPES', 'Tris'],
-          defaultValue: 'Buffer1',
-          tooltip: 'Select the buffer to use',
-          required: true
-        }
-      },
-      {
-        id: '8',
-        slotNumber: 8,
-        component: COMPONENT_LIBRARY.find(c => c.type === 'VOLUME_INPUT'),
-        config: {
-          label: 'Buffer Volume',
-          min: 0,
-          max: 100,
-          defaultValue: 5,
-          unit: 'mL',
-          tooltip: 'Volume of buffer',
-          required: true
-        }
-      },
-      {
-        id: '9',
-        slotNumber: 9,
-        component: COMPONENT_LIBRARY.find(c => c.type === 'TIME_INPUT'),
-        config: {
-          label: 'Mixing Time',
-          min: 0,
-          max: 3600,
-          defaultValue: 30,
-          unit: 's',
-          tooltip: 'Time to mix the solution',
-          required: true
-        }
-      },
-      {
-        id: '10',
-        slotNumber: 10,
-        component: COMPONENT_LIBRARY.find(c => c.type === 'CONTAINER_SELECT'),
-        config: {
-          label: 'Output Destination',
-          options: ['Mixing Container', 'Storage Vial', 'Reaction Tube', 'Collection Plate'],
-          defaultValue: 'Mixing Container',
-          tooltip: 'Destination for the mixed solution',
+          label: 'Measure OD600',
+          deviceId: 'cytation5',
+          measurementType: 'OD600',
+          wavelengthNm: 600,
+          integrationTimeMs: 500,
+          exportFormat: 'csv',
+          saveTo: 'results/automated_workflow.csv',
+          tooltip: 'Measure optical density at 600nm',
           required: true
         }
       }
@@ -251,22 +221,17 @@ export const StructuredUOBuilder: React.FC<StructuredUOBuilderProps> = ({
   const generateUOSchema = () => {
     const parameters = parameterSlots
       .filter(slot => slot.component)
-      .map(slot => ({
-        id: slot.id,
-        name: slot.config.label || `Parameter ${slot.slotNumber}`,
-        type: getParameterTypeFromComponent(slot.component!.type),
-        required: slot.config.required || false,
-        defaultValue: slot.config.defaultValue,
-        unit: slot.config.unit || getDefaultUnit(slot.component!.type),
-        description: slot.config.tooltip || slot.component!.description,
-        validation: {
-          min: slot.config.min,
-          max: slot.config.max,
-          step: slot.config.step,
-          options: slot.config.options,
-          maxLength: slot.config.maxLength
+      .map(slot => {
+        const componentType = slot.component!.type;
+
+        // 为工作流模块生成详细的参数结构
+        if (['DEVICE_INITIALIZATION', 'USER_CONFIRMATION', 'LIQUID_TRANSFER', 'START_REACTION', 'TRIGGER_MEASUREMENT', 'PAUSE_DELAY'].includes(componentType)) {
+          return generateWorkflowModuleParameters(slot);
         }
-      }));
+
+        // 基础参数类型的处理
+        return generateBasicModuleParameters(slot);
+      });
 
     return {
       id: `custom_uo_${Date.now()}`,
@@ -277,6 +242,190 @@ export const StructuredUOBuilder: React.FC<StructuredUOBuilderProps> = ({
       createdAt: new Date().toISOString(),
       version: '1.0.0'
     };
+  };
+
+  // 为基础模块生成详细的参数结构
+  const generateBasicModuleParameters = (slot: any) => {
+    const componentType = slot.component!.type;
+    const config = slot.config;
+
+    const baseParam = {
+      id: slot.id,
+      name: config.label || `Parameter ${slot.slotNumber}`,
+      type: getParameterTypeFromComponent(componentType),
+      required: config.required || false,
+      defaultValue: config.defaultValue,
+      description: config.tooltip || slot.component!.description,
+      validation: {
+        min: config.min,
+        max: config.max,
+        options: config.options
+      }
+    };
+
+    // 根据模块类型添加特定的属性
+    switch (componentType) {
+      case 'VOLUME_INPUT':
+      case 'CONCENTRATION_INPUT':
+      case 'TIME_INPUT':
+      case 'TEMPERATURE_INPUT':
+        return {
+          ...baseParam,
+          unit: config.unit,
+          unitOptions: config.unitOptions,
+          step: config.step,
+          subParameters: [
+            { name: 'value', type: 'number', value: config.defaultValue, label: 'Value', unit: config.unit },
+            { name: 'unit', type: 'enum', value: config.unit, label: 'Unit', options: config.unitOptions || [config.unit] },
+            { name: 'min', type: 'number', value: config.min, label: 'Min Value' },
+            { name: 'max', type: 'number', value: config.max, label: 'Max Value' }
+          ]
+        };
+
+      case 'MATERIAL_SELECT':
+      case 'CONTAINER_SELECT':
+      case 'BUFFER_SELECT':
+        return {
+          ...baseParam,
+          allowCustomInput: config.allowCustomInput,
+          subParameters: [
+            { name: 'selectedValue', type: 'enum', value: config.defaultValue, label: 'Selected Option', options: config.options },
+            { name: 'allowCustomInput', type: 'boolean', value: config.allowCustomInput, label: 'Allow Custom Input' },
+            { name: 'options', type: 'string', value: config.options?.join(', '), label: 'Available Options' }
+          ]
+        };
+
+      case 'ENABLE_TOGGLE':
+        return {
+          ...baseParam,
+          subParameters: [
+            { name: 'enabled', type: 'boolean', value: config.defaultValue, label: 'Enabled' },
+            { name: 'label', type: 'string', value: config.label, label: 'Toggle Label' }
+          ]
+        };
+
+      case 'FILE_OPERATIONS':
+        return {
+          ...baseParam,
+          allowImport: config.allowImport,
+          allowExport: config.allowExport,
+          fileTypes: config.fileTypes,
+          subParameters: [
+            { name: 'allowImport', type: 'boolean', value: config.allowImport, label: 'Allow Import' },
+            { name: 'allowExport', type: 'boolean', value: config.allowExport, label: 'Allow Export' },
+            { name: 'fileTypes', type: 'string', value: config.fileTypes?.join(', '), label: 'Supported File Types' }
+          ]
+        };
+
+      case 'TEXT_NOTE':
+        return {
+          ...baseParam,
+          placeholder: config.placeholder,
+          maxLength: config.maxLength,
+          rows: config.rows,
+          subParameters: [
+            { name: 'text', type: 'string', value: '', label: 'Note Text' },
+            { name: 'placeholder', type: 'string', value: config.placeholder, label: 'Placeholder' },
+            { name: 'maxLength', type: 'number', value: config.maxLength, label: 'Max Length' },
+            { name: 'rows', type: 'number', value: config.rows, label: 'Rows' }
+          ]
+        };
+
+      default:
+        return baseParam;
+    }
+  };
+
+  // 为工作流模块生成详细的参数结构
+  const generateWorkflowModuleParameters = (slot: any) => {
+    const componentType = slot.component!.type;
+    const config = slot.config;
+
+    const baseParam = {
+      id: slot.id,
+      name: config.label || `Parameter ${slot.slotNumber}`,
+      type: 'workflow_module' as const,
+      moduleType: componentType,
+      required: config.required || false,
+      description: config.tooltip || slot.component!.description,
+      config: config
+    };
+
+    // 根据模块类型生成具体的子参数
+    switch (componentType) {
+      case 'DEVICE_INITIALIZATION':
+        return {
+          ...baseParam,
+          subParameters: [
+            { name: 'deviceId', type: 'string', value: config.deviceId, label: 'Device ID' },
+            { name: 'deviceType', type: 'enum', value: config.deviceType, label: 'Device Type', options: ['photoreactor', 'cytation', 'robot', 'other'] },
+            { name: 'initMode', type: 'enum', value: config.initMode, label: 'Init Mode', options: ['soft', 'hard'] },
+            { name: 'timeoutS', type: 'number', value: config.timeoutS, label: 'Timeout (s)' },
+            { name: 'retryCount', type: 'number', value: config.retryCount, label: 'Retry Count' }
+          ]
+        };
+
+      case 'USER_CONFIRMATION':
+        return {
+          ...baseParam,
+          subParameters: [
+            { name: 'promptText', type: 'string', value: config.promptText, label: 'Prompt Text' },
+            { name: 'expectedResponse', type: 'enum', value: config.expectedResponse, label: 'Expected Response', options: ['yes', 'ok', 'done'] },
+            { name: 'timeoutS', type: 'number', value: config.timeoutS, label: 'Timeout (s)' },
+            { name: 'abortOnTimeout', type: 'boolean', value: config.abortOnTimeout, label: 'Abort on Timeout' }
+          ]
+        };
+
+      case 'LIQUID_TRANSFER':
+        return {
+          ...baseParam,
+          subParameters: [
+            { name: 'sourceContainer', type: 'string', value: config.sourceContainer, label: 'Source Container' },
+            { name: 'targetContainer', type: 'string', value: config.targetContainer, label: 'Target Container' },
+            { name: 'volumeMl', type: 'number', value: config.volumeMl, label: 'Volume (mL)' },
+            { name: 'speedUlPerS', type: 'number', value: config.speedUlPerS, label: 'Speed (μL/s)' },
+            { name: 'pipetteType', type: 'enum', value: config.pipetteType, label: 'Pipette Type', options: ['single', 'multi'] },
+            { name: 'mixAfter', type: 'boolean', value: config.mixAfter, label: 'Mix After' }
+          ]
+        };
+
+      case 'START_REACTION':
+        return {
+          ...baseParam,
+          subParameters: [
+            { name: 'deviceId', type: 'string', value: config.deviceId, label: 'Device ID' },
+            { name: 'mode', type: 'string', value: config.mode, label: 'Reaction Mode' },
+            { name: 'durationS', type: 'number', value: config.durationS, label: 'Duration (s)' },
+            { name: 'intensityPct', type: 'number', value: config.intensityPct, label: 'Intensity (%)' }
+          ]
+        };
+
+      case 'TRIGGER_MEASUREMENT':
+        return {
+          ...baseParam,
+          subParameters: [
+            { name: 'deviceId', type: 'string', value: config.deviceId, label: 'Device ID' },
+            { name: 'measurementType', type: 'enum', value: config.measurementType, label: 'Measurement Type', options: ['OD600', 'fluorescence', 'absorbance', 'other'] },
+            { name: 'wavelengthNm', type: 'number', value: config.wavelengthNm, label: 'Wavelength (nm)' },
+            { name: 'integrationTimeMs', type: 'number', value: config.integrationTimeMs, label: 'Integration Time (ms)' },
+            { name: 'exportFormat', type: 'enum', value: config.exportFormat, label: 'Export Format', options: ['csv', 'json'] },
+            { name: 'saveTo', type: 'string', value: config.saveTo, label: 'Save To' }
+          ]
+        };
+
+      case 'PAUSE_DELAY':
+        return {
+          ...baseParam,
+          subParameters: [
+            { name: 'durationS', type: 'number', value: config.durationS, label: 'Duration (s)' },
+            { name: 'reason', type: 'string', value: config.reason, label: 'Reason' },
+            { name: 'skippable', type: 'boolean', value: config.skippable, label: 'Skippable' }
+          ]
+        };
+
+      default:
+        return baseParam;
+    }
   };
 
   // 保存并注册UO
@@ -349,6 +498,12 @@ export const StructuredUOBuilder: React.FC<StructuredUOBuilderProps> = ({
       case 'ENABLE_TOGGLE':
         return 'boolean';
       case 'TEXT_NOTE':
+      case 'DEVICE_INITIALIZATION':
+      case 'USER_CONFIRMATION':
+      case 'LIQUID_TRANSFER':
+      case 'START_REACTION':
+      case 'TRIGGER_MEASUREMENT':
+      case 'PAUSE_DELAY':
         return 'string';
       default:
         return 'string';

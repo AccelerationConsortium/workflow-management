@@ -17,7 +17,9 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Paper
+  Paper,
+  Switch,
+  FormControlLabel
 } from '@mui/material';
 import {
   ExpandMore as ExpandMoreIcon,
@@ -146,8 +148,228 @@ export const CustomUONode: React.FC<CustomUONodeProps> = memo(({ data, selected 
     param.name.toLowerCase().includes('export')
   );
 
+  // Render workflow module with its sub-parameters
+  const renderWorkflowModule = (param: any) => {
+    const moduleIcon = getWorkflowModuleIcon(param.moduleType);
+    const moduleColor = getWorkflowModuleColor(param.moduleType);
+
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+        <Box sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+          p: 1,
+          bgcolor: moduleColor,
+          borderRadius: 1,
+          border: `1px solid ${moduleColor.replace('0.1', '0.3')}`
+        }}>
+          <Typography sx={{ fontSize: '1.2rem' }}>{moduleIcon}</Typography>
+          <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#333' }}>
+            {param.name}
+          </Typography>
+        </Box>
+
+        {param.description && (
+          <Typography variant="caption" color="textSecondary" sx={{ ml: 1 }}>
+            {param.description}
+          </Typography>
+        )}
+
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, ml: 2 }}>
+          {param.subParameters?.map((subParam: any, index: number) => (
+            <Box key={index}>
+              {renderSubParameter(param.id, subParam)}
+            </Box>
+          ))}
+        </Box>
+      </Box>
+    );
+  };
+
+  // Get icon for workflow module type
+  const getWorkflowModuleIcon = (moduleType: string) => {
+    switch (moduleType) {
+      case 'DEVICE_INITIALIZATION': return '🧪';
+      case 'USER_CONFIRMATION': return '✅';
+      case 'LIQUID_TRANSFER': return '🔁';
+      case 'START_REACTION': return '🔆';
+      case 'TRIGGER_MEASUREMENT': return '📏';
+      case 'PAUSE_DELAY': return '⏸️';
+      default: return '🔧';
+    }
+  };
+
+  // Get color for workflow module type
+  const getWorkflowModuleColor = (moduleType: string) => {
+    switch (moduleType) {
+      case 'DEVICE_INITIALIZATION': return 'rgba(33, 150, 243, 0.1)'; // Blue
+      case 'USER_CONFIRMATION': return 'rgba(76, 175, 80, 0.1)'; // Green
+      case 'LIQUID_TRANSFER': return 'rgba(255, 152, 0, 0.1)'; // Orange
+      case 'START_REACTION': return 'rgba(233, 30, 99, 0.1)'; // Pink
+      case 'TRIGGER_MEASUREMENT': return 'rgba(156, 39, 176, 0.1)'; // Purple
+      case 'PAUSE_DELAY': return 'rgba(96, 125, 139, 0.1)'; // Blue Grey
+      default: return 'rgba(158, 158, 158, 0.1)'; // Grey
+    }
+  };
+
+  // Render basic module with its sub-parameters
+  const renderBasicModule = (param: any) => {
+    const moduleIcon = getBasicModuleIcon(param.type);
+    const moduleColor = getBasicModuleColor(param.type);
+
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+        <Box sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+          p: 1,
+          bgcolor: moduleColor,
+          borderRadius: 1,
+          border: `1px solid ${moduleColor.replace('0.1', '0.3')}`
+        }}>
+          <Typography sx={{ fontSize: '1.2rem' }}>{moduleIcon}</Typography>
+          <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#333' }}>
+            {param.name}
+          </Typography>
+        </Box>
+
+        {param.description && (
+          <Typography variant="caption" color="textSecondary" sx={{ ml: 1 }}>
+            {param.description}
+          </Typography>
+        )}
+
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, ml: 2 }}>
+          {param.subParameters?.map((subParam: any, index: number) => (
+            <Box key={index}>
+              {renderSubParameter(param.id, subParam)}
+            </Box>
+          ))}
+        </Box>
+      </Box>
+    );
+  };
+
+  // Get icon for basic module type
+  const getBasicModuleIcon = (moduleType: string) => {
+    switch (moduleType) {
+      case 'number': return '🔢'; // For VOLUME_INPUT, CONCENTRATION_INPUT, etc.
+      case 'enum': return '📋'; // For MATERIAL_SELECT, CONTAINER_SELECT, etc.
+      case 'boolean': return '🔘'; // For ENABLE_TOGGLE
+      case 'string': return '📝'; // For TEXT_NOTE, FILE_OPERATIONS
+      default: return '⚙️';
+    }
+  };
+
+  // Get color for basic module type
+  const getBasicModuleColor = (moduleType: string) => {
+    switch (moduleType) {
+      case 'number': return 'rgba(33, 150, 243, 0.1)'; // Blue for numeric inputs
+      case 'enum': return 'rgba(255, 152, 0, 0.1)'; // Orange for selections
+      case 'boolean': return 'rgba(76, 175, 80, 0.1)'; // Green for toggles
+      case 'string': return 'rgba(96, 125, 139, 0.1)'; // Blue Grey for text
+      default: return 'rgba(158, 158, 158, 0.1)'; // Grey
+    }
+  };
+
+  // Render individual sub-parameter
+  const renderSubParameter = (parentId: string, subParam: any) => {
+    const paramKey = `${parentId}.${subParam.name}`;
+    const value = parameters[paramKey] ?? subParam.value;
+
+    const handleSubParamChange = (newValue: any) => {
+      handleParameterChange(paramKey, newValue);
+    };
+
+    switch (subParam.type) {
+      case 'string':
+        return (
+          <TextField
+            label={subParam.label}
+            value={value || ''}
+            onChange={(e) => handleSubParamChange(e.target.value)}
+            size="small"
+            fullWidth
+            margin="dense"
+          />
+        );
+
+      case 'number':
+        return (
+          <TextField
+            label={subParam.label}
+            type="number"
+            value={value || ''}
+            onChange={(e) => {
+              const numValue = parseFloat(e.target.value);
+              handleSubParamChange(isNaN(numValue) ? undefined : numValue);
+            }}
+            size="small"
+            fullWidth
+            margin="dense"
+          />
+        );
+
+      case 'boolean':
+        return (
+          <FormControlLabel
+            control={
+              <Switch
+                checked={value || false}
+                onChange={(e) => handleSubParamChange(e.target.checked)}
+                size="small"
+              />
+            }
+            label={subParam.label}
+            sx={{ margin: 0 }}
+          />
+        );
+
+      case 'enum':
+        return (
+          <FormControl size="small" fullWidth margin="dense">
+            <InputLabel>{subParam.label}</InputLabel>
+            <Select
+              value={value || ''}
+              onChange={(e) => handleSubParamChange(e.target.value)}
+              label={subParam.label}
+            >
+              {subParam.options?.map((option: string) => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        );
+
+      default:
+        return (
+          <TextField
+            label={subParam.label}
+            value={value || ''}
+            onChange={(e) => handleSubParamChange(e.target.value)}
+            size="small"
+            fullWidth
+            margin="dense"
+          />
+        );
+    }
+  };
+
   const renderParameter = (param: GeneratedParameter) => {
     const value = parameters[param.id] ?? param.defaultValue;
+
+    // Handle modules with subParameters (both workflow and basic modules)
+    if ((param as any).subParameters) {
+      if (param.type === 'workflow_module') {
+        return renderWorkflowModule(param as any);
+      } else {
+        return renderBasicModule(param as any);
+      }
+    }
 
     // Check if this is a file operation parameter
     const isFileParam = param.name.toLowerCase().includes('file') ||

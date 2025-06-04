@@ -19,7 +19,8 @@ import {
   FormControlLabel,
   Tooltip,
   Collapse,
-  Button
+  Button,
+  Checkbox
 } from '@mui/material';
 import {
   Delete as DeleteIcon,
@@ -711,6 +712,343 @@ export const ParameterSlot: React.FC<ParameterSlotProps> = ({
               </>
             )}
 
+            {/* Device Initialization 配置 */}
+            {componentType === 'DEVICE_INITIALIZATION' && (
+              <>
+                <TextField
+                  size="small"
+                  label="Device ID"
+                  value={config.deviceId || ''}
+                  onChange={(e) => onConfigChange({ deviceId: e.target.value })}
+                  fullWidth
+                  placeholder="e.g., cytation5"
+                />
+
+                <FormControl size="small" fullWidth>
+                  <InputLabel>Device Type</InputLabel>
+                  <Select
+                    value={config.deviceType || 'cytation'}
+                    onChange={(e) => onConfigChange({ deviceType: e.target.value })}
+                  >
+                    <MenuItem value="photoreactor">Photoreactor</MenuItem>
+                    <MenuItem value="cytation">Cytation Reader</MenuItem>
+                    <MenuItem value="robot">Robot Arm</MenuItem>
+                    <MenuItem value="other">Other</MenuItem>
+                  </Select>
+                </FormControl>
+
+                <FormControl size="small" fullWidth>
+                  <InputLabel>Initialization Mode</InputLabel>
+                  <Select
+                    value={config.initMode || 'soft'}
+                    onChange={(e) => onConfigChange({ initMode: e.target.value })}
+                  >
+                    <MenuItem value="soft">Soft (Warmup only)</MenuItem>
+                    <MenuItem value="hard">Hard (Full reset)</MenuItem>
+                  </Select>
+                </FormControl>
+
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <TextField
+                    size="small"
+                    label="Timeout (seconds)"
+                    type="number"
+                    value={config.timeoutS || 30}
+                    onChange={(e) => onConfigChange({ timeoutS: Number(e.target.value) })}
+                  />
+                  <TextField
+                    size="small"
+                    label="Retry Count"
+                    type="number"
+                    value={config.retryCount || 2}
+                    onChange={(e) => onConfigChange({ retryCount: Number(e.target.value) })}
+                  />
+                </Box>
+              </>
+            )}
+
+            {/* User Confirmation 配置 */}
+            {componentType === 'USER_CONFIRMATION' && (
+              <>
+                <TextField
+                  size="small"
+                  label="Prompt Text"
+                  value={config.promptText || ''}
+                  onChange={(e) => onConfigChange({ promptText: e.target.value })}
+                  fullWidth
+                  multiline
+                  rows={2}
+                  placeholder="e.g., Confirm vial placement"
+                />
+
+                <FormControl size="small" fullWidth>
+                  <InputLabel>Expected Response</InputLabel>
+                  <Select
+                    value={config.expectedResponse || 'yes'}
+                    onChange={(e) => onConfigChange({ expectedResponse: e.target.value })}
+                  >
+                    <MenuItem value="yes">Yes</MenuItem>
+                    <MenuItem value="ok">OK</MenuItem>
+                    <MenuItem value="done">Done</MenuItem>
+                  </Select>
+                </FormControl>
+
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <TextField
+                    size="small"
+                    label="Timeout (seconds)"
+                    type="number"
+                    value={config.timeoutS || 120}
+                    onChange={(e) => onConfigChange({ timeoutS: Number(e.target.value) })}
+                  />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={config.abortOnTimeout || false}
+                        onChange={(e) => onConfigChange({ abortOnTimeout: e.target.checked })}
+                      />
+                    }
+                    label="Abort on timeout"
+                  />
+                </Box>
+              </>
+            )}
+
+            {/* Liquid Transfer 配置 */}
+            {componentType === 'LIQUID_TRANSFER' && (
+              <>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <TextField
+                    size="small"
+                    label="Source Container"
+                    value={config.sourceContainer || ''}
+                    onChange={(e) => onConfigChange({ sourceContainer: e.target.value })}
+                    placeholder="e.g., stock_A"
+                  />
+                  <TextField
+                    size="small"
+                    label="Target Container"
+                    value={config.targetContainer || ''}
+                    onChange={(e) => onConfigChange({ targetContainer: e.target.value })}
+                    placeholder="e.g., reactor_tube"
+                  />
+                </Box>
+
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <TextField
+                    size="small"
+                    label="Volume (mL)"
+                    type="number"
+                    value={config.volumeMl || 0.5}
+                    onChange={(e) => onConfigChange({ volumeMl: Number(e.target.value) })}
+                    inputProps={{ step: 0.1, min: 0 }}
+                  />
+                  <TextField
+                    size="small"
+                    label="Speed (μL/s)"
+                    type="number"
+                    value={config.speedUlPerS || 300}
+                    onChange={(e) => onConfigChange({ speedUlPerS: Number(e.target.value) })}
+                  />
+                </Box>
+
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                  <FormControl size="small" sx={{ minWidth: 120 }}>
+                    <InputLabel>Pipette Type</InputLabel>
+                    <Select
+                      value={config.pipetteType || 'single'}
+                      onChange={(e) => onConfigChange({ pipetteType: e.target.value })}
+                    >
+                      <MenuItem value="single">Single</MenuItem>
+                      <MenuItem value="multi">Multi</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={config.mixAfter || false}
+                        onChange={(e) => onConfigChange({ mixAfter: e.target.checked })}
+                      />
+                    }
+                    label="Mix after transfer"
+                  />
+                </Box>
+              </>
+            )}
+
+            {/* Start Reaction 配置 */}
+            {componentType === 'START_REACTION' && (
+              <>
+                <TextField
+                  size="small"
+                  label="Device ID"
+                  value={config.deviceId || ''}
+                  onChange={(e) => onConfigChange({ deviceId: e.target.value })}
+                  fullWidth
+                  placeholder="e.g., photoreactor_1"
+                />
+
+                <TextField
+                  size="small"
+                  label="Reaction Mode"
+                  value={config.mode || ''}
+                  onChange={(e) => onConfigChange({ mode: e.target.value })}
+                  fullWidth
+                  placeholder="e.g., UV-A 365nm"
+                />
+
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <TextField
+                    size="small"
+                    label="Duration (seconds)"
+                    type="number"
+                    value={config.durationS || 300}
+                    onChange={(e) => onConfigChange({ durationS: Number(e.target.value) })}
+                  />
+                  <TextField
+                    size="small"
+                    label="Intensity (%)"
+                    type="number"
+                    value={config.intensityPct || 80}
+                    onChange={(e) => onConfigChange({ intensityPct: Number(e.target.value) })}
+                    inputProps={{ min: 0, max: 100 }}
+                  />
+                </Box>
+              </>
+            )}
+
+            {/* Trigger Measurement 配置 */}
+            {componentType === 'TRIGGER_MEASUREMENT' && (
+              <>
+                <TextField
+                  size="small"
+                  label="Device ID"
+                  value={config.deviceId || ''}
+                  onChange={(e) => onConfigChange({ deviceId: e.target.value })}
+                  fullWidth
+                  placeholder="e.g., cytation5"
+                />
+
+                <FormControl size="small" fullWidth>
+                  <InputLabel>Measurement Type</InputLabel>
+                  <Select
+                    value={config.measurementType || 'OD600'}
+                    onChange={(e) => onConfigChange({ measurementType: e.target.value })}
+                  >
+                    <MenuItem value="OD600">OD600</MenuItem>
+                    <MenuItem value="fluorescence">Fluorescence</MenuItem>
+                    <MenuItem value="absorbance">Absorbance</MenuItem>
+                    <MenuItem value="other">Other</MenuItem>
+                  </Select>
+                </FormControl>
+
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <TextField
+                    size="small"
+                    label="Wavelength (nm)"
+                    type="number"
+                    value={config.wavelengthNm || 600}
+                    onChange={(e) => onConfigChange({ wavelengthNm: Number(e.target.value) })}
+                  />
+                  <TextField
+                    size="small"
+                    label="Integration Time (ms)"
+                    type="number"
+                    value={config.integrationTimeMs || 500}
+                    onChange={(e) => onConfigChange({ integrationTimeMs: Number(e.target.value) })}
+                  />
+                </Box>
+
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <FormControl size="small" sx={{ minWidth: 120 }}>
+                    <InputLabel>Export Format</InputLabel>
+                    <Select
+                      value={config.exportFormat || 'csv'}
+                      onChange={(e) => onConfigChange({ exportFormat: e.target.value })}
+                    >
+                      <MenuItem value="csv">CSV</MenuItem>
+                      <MenuItem value="json">JSON</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <TextField
+                    size="small"
+                    label="Save To"
+                    value={config.saveTo || ''}
+                    onChange={(e) => onConfigChange({ saveTo: e.target.value })}
+                    placeholder="e.g., results/exp001.csv"
+                    sx={{ flex: 1 }}
+                  />
+                </Box>
+              </>
+            )}
+
+            {/* Pause/Delay Step 配置 */}
+            {componentType === 'PAUSE_DELAY' && (
+              <>
+                <TextField
+                  size="small"
+                  label="Duration (seconds)"
+                  type="number"
+                  value={config.durationS || 300}
+                  onChange={(e) => onConfigChange({ durationS: Number(e.target.value) })}
+                  fullWidth
+                />
+
+                <TextField
+                  size="small"
+                  label="Reason"
+                  value={config.reason || ''}
+                  onChange={(e) => onConfigChange({ reason: e.target.value })}
+                  fullWidth
+                  placeholder="e.g., Allow reaction to settle"
+                />
+
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={config.skippable || false}
+                      onChange={(e) => onConfigChange({ skippable: e.target.checked })}
+                    />
+                  }
+                  label="User can skip this step"
+                />
+              </>
+            )}
+
+            {componentType === 'FILE_OPERATIONS' && (
+              <>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={config.allowImport || false}
+                      onChange={(e) => onConfigChange({ allowImport: e.target.checked })}
+                    />
+                  }
+                  label="Allow Import"
+                />
+
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={config.allowExport || false}
+                      onChange={(e) => onConfigChange({ allowExport: e.target.checked })}
+                    />
+                  }
+                  label="Allow Export"
+                />
+
+                <TextField
+                  size="small"
+                  label="File Types (comma separated)"
+                  value={(config.fileTypes || []).join(', ')}
+                  onChange={(e) => onConfigChange({
+                    fileTypes: e.target.value.split(',').map((type: string) => type.trim())
+                  })}
+                  fullWidth
+                  placeholder=".json, .csv, .xlsx"
+                />
+              </>
+            )}
           </Box>
         </Box>
       </Collapse>
@@ -863,91 +1201,41 @@ export const ParameterSlot: React.FC<ParameterSlotProps> = ({
           </Box>
         );
 
-      case 'MOVEMENT_CONTROL':
+      // Workflow components preview
+      case 'DEVICE_INITIALIZATION':
         return (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
               {config.label}
             </Typography>
-
-            {/* Movement Type Selection */}
-            <FormControl size="small" fullWidth>
-              <Select
-                defaultValue={config.moveType || 'absolute'}
-                sx={{ height: '36px' }}
-              >
-                <MenuItem value="absolute">Absolute Position</MenuItem>
-                <MenuItem value="relative">Relative Movement</MenuItem>
-                <MenuItem value="home">Return to Home</MenuItem>
-                <MenuItem value="point_to_point">Point to Point</MenuItem>
-              </Select>
-            </FormControl>
-
-            {/* Position Display */}
-            {config.moveType === 'point_to_point' && (
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                <Typography variant="caption" color="text.secondary">
-                  Start: ({config.startX || 0}, {config.startY || 0}, {config.startZ || 0}) mm
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  End: ({config.targetX || 0}, {config.targetY || 0}, {config.targetZ || 0}) mm
-                </Typography>
-              </Box>
-            )}
-
-            {config.moveType === 'absolute' && (
-              <Typography variant="caption" color="text.secondary">
-                Target: ({config.targetX || 0}, {config.targetY || 0}, {config.targetZ || 0}) mm
+            <Box sx={{ p: 1, bgcolor: '#f0f8ff', borderRadius: 1, border: '1px solid #e3f2fd' }}>
+              <Typography variant="caption" sx={{ display: 'block' }}>
+                Device: {config.deviceId || 'Not set'}
               </Typography>
-            )}
-
-            {config.moveType === 'relative' && (
-              <Typography variant="caption" color="text.secondary">
-                Delta: (Δ{config.deltaX || 0}, Δ{config.deltaY || 0}, Δ{config.deltaZ || 0}) mm
+              <Typography variant="caption" sx={{ display: 'block' }}>
+                Type: {config.deviceType || 'cytation'} | Mode: {config.initMode || 'soft'}
               </Typography>
-            )}
-
-            {/* Speed and Safety Info */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Typography variant="caption" color="text.secondary">
-                Speed: {config.speed || 100} mm/s
+                Timeout: {config.timeoutS || 30}s | Retries: {config.retryCount || 2}
               </Typography>
-              {config.safetyCheck && (
-                <Chip label="Safety ON" size="small" color="success" variant="outlined" />
-              )}
             </Box>
-
-            {config.tooltip && (
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
-                {config.tooltip}
-              </Typography>
-            )}
           </Box>
         );
 
-      case 'SAFETY_TOGGLE':
+      case 'USER_CONFIRMATION':
         return (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
               {config.label}
             </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Switch
-                defaultChecked={config.defaultValue || false}
-                size="small"
-                color={config.safetyLevel === 'critical' ? 'error' : config.safetyLevel === 'warning' ? 'warning' : 'primary'}
-              />
-              <Chip
-                label={config.safetyLevel || 'normal'}
-                size="small"
-                color={config.safetyLevel === 'critical' ? 'error' : config.safetyLevel === 'warning' ? 'warning' : 'default'}
-              />
-            </Box>
-            {config.tooltip && (
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
-                {config.tooltip}
+            <Box sx={{ p: 1, bgcolor: '#f0fff0', borderRadius: 1, border: '1px solid #e8f5e8' }}>
+              <Typography variant="caption" sx={{ display: 'block', fontStyle: 'italic' }}>
+                "{config.promptText || 'Confirm action'}"
               </Typography>
-            )}
+              <Typography variant="caption" color="text.secondary">
+                Expected: {config.expectedResponse || 'yes'} | Timeout: {config.timeoutS || 120}s
+              </Typography>
+            </Box>
           </Box>
         );
 
@@ -957,58 +1245,80 @@ export const ParameterSlot: React.FC<ParameterSlotProps> = ({
             <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
               {config.label}
             </Typography>
-
-            {/* Transfer Route Display */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Chip
-                label={config.sourceContainer || 'Source'}
-                size="small"
-                color="primary"
-                variant="outlined"
-              />
-              <Typography variant="body2">→</Typography>
-              <Chip
-                label={config.targetContainer || 'Target'}
-                size="small"
-                color="secondary"
-                variant="outlined"
-              />
-            </Box>
-
-            {/* Volume and Pipette Info */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography variant="caption" color="text.secondary">
-                {config.volume || 1} {config.volumeUnit || 'mL'}
+            <Box sx={{ p: 1, bgcolor: '#fff8f0', borderRadius: 1, border: '1px solid #ffe8cc' }}>
+              <Typography variant="caption" sx={{ display: 'block' }}>
+                {config.sourceContainer || 'Source'} → {config.targetContainer || 'Target'}
+              </Typography>
+              <Typography variant="caption" sx={{ display: 'block' }}>
+                Volume: {config.volumeMl || 0.5} mL
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                {config.pipetteType || 'P1000'}
+                Speed: {config.speedUlPerS || 300} μL/s | {config.pipetteType || 'single'} pipette
               </Typography>
             </Box>
-
-            {/* Additional Settings */}
-            <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-              <Chip
-                label={config.transferSpeed || 'normal'}
-                size="small"
-                variant="outlined"
-              />
-              {config.mixAfter && (
-                <Chip
-                  label={`Mix ${config.mixCycles || 3}x`}
-                  size="small"
-                  color="info"
-                  variant="outlined"
-                />
-              )}
-            </Box>
-
-            {config.tooltip && (
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
-                {config.tooltip}
-              </Typography>
-            )}
           </Box>
         );
+
+      case 'START_REACTION':
+        return (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+              {config.label}
+            </Typography>
+            <Box sx={{ p: 1, bgcolor: '#fff0f8', borderRadius: 1, border: '1px solid #fce4ec' }}>
+              <Typography variant="caption" sx={{ display: 'block' }}>
+                Device: {config.deviceId || 'Not set'}
+              </Typography>
+              <Typography variant="caption" sx={{ display: 'block' }}>
+                Mode: {config.mode || 'Default'}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Duration: {config.durationS || 300}s | Intensity: {config.intensityPct || 80}%
+              </Typography>
+            </Box>
+          </Box>
+        );
+
+      case 'TRIGGER_MEASUREMENT':
+        return (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+              {config.label}
+            </Typography>
+            <Box sx={{ p: 1, bgcolor: '#f8f0ff', borderRadius: 1, border: '1px solid #e8d5ff' }}>
+              <Typography variant="caption" sx={{ display: 'block' }}>
+                Device: {config.deviceId || 'Not set'}
+              </Typography>
+              <Typography variant="caption" sx={{ display: 'block' }}>
+                Type: {config.measurementType || 'OD600'}
+                {config.wavelengthNm && ` @ ${config.wavelengthNm}nm`}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Export: {config.exportFormat || 'csv'} | {config.saveTo || 'results/data.csv'}
+              </Typography>
+            </Box>
+          </Box>
+        );
+
+      case 'PAUSE_DELAY':
+        return (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+              {config.label}
+            </Typography>
+            <Box sx={{ p: 1, bgcolor: '#f5f5f5', borderRadius: 1, border: '1px solid #e0e0e0' }}>
+              <Typography variant="caption" sx={{ display: 'block' }}>
+                Duration: {config.durationS || 300} seconds
+              </Typography>
+              {config.reason && (
+                <Typography variant="caption" sx={{ display: 'block', fontStyle: 'italic' }}>
+                  Reason: {config.reason}
+                </Typography>
+              )}
+              <Typography variant="caption" color="text.secondary">
+                {config.skippable ? 'Skippable' : 'Required'}
+              </Typography>
+            </Box>
 
       case 'DEVICE_SELECTOR':
         return (
@@ -1107,6 +1417,8 @@ export const ParameterSlot: React.FC<ParameterSlotProps> = ({
                 {config.tooltip}
               </Typography>
             )}
+          </Box>
+        );
           </Box>
         );
 

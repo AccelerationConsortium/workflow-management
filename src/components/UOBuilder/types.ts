@@ -120,7 +120,7 @@ export interface ComponentLibraryItem {
   label: string;
   description: string;
   icon: string;
-  category: 'basic' | 'equipment' | 'control';
+  category: 'basic' | 'equipment' | 'control' | 'workflow';
   defaultProps: Partial<UOComponent> | any;
 }
 
