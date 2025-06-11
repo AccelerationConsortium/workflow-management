@@ -1,4 +1,4 @@
-import { DeviceService } from './DeviceService';
+import { DeviceService } from '../DeviceService';
 import { IWorkflowService, 
   HotplateParameters, 
   PumpParameters, 
@@ -87,7 +87,7 @@ export class WorkflowService implements IWorkflowService {
       const device = await this.deviceService.getValveDevice(this.activeResources.get(nodeId)!);
       await device.setPosition(parameters.position);
       
-      if (parameters.switchTime) {
+      if (parameters.switchTime != null) {
         await new Promise(resolve => setTimeout(resolve, parameters.switchTime * 1000));
       }
       
@@ -119,7 +119,7 @@ export class WorkflowService implements IWorkflowService {
       const readings = await device.getReadings();
       
       if (parameters.alarmThreshold !== undefined) {
-        const alarmed = readings.some(reading => reading > parameters.alarmThreshold!);
+        const alarmed = readings.some((reading: number) => reading > parameters.alarmThreshold!);
         if (alarmed) {
           console.warn(`Alarm threshold exceeded for sensor ${nodeId}`);
         }

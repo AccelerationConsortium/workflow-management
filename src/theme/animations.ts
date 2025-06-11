@@ -1,3 +1,5 @@
+import { keyframes } from '@mui/material/styles';
+
 export const animations = {
   nodeHover: keyframes`
     0% { transform: translateY(0); }

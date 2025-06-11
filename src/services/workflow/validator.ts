@@ -208,7 +208,7 @@ export class WorkflowValidator {
       visited.add(nodeId);
       recursionStack.add(nodeId);
 
-      const outgoingConnections = workflow.connections.filter((c: any) => c.source === nodeId);
+      const outgoingConnections = workflow.edges.filter((c: any) => c.source === nodeId);
       for (const connection of outgoingConnections) {
         const targetId = connection.target;
         if (!visited.has(targetId)) {

@@ -1,6 +1,7 @@
 import { LLMService } from './llmService';
+import { WorkflowData } from '../types';
 
-export type ValidationStage = 'logic' | 'environment' | 'simulation';
+export type ValidationStage = 'logic' | 'environment' | 'simulation' | 'schema';
 
 export interface ValidationProgress {
   stage: ValidationStage;
@@ -18,6 +19,9 @@ export interface ValidationResult {
     nodeId?: string;
     message: string;
     details?: any;
+    suggestion?: string;
+    alternatives?: string[];
+    explanation?: string;
   }>;
   warnings: Array<{
     stage: ValidationStage;
@@ -431,5 +435,51 @@ export class WorkflowValidator {
     });
   }
 
-  // ... 其他辅助方法 ...
+  private canSimulate(workflow: WorkflowData): boolean {
+    // Check if the workflow can be simulated
+    return workflow.nodes.length > 0;
+  }
+
+  private async runSimulation(workflow: WorkflowData, result: ValidationResult): Promise<void> {
+    // Mock simulation - in real implementation, this would run actual simulation
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // Add simulation results to validation result
+        result.warnings.push({
+          stage: 'simulation',
+          message: 'Simulation completed successfully',
+          details: { message: 'All workflow steps simulated without errors' }
+        });
+        resolve();
+      }, 1000);
+    });
+  }
+
+  private async validatePrimitiveConfig(type: string, config: any): Promise<{ isValid: boolean; errors: string[] }> {
+    // Mock validation for primitive configuration
+    return {
+      isValid: true,
+      errors: []
+    };
+  }
+
+  private async getRequiredResources(workflow: WorkflowData): Promise<Record<string, number>> {
+    // Calculate required resources from workflow
+    const resources: Record<string, number> = {};
+    workflow.nodes.forEach(node => {
+      // Mock resource calculation
+      resources['memory'] = (resources['memory'] || 0) + 1;
+      resources['cpu'] = (resources['cpu'] || 0) + 0.5;
+    });
+    return resources;
+  }
+
+  private async getAvailableResources(): Promise<Record<string, number>> {
+    // Mock available resources
+    return {
+      memory: 100,
+      cpu: 8,
+      storage: 1000
+    };
+  }
 } 

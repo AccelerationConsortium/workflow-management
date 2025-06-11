@@ -126,5 +126,23 @@ export const UOParameterTemplates: Record<UOType, BaseParameter[]> = {
       }
     }
   ],
-  // Add other UO type parameters here...
+  [UOType.MIXING]: [],
+  [UOType.LIQUID_TRANSFER]: [],
+  [UOType.DILUTION]: [],
+  [UOType.SERIAL_DILUTION]: [],
+  [UOType.MIXING_LIQUID]: [],
+  [UOType.THERMAL_CYCLING]: [],
+  [UOType.INCUBATION]: [],
+  [UOType.COOLING]: [],
+  [UOType.SPECTRAL_ANALYSIS]: [],
+  [UOType.IMAGING]: [],
+  [UOType.WEIGHT_MEASUREMENT]: [],
+  [UOType.PH_MEASUREMENT]: [],
+  [UOType.CENTRIFUGATION]: [],
+  [UOType.STORAGE]: [],
+  [UOType.SOLID_TRANSFER]: [],
+  [UOType.GAS_HANDLING]: [],
+  [UOType.DATA_PROCESSING]: [],
+  [UOType.SIMULATION]: [],
+  [UOType.AI_MODEL_TRAINING]: []
 } as const; 

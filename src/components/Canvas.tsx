@@ -17,7 +17,7 @@ export const Canvas: React.FC = () => {
         <Background />
         <Controls />
       </ReactFlow>
-      {state.isCreatingWorkflow && <WorkflowStepPanel />}
+      {state.isCreatingWorkflow && <WorkflowStepPanel anchorEl={null} />}
     </div>
   );
 }; 

@@ -113,6 +113,52 @@ class CustomUOService {
   }
 
   /**
+   * Delete multiple custom UOs
+   */
+  public deleteMultipleUOs(ids: string[]): { success: string[], failed: string[] } {
+    const success: string[] = [];
+    const failed: string[] = [];
+
+    ids.forEach(id => {
+      if (this.customUOs.delete(id)) {
+        success.push(id);
+      } else {
+        failed.push(id);
+      }
+    });
+
+    if (success.length > 0) {
+      this.saveToStorage();
+      this.notifyListeners();
+    }
+
+    return { success, failed };
+  }
+
+  /**
+   * Get UO details for management interface
+   */
+  public getUODetails(id: string): (GeneratedUOSchema & { usageCount?: number }) | null {
+    const uo = this.customUOs.get(id);
+    if (!uo) return null;
+
+    // TODO: In the future, we could track usage count by scanning workflows
+    return {
+      ...uo,
+      usageCount: 0 // Placeholder for future implementation
+    };
+  }
+
+  /**
+   * Check if UO is being used in any workflows
+   */
+  public isUOInUse(id: string): boolean {
+    // TODO: Implement workflow scanning to check if UO is in use
+    // For now, return false to allow deletion
+    return false;
+  }
+
+  /**
    * Subscribe to custom UO changes
    */
   public subscribe(listener: (uos: CustomUONode[]) => void): () => void {

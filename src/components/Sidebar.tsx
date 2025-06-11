@@ -3,13 +3,17 @@ import { useDnD } from '../context/DnDContext';
 import { operationNodes, OperationNode } from '../data/operationNodes';
 import { SearchPanel } from './SearchPanel';
 import './Sidebar.css';
-import { Box } from '@mui/material';
+import { Box, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
 import {
   Search as SearchIcon,
   KeyboardCommandKey as CmdIcon,
-  Keyboard as CtrlIcon
+  Keyboard as CtrlIcon,
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  Info as InfoIcon
 } from '@mui/icons-material';
 import { customUOService, CustomUONode } from '../services/customUOService';
+import { DeleteConfirmationDialog } from './UOManagement';
 
 interface CategoryGroupProps {
   title: string;
@@ -17,6 +21,7 @@ interface CategoryGroupProps {
   onDragStart: (event: React.DragEvent, nodeType: string) => void;
   onDragEnd: () => void;
   color: string;
+  onContextMenu?: (event: React.MouseEvent, node: OperationNode) => void;
 }
 
 const formatCategory = (category: string) => {
@@ -36,6 +41,7 @@ const CategoryGroup: React.FC<CategoryGroupProps> = ({
   onDragStart,
   onDragEnd,
   color,
+  onContextMenu
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
 
@@ -58,6 +64,12 @@ const CategoryGroup: React.FC<CategoryGroupProps> = ({
             className="operation-node"
             onDragStart={(e) => onDragStart(e, node.type)}
             onDragEnd={onDragEnd}
+            onContextMenu={(event) => {
+              if (node.isCustom && onContextMenu) {
+                event.preventDefault();
+                onContextMenu(event, node);
+              }
+            }}
             draggable
           >
             <div className="operation-info">
@@ -79,6 +91,17 @@ const Sidebar: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearchPanelOpen, setIsSearchPanelOpen] = useState(false);
   const [customUOs, setCustomUOs] = useState<CustomUONode[]>([]);
+
+  // Context menu state
+  const [contextMenu, setContextMenu] = useState<{
+    mouseX: number;
+    mouseY: number;
+    node: OperationNode | null;
+  } | null>(null);
+
+  // Delete confirmation dialog state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [nodeToDelete, setNodeToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -180,6 +203,41 @@ const Sidebar: React.FC = () => {
     setType(null);
   };
 
+  // Handle right-click context menu
+  const handleContextMenu = (event: React.MouseEvent, node: OperationNode) => {
+    event.preventDefault();
+    setContextMenu({
+      mouseX: event.clientX - 2,
+      mouseY: event.clientY - 4,
+      node: node
+    });
+  };
+
+  const handleCloseContextMenu = () => {
+    setContextMenu(null);
+  };
+
+  const handleDeleteFromContextMenu = () => {
+    if (contextMenu?.node) {
+      setNodeToDelete(contextMenu.node.type);
+      setDeleteDialogOpen(true);
+    }
+    handleCloseContextMenu();
+  };
+
+  const handleConfirmDelete = () => {
+    if (nodeToDelete) {
+      const success = customUOService.deleteUO(nodeToDelete);
+      if (success) {
+        console.log('UO deleted successfully');
+      } else {
+        console.error('Failed to delete UO');
+      }
+    }
+    setDeleteDialogOpen(false);
+    setNodeToDelete(null);
+  };
+
   return (
     <Box
       sx={{
@@ -220,6 +278,7 @@ const Sidebar: React.FC = () => {
             onDragStart={onDragStart}
             onDragEnd={onDragEnd}
             color={getCategoryColor(category)}
+            onContextMenu={handleContextMenu}
           />
         ))}
       </div>
@@ -228,6 +287,43 @@ const Sidebar: React.FC = () => {
         isOpen={isSearchPanelOpen}
         onClose={() => setIsSearchPanelOpen(false)}
         onSelect={handleNodeSelect}
+      />
+
+      {/* Context Menu */}
+      <Menu
+        open={contextMenu !== null}
+        onClose={handleCloseContextMenu}
+        anchorReference="anchorPosition"
+        anchorPosition={
+          contextMenu !== null
+            ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+            : undefined
+        }
+      >
+        <MenuItem onClick={handleDeleteFromContextMenu}>
+          <ListItemIcon>
+            <DeleteIcon fontSize="small" color="error" />
+          </ListItemIcon>
+          <ListItemText>Delete UO</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={handleCloseContextMenu}>
+          <ListItemIcon>
+            <InfoIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>View Details</ListItemText>
+        </MenuItem>
+      </Menu>
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmationDialog
+        open={deleteDialogOpen}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setNodeToDelete(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        uoToDelete={nodeToDelete}
+        customUOs={customUOs}
       />
     </Box>
   );
