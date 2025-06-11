@@ -1,0 +1,68 @@
+# Cloudflare Workers configuration for backend API
+name = "workflow-management-api"
+main = "workers/api.js"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Account and zone configuration
+# Replace with your actual account ID and zone ID
+account_id = "your_cloudflare_account_id"
+zone_id = "your_cloudflare_zone_id"
+
+# Routes for custom domain
+routes = [
+  { pattern = "api.workflow-management.com/*", zone_id = "your_cloudflare_zone_id" }
+]
+
+# Environment variables
+[env.production.vars]
+ENVIRONMENT = "production"
+NODE_ENV = "production"
+CORS_ORIGINS = "https://workflow-management.com"
+
+[env.staging.vars]
+ENVIRONMENT = "staging"
+NODE_ENV = "staging"
+CORS_ORIGINS = "https://staging.workflow-management.com"
+
+# KV namespaces for caching
+[[kv_namespaces]]
+binding = "WORKFLOW_CACHE"
+id = "your_kv_namespace_id"
+preview_id = "your_preview_kv_namespace_id"
+
+# D1 Database binding
+[[d1_databases]]
+binding = "WORKFLOW_DB"
+database_name = "workflow-management"
+database_id = "your_d1_database_id"
+
+# R2 Object Storage for file uploads
+[[r2_buckets]]
+binding = "WORKFLOW_FILES"
+bucket_name = "workflow-files"
+
+# Durable Objects for real-time features
+[[durable_objects.bindings]]
+name = "WORKFLOW_SESSIONS"
+class_name = "WorkflowSession"
+
+# WebSocket hibernation API
+[[websockets]]
+binding = "WEBSOCKET"
+
+# Analytics Engine for metrics
+[[analytics_engine_datasets]]
+binding = "WORKFLOW_ANALYTICS"
+
+# Worker limits and configuration
+[limits]
+cpu_ms = 30000
+
+[build]
+command = "npm run build:workers"
+cwd = "workers"
+
+# Compatibility settings
+[compatibility]
+preserve_file_descriptor_behavior = false
