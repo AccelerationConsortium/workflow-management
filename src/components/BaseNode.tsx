@@ -168,8 +168,8 @@ const ParameterInput: React.FC<{
             onChange={(e) => onChange(e.target.value)}
             sx={{ minWidth: 120 }}
           >
-            <MenuItem value={true}>True</MenuItem>
-            <MenuItem value={false}>False</MenuItem>
+            <MenuItem value="true">True</MenuItem>
+            <MenuItem value="false">False</MenuItem>
           </Select>
         </FormControl>
       );
@@ -304,7 +304,7 @@ export const BaseNode: React.FC<BaseNodeProps> = ({ data, category, state }) => 
       />
       
       <div className="node-header">
-        {data.icon && <data.icon className="node-icon" />}
+        {data.icon && React.createElement(data.icon, { className: "node-icon" })}
         <Typography className="node-title" variant="h6" component="h3">
           {data.label}
           <Tooltip title={`状态: ${data.runStatus || 'idle'}\n运行时间: ${runDuration || '未开始'}`}>
@@ -389,15 +389,17 @@ export const BaseNode: React.FC<BaseNodeProps> = ({ data, category, state }) => 
 
         {selectedTab === 'primitives' && (
           <div className="node-content">
-            {data.primitives && data.primitives.length > 0 ? (
-              data.primitives.map((primitive) => (
-                <div key={primitive.id} className="primitive-item">
+            {data.primitives && Object.keys(data.primitives).length > 0 ? (
+              Object.entries(data.primitives).map(([primitiveName, primitiveData]) => (
+                <div key={primitiveName} className="primitive-item">
                   <div className="primitive-header">
-                    <span className="order-badge">{primitive.order}</span>
-                    <span className="primitive-name">{primitive.name}</span>
+                    <span className="primitive-name">{primitiveName}</span>
+                    <span className={`primitive-status ${primitiveData.enabled ? 'enabled' : 'disabled'}`}>
+                      {primitiveData.enabled ? 'Enabled' : 'Disabled'}
+                    </span>
                   </div>
-                  {primitive.description && (
-                    <div className="primitive-description">{primitive.description}</div>
+                  {primitiveData.disabledReason && (
+                    <div className="primitive-description">{primitiveData.disabledReason}</div>
                   )}
                 </div>
               ))

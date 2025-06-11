@@ -1,15 +1,17 @@
+import { UnitOperation } from './index';
+
 // GET /api/unit-operations/templates
-interface GetTemplatesResponse {
+export interface GetTemplatesResponse {
   templates: UnitOperation[];
 }
 
 // GET /api/unit-operations/:id
-interface GetUnitOperationResponse {
+export interface GetUnitOperationResponse {
   unitOperation: UnitOperation;
 }
 
 // PATCH /api/unit-operations/:id
-interface UpdateUnitOperationRequest {
+export interface UpdateUnitOperationRequest {
   parameters?: {
     [key: string]: {
       value: number | string;
@@ -22,12 +24,12 @@ interface UpdateUnitOperationRequest {
   // 其他可更新的字段...
 }
 
-interface UpdateUnitOperationResponse {
+export interface UpdateUnitOperationResponse {
   unitOperation: UnitOperation;
 }
 
 // POST /api/unit-operations/instances
-interface CreateInstanceRequest {
+export interface CreateInstanceRequest {
   templateId: string;
   uo_name?: string;
   parameters?: {
@@ -41,6 +43,6 @@ interface CreateInstanceRequest {
   };
 }
 
-interface CreateInstanceResponse {
+export interface CreateInstanceResponse {
   unitOperation: UnitOperation;
 } 
