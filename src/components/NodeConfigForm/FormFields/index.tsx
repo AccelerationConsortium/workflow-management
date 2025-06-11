@@ -1,10 +1,10 @@
 import React from 'react';
 import { Field, useField } from 'formik';
-import { NodeParameter } from '../../../types/nodeConfig';
+import { Parameter } from '../../../types/workflow';
 import './styles.css';
 
 interface FieldProps {
-  parameter: NodeParameter;
+  parameter: Parameter;
 }
 
 export const NumberField: React.FC<FieldProps> = ({ parameter }) => {
@@ -39,7 +39,7 @@ export const SelectField: React.FC<FieldProps> = ({ parameter }) => {
       </label>
       <select {...field} className={`field-input ${meta.error ? 'error' : ''}`}>
         <option value="">Select...</option>
-        {parameter.options?.map(option => (
+        {parameter.options?.map((option: any) => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>

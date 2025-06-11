@@ -29,6 +29,7 @@ import FileOpenIcon from '@mui/icons-material/FileOpen';
 import ComputerIcon from '@mui/icons-material/Computer';
 import ScienceIcon from '@mui/icons-material/Science';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 // Import BaseNode separately
 import { BaseNode } from './components/BaseNode';
@@ -79,9 +80,11 @@ import { ContextMenu } from './components/ContextMenu';
 import { SaveWorkflowDialog } from './components/SaveWorkflowDialog';
 import { LoadWorkflowDialog } from './components/LoadWorkflowDialog';
 import { WorkflowStorage } from './services/workflowStorage';
-import { WorkflowSimulator } from './components/WorkflowSimulator';
+import { WorkflowValidator, ValidationProgress } from './services/workflowValidator';
 import { ValidatedNode } from './components/ValidatedNode';
 import { ValidationResult } from './types/validation';
+import { ValidationProgressBar } from './components/ValidationProgress';
+import { ErrorDialog } from './components/ErrorDialog';
 import { NodeProperties } from './components/NodeProperties';
 import { unitOperationService } from './services/unitOperationService';
 import { CustomEdge } from './components/CustomEdge';
@@ -96,6 +99,7 @@ import { SDL2Nodes } from './components/OperationNodes/SDL2';
 import Sidebar from './components/Sidebar';
 import TestStylePage from './components/TestStylePage';
 import { UORegistrationButton } from './components/UOBuilder/UORegistrationButton';
+import { UOManagementModal } from './components/UOManagement';
 import { EdgeConfig as EdgeConfigFromComponent } from './components/EdgeConfig';
 
 // 创建主题
@@ -304,6 +308,11 @@ function Flow() {
   } = useControlPanelState();
 
   const [isRealRunMode, setIsRealRunMode] = useState(false);
+  const [showUOManagement, setShowUOManagement] = useState(false);
+  const [isSimulating, setIsSimulating] = useState(false);
+  const [validationProgress, setValidationProgress] = useState<ValidationProgress | null>(null);
+  const [validationError, setValidationError] = useState<ValidationResult | null>(null);
+  const [showErrorDialog, setShowErrorDialog] = useState(false);
 
   // 获取测试节点数据
   useEffect(() => {
@@ -1019,16 +1028,52 @@ function Flow() {
   }, [operationNodes, setNodes, setEdges]);
 
   /**
+   * Handles simulation workflow validation and execution
+   */
+  const handleSimulation = useCallback(async () => {
+    setIsSimulating(true);
+    setValidationProgress(null);
+    setValidationError(null);
+    setShowErrorDialog(false);
+
+    const validator = new WorkflowValidator(setValidationProgress);
+    const workflow = generateWorkflowPayload() as WorkflowData | null;
+
+    try {
+      const result = await validator.validateWorkflow(workflow);
+
+      if (result.isValid) {
+        console.log('Simulation validation successful!');
+        // TODO: Continue with workflow simulation execution
+      } else {
+        console.error('Simulation validation failed:', result.errors);
+        setValidationError(result);
+        setShowErrorDialog(true);
+      }
+    } catch (error: unknown) {
+      console.error('Simulation error:', error);
+      setValidationError({
+        isValid: false,
+        errors: [String(error)]
+      });
+      setShowErrorDialog(true);
+    } finally {
+      setIsSimulating(false);
+      // Keep progress bar visible for a while after completion
+      setTimeout(() => {
+        if (!validationError) {  // Only clear if no errors
+          setValidationProgress(null);
+        }
+      }, 2000);
+    }
+  }, [generateWorkflowPayload, validationError]);
+
+  /**
    * Sends the current workflow JSON to the remote execution endpoint.
    * Processes the structured response including step results and log file path.
    * Only proceeds if isRealRunMode is true.
    */
   const handleRunExperiment = useCallback(async () => {
-    if (!isRealRunMode) {
-      alert("current mode: simulation. please switch to real run mode to send to remote machine.");
-      console.log("Simulation mode active. Remote execution skipped.");
-      return;
-    }
 
     // Reset statuses before sending the new run
      setNodes((nds) =>
@@ -1086,6 +1131,17 @@ function Flow() {
       alert(`experiment request failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }, [generateWorkflowPayload, isRealRunMode, setNodes, updateNodesStatusFromResults]);
+
+  /**
+   * Unified run handler that switches between simulation and real execution
+   */
+  const handleRun = useCallback(async () => {
+    if (isRealRunMode) {
+      await handleRunExperiment();
+    } else {
+      await handleSimulation();
+    }
+  }, [isRealRunMode, handleRunExperiment, handleSimulation]);
 
   const Toolbar = () => {
     const createButtonRef = useRef<HTMLButtonElement>(null);
@@ -1154,100 +1210,197 @@ function Flow() {
           backgroundColor: '#cccccc',
           color: '#666666',
         }
+      },
+      manage: {
+        backgroundColor: '#FF6B6B', // Coral Red
+        color: 'white',
+        '&:hover': {
+          backgroundColor: '#E55A5A',
+        }
       }
     };
 
     return (
-      <div className="toolbar" style={{
-        display: 'flex',
-        justifyContent: 'center',
-        gap: '16px',
-        padding: '20px 24px',
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        borderRadius: '16px',
-        boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-        backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255, 255, 255, 0.3)',
-        maxWidth: '1100px',
-        margin: '0 auto'
-      }}>
-        {/* UO Registration Button */}
-        <UORegistrationButton
-          onUORegistered={(result) => {
-            if (result.success) {
-              console.log('UO registered successfully:', result.schema);
-              // Show success message
-              alert(`Unit Operation "${result.schema?.name}" registered successfully! Check the sidebar to see your new custom UO.`);
-            } else {
-              console.error('UO registration failed:', result.error);
-              alert(`Registration failed: ${result.error}`);
-            }
-          }}
-        />
-        <Button
-          ref={createButtonRef}
-          onClick={handleCreateWorkflow}
-          sx={{
-            ...buttonStyle,
-            ...buttonColors.create,
-            ...(state.isCreatingWorkflow ? buttonColors.create['&.active'] : {})
-          }}
-          startIcon={<CreateIcon sx={{ fontSize: 22 }} />}
-        >
-          Create Workflow
-        </Button>
-        {state.isCreatingWorkflow && (
-          <WorkflowStepPanel
-            anchorEl={createButtonRef.current}
+      <div style={{ position: 'relative', width: '100%' }}>
+        {/* Main Toolbar */}
+        <div className="toolbar" style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '16px',
+          padding: '20px 24px',
+          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          borderRadius: '16px',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255, 255, 255, 0.3)',
+          maxWidth: '1100px',
+          margin: '0 auto'
+        }}>
+          {/* UO Registration Button */}
+          <UORegistrationButton
+            onUORegistered={(result) => {
+              if (result.success) {
+                console.log('UO registered successfully:', result.schema);
+                // Show success message
+                alert(`Unit Operation "${result.schema?.name}" registered successfully! Check the sidebar to see your new custom UO.`);
+              } else {
+                console.error('UO registration failed:', result.error);
+                alert(`Registration failed: ${result.error}`);
+              }
+            }}
           />
-        )}
-        <Button
-          onClick={() => setShowSaveDialog(true)}
-          sx={{
-            ...buttonStyle,
-            ...buttonColors.save
-          }}
-          startIcon={<SaveIcon sx={{ fontSize: 22 }} />}
-        >
-          Save Workflow
-        </Button>
-        <Button
-          onClick={() => setShowLoadDialog(true)}
-          sx={{
-            ...buttonStyle,
-            ...buttonColors.load
-          }}
-          startIcon={<FileOpenIcon sx={{ fontSize: 22 }} />}
-        >
-          Load Workflow
-        </Button>
-        {/* Toggle Run Mode Button */}
-        <Button
-          onClick={() => setIsRealRunMode(!isRealRunMode)}
-          title={isRealRunMode ? "Switch to Simulation Mode" : "Switch to Real Run Mode"}
-          sx={{
-            ...buttonStyle,
-            ...buttonColors.mode
-          }}
-          startIcon={isRealRunMode ? <ScienceIcon sx={{ fontSize: 22 }} /> : <ComputerIcon sx={{ fontSize: 22 }} />}
-        >
-          {isRealRunMode ? 'Real Mode' : 'Sim Mode'}
-        </Button>
-        {/* Run Experiment Button */}
-        <Button
-          onClick={handleRunExperiment}
-          disabled={!nodes.length}
-          title={isRealRunMode ? "Send workflow to remote lab" : "Run simulation (or switch mode)"}
-          sx={{
-            ...buttonStyle,
-            ...buttonColors.run,
-            ...(nodes.length ? {} : buttonColors.run['&:disabled'])
-          }}
-          startIcon={<PlayArrowIcon sx={{ fontSize: 22 }} />}
-        >
-          Run Experiment
-        </Button>
+
+          {/* UO Management Button */}
+          <Button
+            onClick={() => setShowUOManagement(true)}
+            sx={{
+              ...buttonStyle,
+              ...buttonColors.manage
+            }}
+            startIcon={<SettingsIcon sx={{ fontSize: 22 }} />}
+          >
+            Manage UOs
+          </Button>
+
+          <Button
+            ref={createButtonRef}
+            onClick={handleCreateWorkflow}
+            sx={{
+              ...buttonStyle,
+              ...buttonColors.create,
+              ...(state.isCreatingWorkflow ? buttonColors.create['&.active'] : {})
+            }}
+            startIcon={<CreateIcon sx={{ fontSize: 22 }} />}
+          >
+            Create Workflow
+          </Button>
+          {state.isCreatingWorkflow && (
+            <WorkflowStepPanel
+              anchorEl={createButtonRef.current}
+            />
+          )}
+          <Button
+            onClick={() => setShowSaveDialog(true)}
+            sx={{
+              ...buttonStyle,
+              ...buttonColors.save
+            }}
+            startIcon={<SaveIcon sx={{ fontSize: 22 }} />}
+          >
+            Save Workflow
+          </Button>
+          <Button
+            onClick={() => setShowLoadDialog(true)}
+            sx={{
+              ...buttonStyle,
+              ...buttonColors.load
+            }}
+            startIcon={<FileOpenIcon sx={{ fontSize: 22 }} />}
+          >
+            Load Workflow
+          </Button>
+        </div>
+
+        {/* Run Controls - Bottom Right */}
+        <div style={{
+          position: 'absolute',
+          bottom: '-70px',
+          right: '20px',
+          display: 'flex',
+          gap: '12px',
+          alignItems: 'center',
+          padding: '12px 18px',
+          background: 'linear-gradient(135deg, #4BBCD4 0%, #41C4A9 100%)', // Gradient matching sidebar theme
+          borderRadius: '16px',
+          boxShadow: '0 6px 20px rgba(75, 188, 212, 0.4)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          zIndex: 10
+        }}>
+          {/* Mode Label */}
+          <span style={{
+            color: 'white',
+            fontSize: '12px',
+            fontWeight: 500,
+            opacity: 0.9,
+            marginRight: '4px'
+          }}>
+            Mode:
+          </span>
+          {/* Mode Toggle */}
+          <Button
+            onClick={() => setIsRealRunMode(!isRealRunMode)}
+            title={isRealRunMode ? "Switch to Simulation Mode" : "Switch to Real Run Mode"}
+            sx={{
+              backgroundColor: isRealRunMode ? 'rgba(255, 255, 255, 0.25)' : 'rgba(255, 255, 255, 0.95)',
+              color: isRealRunMode ? 'white' : '#2A8270',
+              borderRadius: '8px',
+              padding: '4px 12px',
+              fontSize: '12px',
+              fontWeight: 600,
+              textTransform: 'none',
+              minWidth: '70px',
+              height: '28px',
+              border: isRealRunMode ? '1px solid rgba(255, 255, 255, 0.4)' : 'none',
+              boxShadow: isRealRunMode ? 'none' : '0 1px 4px rgba(0,0,0,0.1)',
+              '&:hover': {
+                backgroundColor: isRealRunMode ? 'rgba(255, 255, 255, 0.35)' : 'rgba(255, 255, 255, 1)',
+                transform: 'translateY(-1px)',
+                boxShadow: isRealRunMode ? '0 2px 6px rgba(255,255,255,0.2)' : '0 2px 6px rgba(0,0,0,0.15)'
+              },
+              transition: 'all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1)'
+            }}
+            startIcon={isRealRunMode ?
+              <ScienceIcon sx={{ fontSize: 14, color: 'white' }} /> :
+              <ComputerIcon sx={{ fontSize: 14, color: '#2A8270' }} />
+            }
+          >
+            {isRealRunMode ? 'Real' : 'Sim'}
+          </Button>
+
+          {/* Separator */}
+          <div style={{
+            width: '1px',
+            height: '20px',
+            backgroundColor: 'rgba(255, 255, 255, 0.3)',
+            margin: '0 4px'
+          }} />
+
+          {/* Run Button */}
+          <Button
+            onClick={handleRun}
+            disabled={!nodes.length || isSimulating}
+            title={isRealRunMode ? "Send workflow to remote lab" : "Run simulation"}
+            sx={{
+              backgroundColor: 'rgba(255, 255, 255, 0.95)',
+              color: '#2A8270',
+              borderRadius: '8px',
+              padding: '4px 16px',
+              fontSize: '12px',
+              fontWeight: 600,
+              textTransform: 'none',
+              minWidth: '100px',
+              height: '28px',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 1)',
+                transform: 'translateY(-1px)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+              },
+              '&:disabled': {
+                backgroundColor: 'rgba(255, 255, 255, 0.6)',
+                color: 'rgba(42, 130, 112, 0.5)',
+                boxShadow: 'none'
+              },
+              transition: 'all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1)'
+            }}
+            startIcon={<PlayArrowIcon sx={{ fontSize: 14 }} />}
+          >
+            {isSimulating ? 'Running...' : (isRealRunMode ? 'Run Lab' : 'Run Sim')}
+          </Button>
+        </div>
       </div>
     );
   };
@@ -1352,9 +1505,11 @@ function Flow() {
           display: 'flex',
           justifyContent: 'center',
           p: 2,
+          pb: 6, // Extra padding bottom for run controls
           width: '100%',
           flexShrink: 0,
-          background: 'linear-gradient(180deg, rgba(16,90,115,0.05) 0%, rgba(255,255,255,0) 100%)'
+          background: 'linear-gradient(180deg, rgba(16,90,115,0.05) 0%, rgba(255,255,255,0) 100%)',
+          position: 'relative'
         }}>
           <Toolbar />
         </Box>
@@ -1431,9 +1586,7 @@ function Flow() {
               </button>
             </div>
           )}
-          <WorkflowSimulator
-            workflow={generateWorkflowPayload() as WorkflowData | null}
-          />
+
         </ReactFlow>
         <EdgeConfig
           isOpen={showEdgeConfig}
@@ -1445,8 +1598,8 @@ function Flow() {
         />
         {selectedNode && selectedNode.type && selectedNode.data && (
           <NodeProperties
-            node={{ ...selectedNode, type: selectedNode.type as string } as Node<UnitOperation>}
-            position={selectedNode.position}
+            node={{ ...selectedNode, type: selectedNode.type || 'default' } as Node<UnitOperation>}
+            position={selectedNode.position || null}
             onClose={() => setSelectedNode(null)}
             onUpdate={handleNodeUpdate}
           />
@@ -1464,7 +1617,7 @@ function Flow() {
           operationGroups={operationGroups}
           currentNodeId={selectedNode?.id || null}
           workflowId={state.currentWorkflow?.id || 'default-workflow'}
-          optimizationParameters={selectedNode?.data?.parameters?.map(p => ({
+          optimizationParameters={selectedNode?.data?.parameters?.map((p: any) => ({
             id: p.id,
             name: p.name,
             min: p.min || 0,
@@ -1502,6 +1655,37 @@ function Flow() {
         <LoadWorkflowDialog
           onLoad={handleLoadWorkflow}
           onCancel={() => setShowLoadDialog(false)}
+        />
+      )}
+
+      {/* UO Management Modal */}
+      <UOManagementModal
+        open={showUOManagement}
+        onClose={() => setShowUOManagement(false)}
+        onEditUO={(uo) => {
+          // TODO: Implement UO editing functionality
+          console.log('Edit UO:', uo);
+        }}
+      />
+
+      {/* Validation Progress Bar */}
+      {validationProgress && (
+        <Box sx={{
+          position: 'fixed',
+          bottom: '120px',
+          right: '20px',
+          zIndex: 1000
+        }}>
+          <ValidationProgressBar progress={validationProgress} />
+        </Box>
+      )}
+
+      {/* Error Dialog */}
+      {validationError && (
+        <ErrorDialog
+          open={showErrorDialog}
+          onClose={() => setShowErrorDialog(false)}
+          validationResult={validationError}
         />
       )}
     </Box>

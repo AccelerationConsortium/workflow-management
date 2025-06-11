@@ -35,5 +35,23 @@ export const nodeColors = {
     background: '#e6fffb',
     border: '#4BBCD4',
     handle: '#4BBCD4'
+  },
+  'SDL Catalyst': {
+    background: '#f0f9ff',
+    border: '#3B82F6',
+    handle: '#3B82F6',
+    text: '#1E40AF'
+  },
+  'Medusa': {
+    background: '#fef7ff',
+    border: '#A855F7',
+    handle: '#A855F7',
+    text: '#7C2D92'
+  },
+  'Catalyst Workflow': {
+    background: '#ecfdf5',
+    border: '#10B981',
+    handle: '#10B981',
+    text: '#047857'
   }
 }; 

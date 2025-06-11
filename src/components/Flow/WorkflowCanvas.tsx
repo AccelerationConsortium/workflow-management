@@ -7,14 +7,15 @@ import ReactFlow, {
   NodeChange,
   EdgeChange,
   Connection,
-  addEdge
+  addEdge,
+  Edge
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { CustomNode, WorkflowData } from '../../types';
 
 const WorkflowCanvas: React.FC = () => {
   const [nodes, setNodes] = useState<CustomNode[]>([]);
-  const [edges, setEdges] = useState([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
