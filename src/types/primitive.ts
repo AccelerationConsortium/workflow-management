@@ -1,3 +1,5 @@
+import { Parameter } from './workflow';
+
 export interface ControlDetail {
   software: {
     name: string;

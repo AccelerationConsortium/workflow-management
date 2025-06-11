@@ -1,13 +1,13 @@
 import React from 'react';
 import { Formik, Form } from 'formik';
-import { NodeParameter } from '../../types/nodeConfig';
+import { Parameter } from '../../types/workflow';
 import { NumberField, SelectField, TextField, RangeField } from './FormFields';
 import './styles.css';
 import * as Yup from 'yup';
 
 interface NodeConfigFormProps {
   nodeId: string;
-  parameters: NodeParameter[];
+  parameters: Parameter[];
   initialValues: Record<string, any>;
   onSubmit: (values: any) => void;
 }

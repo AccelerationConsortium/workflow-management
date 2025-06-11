@@ -39,17 +39,15 @@ export const ConditionalEdge: React.FC<ConditionalEdgeProps> = ({
   
   // 根据条件类型确定边的样式
   const getEdgeStyle = () => {
-    const conditionType = data?.condition?.type || 'true';
+    const conditionType = data?.condition?.type || 'boolean';
     
     let strokeColor = '#000';
     let strokeWidth = 2;
     let strokeDasharray = '';
     
-    if (conditionType === 'true') {
+    if (conditionType === 'boolean') {
       strokeColor = '#10b981'; // 绿色
-    } else if (conditionType === 'false') {
-      strokeColor = '#ef4444'; // 红色
-    } else if (conditionType === 'case') {
+    } else if (conditionType === 'switch') {
       strokeColor = '#6366f1'; // 紫色
     }
     
@@ -63,14 +61,12 @@ export const ConditionalEdge: React.FC<ConditionalEdgeProps> = ({
   
   // 获取标签文本
   const getLabelText = () => {
-    const conditionType = data?.condition?.type || 'true';
+    const conditionType = data?.condition?.type || 'boolean';
     
-    if (conditionType === 'true') {
-      return 'True';
-    } else if (conditionType === 'false') {
-      return 'False';
-    } else if (conditionType === 'case') {
-      return `Case: ${data?.condition?.caseId || ''}`;
+    if (conditionType === 'boolean') {
+      return 'Boolean';
+    } else if (conditionType === 'switch') {
+      return `Switch: ${data?.condition?.caseId || ''}`;
     }
     
     return '';
