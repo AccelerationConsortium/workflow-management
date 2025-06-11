@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: workflow-management
+  labels:
+    name: workflow-management
+    app: workflow-management-system

@@ -1,0 +1,88 @@
+# Cloudflare Pages configuration
+name = "workflow-management"
+
+# Build configuration
+[build]
+command = "npm run build"
+destination = "dist"
+
+# Compatibility settings
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Environment variables for Pages Functions
+[env.production.vars]
+NODE_ENV = "production"
+VITE_API_URL = "https://api.workflow-management.com"
+VITE_FILE_SERVER_URL = "https://files.workflow-management.com"
+VITE_WS_URL = "wss://api.workflow-management.com/ws"
+
+[env.preview.vars]
+NODE_ENV = "staging"
+VITE_API_URL = "https://api-staging.workflow-management.com"
+VITE_FILE_SERVER_URL = "https://files-staging.workflow-management.com"
+VITE_WS_URL = "wss://api-staging.workflow-management.com/ws"
+
+# Custom domains
+[[custom_domains]]
+domain = "workflow-management.com"
+certificate_authority = "lets_encrypt"
+
+[[custom_domains]]
+domain = "www.workflow-management.com"
+certificate_authority = "lets_encrypt"
+
+# Redirects and rewrites
+[[redirects]]
+from = "/docs/*"
+to = "/documentation/:splat"
+status = 301
+
+[[redirects]]
+from = "https://www.workflow-management.com/*"
+to = "https://workflow-management.com/:splat"
+status = 301
+
+# SPA routing
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
+conditions = {if = "!file"}
+
+# Headers for security and performance
+[[headers]]
+for = "/*"
+[headers.values]
+X-Frame-Options = "SAMEORIGIN"
+X-XSS-Protection = "1; mode=block"
+X-Content-Type-Options = "nosniff"
+Referrer-Policy = "strict-origin-when-cross-origin"
+Content-Security-Policy = "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' https://api.workflow-management.com wss://api.workflow-management.com;"
+
+[[headers]]
+for = "/assets/*"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+# Pages Functions configuration
+[functions]
+directory = "functions"
+node_compat = true
+
+# KV namespaces
+[[kv_namespaces]]
+binding = "WORKFLOW_CACHE"
+id = "your_kv_namespace_id"
+preview_id = "your_preview_kv_namespace_id"
+
+# D1 Database
+[[d1_databases]]
+binding = "WORKFLOW_DB"
+database_name = "workflow-management"
+database_id = "your_d1_database_id"
+
+# R2 Object Storage
+[[r2_buckets]]
+binding = "WORKFLOW_FILES"
+bucket_name = "workflow-files"

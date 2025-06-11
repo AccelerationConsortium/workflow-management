@@ -1,0 +1,97 @@
+[build]
+  publish = "dist"
+  command = "npm run build"
+
+[build.environment]
+  NODE_ENV = "production"
+  VITE_API_URL = "https://api.workflow-management.com"
+  VITE_FILE_SERVER_URL = "https://files.workflow-management.com"
+
+# SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# API redirects (if you want to proxy API calls)
+[[redirects]]
+  from = "/api/*"
+  to = "https://api.workflow-management.com/:splat"
+  status = 200
+  force = true
+
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' https://api.workflow-management.com wss://api.workflow-management.com;"
+
+# Cache static assets
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Cache service worker
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Environment-specific deployments
+[context.production]
+  command = "npm run build"
+  [context.production.environment]
+    NODE_ENV = "production"
+    VITE_API_URL = "https://api.workflow-management.com"
+    VITE_FILE_SERVER_URL = "https://files.workflow-management.com"
+
+[context.staging]
+  command = "npm run build"
+  [context.staging.environment]
+    NODE_ENV = "staging"
+    VITE_API_URL = "https://api-staging.workflow-management.com"
+    VITE_FILE_SERVER_URL = "https://files-staging.workflow-management.com"
+
+[context.deploy-preview]
+  command = "npm run build"
+  [context.deploy-preview.environment]
+    NODE_ENV = "development"
+    VITE_API_URL = "https://api-staging.workflow-management.com"
+    VITE_FILE_SERVER_URL = "https://files-staging.workflow-management.com"
+
+# Form handling (if you have contact forms)
+# [[plugins]]
+#   package = "@netlify/plugin-forms"
+
+# Performance optimizations
+[[plugins]]
+  package = "netlify-plugin-lighthouse"
+
+  [plugins.inputs.thresholds]
+    performance = 0.8
+    accessibility = 0.9
+    best-practices = 0.9
+    seo = 0.9
+
+# Build processing
+[build.processing]
+  skip_processing = false
+
+[build.processing.css]
+  bundle = true
+  minify = true
+
+[build.processing.js]
+  bundle = true
+  minify = true
+
+[build.processing.html]
+  pretty_urls = true
+
+[build.processing.images]
+  compress = true

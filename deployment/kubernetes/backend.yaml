@@ -1,0 +1,148 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workflow-backend
+  namespace: workflow-management
+  labels:
+    app: workflow-backend
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: workflow-backend
+  template:
+    metadata:
+      labels:
+        app: workflow-backend
+    spec:
+      containers:
+      - name: backend
+        image: workflow-backend:latest  # Replace with your image
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        env:
+        - name: BACKEND_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: workflow-config
+              key: BACKEND_PORT
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: workflow-config
+              key: NODE_ENV
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: workflow-config
+              key: LOG_LEVEL
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: workflow-secrets
+              key: DATABASE_URL
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: workflow-secrets
+              key: REDIS_URL
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: workflow-secrets
+              key: SECRET_KEY
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: workflow-secrets
+              key: AWS_ACCESS_KEY_ID
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: workflow-secrets
+              key: AWS_SECRET_ACCESS_KEY
+        - name: S3_BUCKET
+          valueFrom:
+            secretKeyRef:
+              name: workflow-secrets
+              key: S3_BUCKET
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 3
+        volumeMounts:
+        - name: uploads
+          mountPath: /var/uploads
+      volumes:
+      - name: uploads
+        emptyDir: {}  # Use persistent volume for production
+      
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: workflow-management
+  labels:
+    app: workflow-backend
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8000
+    targetPort: 8000
+    protocol: TCP
+    name: http
+  selector:
+    app: workflow-backend
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: workflow-backend-hpa
+  namespace: workflow-management
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: workflow-backend
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
