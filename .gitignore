@@ -87,3 +87,8 @@ storybook-static/
 .terraform/
 *.tfstate
 *.tfstate.backup
+
+.history
+
+# Documentation (development artifacts)
+documentation/
