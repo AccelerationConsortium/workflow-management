@@ -1,0 +1,118 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: workflow-ingress
+  namespace: workflow-management
+  annotations:
+    # NGINX Ingress Controller annotations
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    
+    # Security headers
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header X-Frame-Options "SAMEORIGIN" always;
+      add_header X-XSS-Protection "1; mode=block" always;
+      add_header X-Content-Type-Options "nosniff" always;
+      add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+      add_header Content-Security-Policy "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; img-src 'self' data: https:; font-src 'self' data: https:;" always;
+    
+    # Rate limiting
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    
+    # WebSocket support
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/websocket-services: "backend-service"
+    
+    # Certificate management (if using cert-manager)
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    
+spec:
+  tls:
+  - hosts:
+    - workflow-management.com
+    - www.workflow-management.com
+    - api.workflow-management.com
+    - files.workflow-management.com
+    secretName: workflow-tls
+  
+  rules:
+  # Main frontend application
+  - host: workflow-management.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-service
+            port:
+              number: 80
+  
+  # Redirect www to non-www
+  - host: www.workflow-management.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-service
+            port:
+              number: 80
+  
+  # API subdomain
+  - host: api.workflow-management.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: backend-service
+            port:
+              number: 8000
+      # WebSocket endpoint
+      - path: /ws
+        pathType: Prefix
+        backend:
+          service:
+            name: backend-service
+            port:
+              number: 8000
+  
+  # File server subdomain
+  - host: files.workflow-management.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: file-server-service
+            port:
+              number: 3001
+
+---
+# File server service (add if not already created)
+apiVersion: v1
+kind: Service
+metadata:
+  name: file-server-service
+  namespace: workflow-management
+  labels:
+    app: workflow-fileserver
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3001
+    targetPort: 3000
+    protocol: TCP
+    name: http
+  selector:
+    app: workflow-fileserver
