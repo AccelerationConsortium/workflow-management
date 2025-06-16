@@ -1,0 +1,259 @@
+{
+  "templates": {
+    "add_liquid": {
+      "type": "add_liquid",
+      "name": "液体添加",
+      "category": "liquid_handling",
+      "description": "向容器中添加指定体积的液体",
+      "params": {
+        "volume": {
+          "type": "number",
+          "unit": "ml",
+          "default": 10,
+          "min": 0.1,
+          "max": 1000,
+          "description": "添加液体的体积"
+        },
+        "chemical": {
+          "type": "string", 
+          "default": "H2O",
+          "description": "化学试剂名称"
+        },
+        "speed": {
+          "type": "number",
+          "unit": "ml/min",
+          "default": 5,
+          "description": "添加速率"
+        },
+        "container": {
+          "type": "string",
+          "default": "reaction_vessel",
+          "description": "目标容器"
+        }
+      },
+      "keywords": ["加液", "添加", "液体", "溶液", "试剂", "add", "liquid", "solution"]
+    },
+    "heat": {
+      "type": "heat",
+      "name": "加热控制",
+      "category": "temperature_control",
+      "description": "将样品加热到指定温度并保持一定时间",
+      "params": {
+        "temperature": {
+          "type": "number",
+          "unit": "°C",
+          "default": 25,
+          "min": 0,
+          "max": 200,
+          "description": "目标温度"
+        },
+        "duration": {
+          "type": "number",
+          "unit": "seconds",
+          "default": 300,
+          "min": 1,
+          "max": 86400,
+          "description": "保持时间"
+        },
+        "ramp_rate": {
+          "type": "number",
+          "unit": "°C/min",
+          "default": 5,
+          "description": "升温速率"
+        }
+      },
+      "keywords": ["加热", "升温", "保温", "heat", "temperature", "warm"]
+    },
+    "cv": {
+      "type": "cv",
+      "name": "循环伏安法",
+      "category": "electrochemical",
+      "description": "进行循环伏安测试",
+      "params": {
+        "start_voltage": {
+          "type": "number",
+          "unit": "V",
+          "default": -1.0,
+          "description": "起始电压"
+        },
+        "end_voltage": {
+          "type": "number",
+          "unit": "V", 
+          "default": 1.0,
+          "description": "结束电压"
+        },
+        "scan_rate": {
+          "type": "number",
+          "unit": "mV/s",
+          "default": 50,
+          "description": "扫描速率"
+        },
+        "cycles": {
+          "type": "number",
+          "default": 3,
+          "min": 1,
+          "max": 100,
+          "description": "循环次数"
+        }
+      },
+      "keywords": ["CV", "循环伏安", "电化学", "扫描", "cyclic", "voltammetry"]
+    },
+    "lsv": {
+      "type": "lsv",
+      "name": "线性扫描伏安法",
+      "category": "electrochemical",
+      "description": "进行线性扫描伏安测试",
+      "params": {
+        "start_voltage": {
+          "type": "number",
+          "unit": "V",
+          "default": -1.0,
+          "description": "起始电压"
+        },
+        "end_voltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 1.0,
+          "description": "结束电压"
+        },
+        "scan_rate": {
+          "type": "number",
+          "unit": "mV/s",
+          "default": 10,
+          "description": "扫描速率"
+        }
+      },
+      "keywords": ["LSV", "线性扫描", "伏安", "linear", "sweep", "voltammetry"]
+    },
+    "ocv": {
+      "type": "ocv",
+      "name": "开路电压",
+      "category": "electrochemical", 
+      "description": "测量开路电压",
+      "params": {
+        "duration": {
+          "type": "number",
+          "unit": "seconds",
+          "default": 60,
+          "description": "测量时间"
+        },
+        "sampling_rate": {
+          "type": "number",
+          "unit": "Hz",
+          "default": 1,
+          "description": "采样频率"
+        }
+      },
+      "keywords": ["OCV", "开路电压", "电位", "open", "circuit", "voltage"]
+    },
+    "stir": {
+      "type": "stir", 
+      "name": "搅拌",
+      "category": "mixing",
+      "description": "搅拌溶液以确保混合均匀",
+      "params": {
+        "speed": {
+          "type": "number",
+          "unit": "rpm",
+          "default": 300,
+          "min": 50,
+          "max": 2000,
+          "description": "搅拌速度"
+        },
+        "duration": {
+          "type": "number",
+          "unit": "seconds",
+          "default": 60,
+          "description": "搅拌时间"
+        }
+      },
+      "keywords": ["搅拌", "混合", "stir", "mix", "agitate"]
+    },
+    "wait": {
+      "type": "wait",
+      "name": "等待",
+      "category": "timing",
+      "description": "等待指定时间",
+      "params": {
+        "duration": {
+          "type": "number",
+          "unit": "seconds", 
+          "default": 60,
+          "min": 1,
+          "description": "等待时间"
+        },
+        "message": {
+          "type": "string",
+          "default": "等待中...",
+          "description": "等待时显示的消息"
+        }
+      },
+      "keywords": ["等待", "暂停", "wait", "pause", "delay"]
+    },
+    "transfer": {
+      "type": "transfer",
+      "name": "样品转移",
+      "category": "liquid_handling",
+      "description": "将样品从一个容器转移到另一个容器",
+      "params": {
+        "volume": {
+          "type": "number",
+          "unit": "ml",
+          "default": 1,
+          "description": "转移体积"
+        },
+        "source": {
+          "type": "string",
+          "default": "source_container",
+          "description": "源容器"
+        },
+        "destination": {
+          "type": "string", 
+          "default": "dest_container",
+          "description": "目标容器"
+        },
+        "speed": {
+          "type": "number",
+          "unit": "ml/min",
+          "default": 2,
+          "description": "转移速率"
+        }
+      },
+      "keywords": ["转移", "移液", "取样", "transfer", "pipette", "move"]
+    },
+    "wash": {
+      "type": "wash",
+      "name": "清洗",
+      "category": "cleaning",
+      "description": "清洗设备或容器",
+      "params": {
+        "solvent": {
+          "type": "string",
+          "default": "DI_water",
+          "description": "清洗溶剂"
+        },
+        "volume": {
+          "type": "number",
+          "unit": "ml",
+          "default": 10,
+          "description": "清洗液体积"
+        },
+        "cycles": {
+          "type": "number",
+          "default": 3,
+          "description": "清洗次数"
+        }
+      },
+      "keywords": ["清洗", "洗涤", "冲洗", "wash", "rinse", "clean"]
+    }
+  },
+  "categories": {
+    "liquid_handling": "液体处理",
+    "temperature_control": "温度控制", 
+    "electrochemical": "电化学测试",
+    "mixing": "混合搅拌",
+    "timing": "时间控制",
+    "cleaning": "清洗",
+    "measurement": "测量分析"
+  }
+}
