@@ -1448,8 +1448,8 @@ export const operationNodes: OperationNode[] = [
   },
 
   {
-    type: 'massSpectrometer',
-    label: 'Mass Spectrometer',
+    type: 'hrMassSpectrometer',
+    label: 'HR Mass Spectrometer',
     description: 'High Resolution Mass Analysis',
     category: 'Analysis & Measurement' as const,
     inputs: [

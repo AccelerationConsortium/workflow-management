@@ -1,0 +1,56 @@
+{
+  "experiment_id": "{{ experiment_id }}",
+  "status": "{{ status }}",
+  "timestamp": "{{ timestamp }}",
+  "summary": "{{ summary }}",
+  "level": "{{ level }}",
+  "metadata": {
+    "template_id": "{{ template_id }}",
+    "started_by": "{{ started_by }}",
+    "progress": {{ progress }},
+    "current_step": "{{ current_step }}",
+    "total_steps": {{ total_steps }},
+    "duration": "{{ duration }}",
+    {% if error_message %}
+    "error_message": "{{ error_message }}",
+    {% endif %}
+    {% if results %}
+    "results": {{ results | tojson }},
+    {% endif %}
+    "canvas_url": "{{ canvas_base_url }}/experiment/{{ experiment_id }}"
+  },
+  "actions": [
+    {% if status == "failed" or status == "error" %}
+    {
+      "label": "View Error Details",
+      "url": "{{ canvas_base_url }}/experiment/{{ experiment_id }}/errors"
+    },
+    {
+      "label": "Restart Experiment", 
+      "webhook": "{{ n8n_base_url }}/trigger-experiment",
+      "payload": {
+        "template_id": "{{ template_id }}",
+        "parameters": {{ parameters | tojson }},
+        "triggered_by": "n8n_restart"
+      }
+    }
+    {% elif status == "paused" %}
+    {
+      "label": "Resume Experiment",
+      "webhook": "{{ canvas_base_url }}/api/v1/n8n/resume-experiment",
+      "payload": {
+        "experiment_id": "{{ experiment_id }}"
+      }
+    }
+    {% elif status == "completed" %}
+    {
+      "label": "View Results",
+      "url": "{{ canvas_base_url }}/experiment/{{ experiment_id }}/results"
+    },
+    {
+      "label": "Download Report",
+      "url": "{{ canvas_base_url }}/experiment/{{ experiment_id }}/report/download"
+    }
+    {% endif %}
+  ]
+}
