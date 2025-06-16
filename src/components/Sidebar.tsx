@@ -1,8 +1,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useDnD } from '../context/DnDContext';
 import { operationNodes, OperationNode } from '../data/operationNodes';
-import { SearchPanel } from './SearchPanel';
+import { EnhancedSearchPanel } from './EnhancedSearchPanel';
+import '../components/EnhancedSearchPanel.css';
 import './Sidebar.css';
+import { nlpCanvasIntegration } from '../services/nlpCanvasIntegration';
 import { Box, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -14,6 +16,7 @@ import {
 } from '@mui/icons-material';
 import { customUOService, CustomUONode } from '../services/customUOService';
 import { DeleteConfirmationDialog } from './UOManagement';
+import { useReactFlow } from 'reactflow';
 
 interface CategoryGroupProps {
   title: string;
@@ -91,6 +94,7 @@ const Sidebar: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearchPanelOpen, setIsSearchPanelOpen] = useState(false);
   const [customUOs, setCustomUOs] = useState<CustomUONode[]>([]);
+  const { setNodes, setEdges } = useReactFlow();
 
   // Context menu state
   const [contextMenu, setContextMenu] = useState<{
@@ -131,6 +135,33 @@ const Sidebar: React.FC = () => {
 
   const handleNodeSelect = (nodeType: string) => {
     console.log('Selected node:', nodeType);
+  };
+
+  // Handle AI-generated workflow
+  const handleWorkflowGenerated = (workflowJson: any) => {
+    try {
+      console.log('AI-generated workflow received:', workflowJson);
+      
+      // Use the nlpCanvasIntegration service to load workflow to Canvas
+      const success = nlpCanvasIntegration.loadWorkflowToCanvas(
+        workflowJson, 
+        setNodes, 
+        setEdges,
+        operationNodes
+      );
+      
+      if (success) {
+        console.log('Workflow loaded successfully to Canvas');
+        // Show success notification
+        alert('Workflow generated and loaded successfully! Check the Canvas.');
+      } else {
+        throw new Error('Failed to load workflow to Canvas');
+      }
+      
+    } catch (error) {
+      console.error('Error loading generated workflow:', error);
+      alert(`Error loading generated workflow: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   };
 
   const groupedNodes = useMemo(() => {
@@ -257,7 +288,7 @@ const Sidebar: React.FC = () => {
       <div className="sidebar-header">
         <h3>Laboratory Automation Components</h3>
         <div className="search-shortcut-hint">
-          Press <kbd>{navigator.platform.includes('Mac') ? <CmdIcon fontSize="small" /> : <CtrlIcon fontSize="small" />}</kbd> + <kbd>P</kbd> for advanced search
+          Press <kbd>{navigator.platform.includes('Mac') ? <CmdIcon fontSize="small" /> : <CtrlIcon fontSize="small" />}</kbd> + <kbd>P</kbd> for advanced search & AI workflow generation
         </div>
         <div className="search-box">
           <SearchIcon sx={{ color: 'rgba(255, 255, 255, 0.7)' }} />
@@ -283,10 +314,11 @@ const Sidebar: React.FC = () => {
         ))}
       </div>
 
-      <SearchPanel
+      <EnhancedSearchPanel
         isOpen={isSearchPanelOpen}
         onClose={() => setIsSearchPanelOpen(false)}
         onSelect={handleNodeSelect}
+        onWorkflowGenerated={handleWorkflowGenerated}
       />
 
       {/* Context Menu */}

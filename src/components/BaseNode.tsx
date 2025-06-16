@@ -227,11 +227,15 @@ export const BaseNode: React.FC<BaseNodeProps> = ({ data, category, state }) => 
 
   useEffect(() => {
     // 初始化参数值
-    const initialValues = data.parameters.reduce((acc, param) => ({
-      ...acc,
-      [param.name]: param.default
-    }), {});
-    setParamValues(initialValues);
+    if (data.parameters && Array.isArray(data.parameters)) {
+      const initialValues = data.parameters.reduce((acc, param) => ({
+        ...acc,
+        [param.name]: param.default
+      }), {});
+      setParamValues(initialValues);
+    } else {
+      setParamValues({});
+    }
   }, [data.parameters]);
 
   // 处理参数值变化
@@ -239,7 +243,7 @@ export const BaseNode: React.FC<BaseNodeProps> = ({ data, category, state }) => 
     const newValues = { ...paramValues, [paramName]: value };
     setParamValues(newValues);
     
-    if (data.onDataChange) {
+    if (data.onDataChange && data.parameters && Array.isArray(data.parameters)) {
       const updatedData = {
         ...data,
         parameters: data.parameters.map(param => 
@@ -314,7 +318,7 @@ export const BaseNode: React.FC<BaseNodeProps> = ({ data, category, state }) => 
       </div>
 
       <div className="node-content">
-        {selectedTab === 'parameters' && data.parameters && (
+        {selectedTab === 'parameters' && data.parameters && Array.isArray(data.parameters) && data.parameters.length > 0 ? (
           <div className="parameters-list">
             {data.parameters.map((param, index) => (
               <div key={index} className="parameter-item">
@@ -330,6 +334,8 @@ export const BaseNode: React.FC<BaseNodeProps> = ({ data, category, state }) => 
               </div>
             ))}
           </div>
+        ) : selectedTab === 'parameters' && (
+          <div className="no-parameters">No parameters available</div>
         )}
 
         {selectedTab === 'io' && (
