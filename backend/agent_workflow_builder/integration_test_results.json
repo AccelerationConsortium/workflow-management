@@ -1,0 +1,594 @@
+{
+  "summary": {
+    "integration_test": true,
+    "input_text": "Add 15ml HCl solution, heat to 75\u00b0C for 10 minutes, then perform CV test",
+    "operations_generated": 3,
+    "schemas_created": 3,
+    "canvas_workflow": {
+      "nodes": 5,
+      "edges": 4,
+      "estimated_duration": 220,
+      "required_devices": [
+        "heater",
+        "pump",
+        "liquid_handler",
+        "electrodes",
+        "potentiostat",
+        "temperature_controller"
+      ]
+    },
+    "execution_configs": [
+      {
+        "executor": "python_executor",
+        "function": "add_liquid",
+        "parameters": {
+          "volume": 15.0,
+          "chemical": "15ml",
+          "speed": 5,
+          "container": "reaction_vessel"
+        },
+        "operation_id": "step_1",
+        "operation_type": "add_liquid"
+      },
+      {
+        "executor": "python_executor",
+        "function": "heat",
+        "parameters": {
+          "temperature": 75.0,
+          "duration": 10.0,
+          "ramp_rate": 5
+        },
+        "operation_id": "step_2",
+        "operation_type": "heat"
+      },
+      {
+        "executor": "sdl_catalyst_executor",
+        "function": "cv",
+        "parameters": {
+          "start_voltage": -1.0,
+          "end_voltage": 1.0,
+          "scan_rate": 50,
+          "cycles": 3
+        },
+        "operation_id": "step_3",
+        "operation_type": "cv"
+      }
+    ],
+    "compatibility_checks": {
+      "node_structure": "\u2705 Pass",
+      "parameter_format": "\u2705 Pass",
+      "workflow_structure": "\u2705 Pass",
+      "execution_mapping": "\u2705 Pass"
+    }
+  },
+  "generated_schemas": [
+    {
+      "id": "step_1",
+      "name": "Add Liquid",
+      "description": "Add liquid to container",
+      "category": "liquid_handling",
+      "parameters": [
+        {
+          "id": "add_liquid_volume",
+          "name": "volume",
+          "type": "number",
+          "required": true,
+          "defaultValue": 15.0,
+          "description": "Volume parameter",
+          "validation": {
+            "min": 0,
+            "max": 1000
+          }
+        },
+        {
+          "id": "add_liquid_chemical",
+          "name": "chemical",
+          "type": "string",
+          "required": true,
+          "defaultValue": "15ml",
+          "description": "Chemical parameter",
+          "validation": {
+            "pattern": ".*"
+          }
+        },
+        {
+          "id": "add_liquid_speed",
+          "name": "speed",
+          "type": "number",
+          "required": true,
+          "defaultValue": 5,
+          "description": "Speed parameter",
+          "validation": {
+            "min": 0,
+            "max": 10000
+          }
+        },
+        {
+          "id": "add_liquid_container",
+          "name": "container",
+          "type": "string",
+          "required": true,
+          "defaultValue": "reaction_vessel",
+          "description": "Container parameter",
+          "validation": {
+            "pattern": ".*"
+          }
+        }
+      ],
+      "createdAt": "2025-06-12T10:34:54.553247",
+      "version": "1.0.0"
+    },
+    {
+      "id": "step_2",
+      "name": "Heat Sample",
+      "description": "Heat sample to target temperature",
+      "category": "temperature_control",
+      "parameters": [
+        {
+          "id": "heat_temperature",
+          "name": "temperature",
+          "type": "number",
+          "required": true,
+          "defaultValue": 75.0,
+          "description": "Temperature parameter",
+          "validation": {
+            "min": -273.15,
+            "max": 500
+          }
+        },
+        {
+          "id": "heat_duration",
+          "name": "duration",
+          "type": "number",
+          "required": true,
+          "defaultValue": 10.0,
+          "description": "Duration parameter",
+          "validation": {
+            "min": 0,
+            "max": 86400
+          }
+        },
+        {
+          "id": "heat_ramp_rate",
+          "name": "ramp_rate",
+          "type": "number",
+          "required": true,
+          "defaultValue": 5,
+          "description": "Ramp Rate parameter",
+          "validation": {
+            "min": 0,
+            "max": 10000
+          }
+        }
+      ],
+      "createdAt": "2025-06-12T10:34:54.553265",
+      "version": "1.0.0"
+    },
+    {
+      "id": "step_3",
+      "name": "Cyclic Voltammetry",
+      "description": "Perform cyclic voltammetry test",
+      "category": "electrochemical",
+      "parameters": [
+        {
+          "id": "cv_start_voltage",
+          "name": "start_voltage",
+          "type": "number",
+          "required": true,
+          "defaultValue": -1.0,
+          "description": "Start Voltage parameter",
+          "validation": {
+            "min": -10,
+            "max": 10
+          }
+        },
+        {
+          "id": "cv_end_voltage",
+          "name": "end_voltage",
+          "type": "number",
+          "required": true,
+          "defaultValue": 1.0,
+          "description": "End Voltage parameter",
+          "validation": {
+            "min": -10,
+            "max": 10
+          }
+        },
+        {
+          "id": "cv_scan_rate",
+          "name": "scan_rate",
+          "type": "number",
+          "required": true,
+          "defaultValue": 50,
+          "description": "Scan Rate parameter",
+          "validation": {
+            "min": 0,
+            "max": 10000
+          }
+        },
+        {
+          "id": "cv_cycles",
+          "name": "cycles",
+          "type": "number",
+          "required": true,
+          "defaultValue": 3,
+          "description": "Cycles parameter",
+          "validation": {
+            "min": 0,
+            "max": 1000
+          }
+        }
+      ],
+      "createdAt": "2025-06-12T10:34:54.553278",
+      "version": "1.0.0"
+    }
+  ],
+  "canvas_workflow": {
+    "metadata": {
+      "id": "413eb393-e501-416f-ad5a-b8dd1646d5b3",
+      "name": "Integration Test Workflow",
+      "description": "Testing integration with existing system",
+      "created_at": "2025-06-12T10:34:54.553285",
+      "created_by": "AI Agent",
+      "version": "1.0.0",
+      "tags": [
+        "AI Generated",
+        "Natural Language"
+      ],
+      "integration_test": true
+    },
+    "workflow": {
+      "nodes": [
+        {
+          "id": "start",
+          "type": "start",
+          "position": {
+            "x": 100,
+            "y": 100
+          },
+          "data": {
+            "label": "Start",
+            "description": "Workflow start",
+            "nodeType": "start"
+          },
+          "style": {
+            "backgroundColor": "#4CAF50",
+            "color": "white",
+            "border": "2px solid #2E7D32"
+          }
+        },
+        {
+          "id": "step_1",
+          "type": "operationNode",
+          "position": {
+            "x": 100,
+            "y": 250
+          },
+          "data": {
+            "label": "Add Liquid",
+            "description": "Add liquid to container",
+            "nodeType": "add_liquid",
+            "category": "liquid_handling",
+            "parameters": [
+              {
+                "id": "param_volume",
+                "name": "volume",
+                "label": "Volume",
+                "type": "number",
+                "value": 15.0,
+                "required": true,
+                "description": "Volume parameter",
+                "min": 0,
+                "max": 1000
+              },
+              {
+                "id": "param_chemical",
+                "name": "chemical",
+                "label": "Chemical",
+                "type": "string",
+                "value": "15ml",
+                "required": true,
+                "description": "Chemical parameter"
+              },
+              {
+                "id": "param_speed",
+                "name": "speed",
+                "label": "Speed",
+                "type": "number",
+                "value": 5,
+                "required": true,
+                "description": "Speed parameter",
+                "min": 0,
+                "max": 10000
+              },
+              {
+                "id": "param_container",
+                "name": "container",
+                "label": "Container",
+                "type": "string",
+                "value": "reaction_vessel",
+                "required": true,
+                "description": "Container parameter"
+              }
+            ],
+            "step_number": 1,
+            "runStatus": "idle"
+          },
+          "style": {
+            "backgroundColor": "#2196F3",
+            "color": "white",
+            "border": "2px solid #1976D2"
+          }
+        },
+        {
+          "id": "step_2",
+          "type": "operationNode",
+          "position": {
+            "x": 100,
+            "y": 400
+          },
+          "data": {
+            "label": "Heat Sample",
+            "description": "Heat sample to target temperature",
+            "nodeType": "heat",
+            "category": "temperature_control",
+            "parameters": [
+              {
+                "id": "param_temperature",
+                "name": "temperature",
+                "label": "Temperature",
+                "type": "number",
+                "value": 75.0,
+                "required": true,
+                "description": "Temperature parameter",
+                "min": -273.15,
+                "max": 500
+              },
+              {
+                "id": "param_duration",
+                "name": "duration",
+                "label": "Duration",
+                "type": "number",
+                "value": 10.0,
+                "required": true,
+                "description": "Duration parameter",
+                "min": 0,
+                "max": 86400
+              },
+              {
+                "id": "param_ramp_rate",
+                "name": "ramp_rate",
+                "label": "Ramp Rate",
+                "type": "number",
+                "value": 5,
+                "required": true,
+                "description": "Ramp Rate parameter",
+                "min": 0,
+                "max": 10000
+              }
+            ],
+            "step_number": 2,
+            "runStatus": "idle"
+          },
+          "style": {
+            "backgroundColor": "#FF9800",
+            "color": "white",
+            "border": "2px solid #F57C00"
+          }
+        },
+        {
+          "id": "step_3",
+          "type": "operationNode",
+          "position": {
+            "x": 100,
+            "y": 550
+          },
+          "data": {
+            "label": "Cyclic Voltammetry",
+            "description": "Perform cyclic voltammetry test",
+            "nodeType": "cv",
+            "category": "electrochemical",
+            "parameters": [
+              {
+                "id": "param_start_voltage",
+                "name": "start_voltage",
+                "label": "Start Voltage",
+                "type": "number",
+                "value": -1.0,
+                "required": true,
+                "description": "Start Voltage parameter",
+                "min": -10,
+                "max": 10
+              },
+              {
+                "id": "param_end_voltage",
+                "name": "end_voltage",
+                "label": "End Voltage",
+                "type": "number",
+                "value": 1.0,
+                "required": true,
+                "description": "End Voltage parameter",
+                "min": -10,
+                "max": 10
+              },
+              {
+                "id": "param_scan_rate",
+                "name": "scan_rate",
+                "label": "Scan Rate",
+                "type": "number",
+                "value": 50,
+                "required": true,
+                "description": "Scan Rate parameter",
+                "min": 0,
+                "max": 10000
+              },
+              {
+                "id": "param_cycles",
+                "name": "cycles",
+                "label": "Cycles",
+                "type": "number",
+                "value": 3,
+                "required": true,
+                "description": "Cycles parameter",
+                "min": 0,
+                "max": 1000
+              }
+            ],
+            "step_number": 3,
+            "runStatus": "idle"
+          },
+          "style": {
+            "backgroundColor": "#9C27B0",
+            "color": "white",
+            "border": "2px solid #7B1FA2"
+          }
+        },
+        {
+          "id": "end",
+          "type": "end",
+          "position": {
+            "x": 100,
+            "y": 700
+          },
+          "data": {
+            "label": "End",
+            "description": "Workflow end",
+            "nodeType": "end"
+          },
+          "style": {
+            "backgroundColor": "#F44336",
+            "color": "white",
+            "border": "2px solid #C62828"
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "edge_start_to_step_1",
+          "source": "start",
+          "target": "step_1",
+          "type": "smoothstep",
+          "animated": false,
+          "style": {
+            "stroke": "#666",
+            "strokeWidth": 2
+          },
+          "label": "Step 1",
+          "data": {
+            "type": "sequential"
+          }
+        },
+        {
+          "id": "edge_step_1_to_step_2",
+          "source": "step_1",
+          "target": "step_2",
+          "type": "smoothstep",
+          "animated": false,
+          "style": {
+            "stroke": "#666",
+            "strokeWidth": 2
+          },
+          "label": "Step 2",
+          "data": {
+            "type": "sequential"
+          }
+        },
+        {
+          "id": "edge_step_2_to_step_3",
+          "source": "step_2",
+          "target": "step_3",
+          "type": "smoothstep",
+          "animated": false,
+          "style": {
+            "stroke": "#666",
+            "strokeWidth": 2
+          },
+          "label": "Step 3",
+          "data": {
+            "type": "sequential"
+          }
+        },
+        {
+          "id": "edge_step_3_to_end",
+          "source": "step_3",
+          "target": "end",
+          "type": "smoothstep",
+          "animated": false,
+          "style": {
+            "stroke": "#666",
+            "strokeWidth": 2
+          },
+          "data": {
+            "type": "sequential"
+          }
+        }
+      ],
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+      }
+    },
+    "execution": {
+      "status": "draft",
+      "total_steps": 3,
+      "estimated_duration": 220,
+      "required_devices": [
+        "heater",
+        "pump",
+        "liquid_handler",
+        "electrodes",
+        "potentiostat",
+        "temperature_controller"
+      ],
+      "execution_order": [
+        "step_1",
+        "step_2",
+        "step_3"
+      ]
+    },
+    "validation": {
+      "is_valid": true,
+      "errors": [],
+      "warnings": [],
+      "last_validated": "2025-06-12T10:34:54.553285"
+    }
+  },
+  "execution_configs": [
+    {
+      "executor": "python_executor",
+      "function": "add_liquid",
+      "parameters": {
+        "volume": 15.0,
+        "chemical": "15ml",
+        "speed": 5,
+        "container": "reaction_vessel"
+      },
+      "operation_id": "step_1",
+      "operation_type": "add_liquid"
+    },
+    {
+      "executor": "python_executor",
+      "function": "heat",
+      "parameters": {
+        "temperature": 75.0,
+        "duration": 10.0,
+        "ramp_rate": 5
+      },
+      "operation_id": "step_2",
+      "operation_type": "heat"
+    },
+    {
+      "executor": "sdl_catalyst_executor",
+      "function": "cv",
+      "parameters": {
+        "start_voltage": -1.0,
+        "end_voltage": 1.0,
+        "scan_rate": 50,
+        "cycles": 3
+      },
+      "operation_id": "step_3",
+      "operation_type": "cv"
+    }
+  ]
+}

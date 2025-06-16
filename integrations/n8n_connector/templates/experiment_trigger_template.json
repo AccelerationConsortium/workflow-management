@@ -1,0 +1,103 @@
+{
+  "template_examples": {
+    "catalyst_test_basic": {
+      "template_id": "catalyst_test_basic",
+      "parameters": {
+        "temperature": 80,
+        "duration": 300,
+        "scan_rate": 50,
+        "cycles": 3,
+        "electrolyte": "0.1M KOH"
+      },
+      "triggered_by": "slack_user:@researcher",
+      "priority": "normal",
+      "metadata": {
+        "project": "catalyst_screening",
+        "batch": "batch_001"
+      }
+    },
+    "cv_characterization": {
+      "template_id": "cv_characterization", 
+      "parameters": {
+        "start_voltage": -1.0,
+        "end_voltage": 1.0,
+        "scan_rate": 100,
+        "cycles": 5,
+        "sample_id": "CAT_001"
+      },
+      "triggered_by": "webhook:automated_scheduler",
+      "priority": "high",
+      "callback_url": "https://n8n.mylab.io/webhook/experiment-completed"
+    },
+    "automated_synthesis": {
+      "template_id": "automated_synthesis",
+      "parameters": {
+        "precursor_a_volume": 10.0,
+        "precursor_b_volume": 5.0,
+        "reaction_temperature": 150,
+        "reaction_time": 7200,
+        "stirring_speed": 300
+      },
+      "triggered_by": "cron:daily_synthesis",
+      "priority": "normal",
+      "metadata": {
+        "target_compound": "MOF_ZIF8",
+        "expected_yield": "85%"
+      }
+    }
+  },
+  "parameter_schemas": {
+    "temperature": {
+      "type": "number",
+      "min": 20,
+      "max": 200,
+      "unit": "°C",
+      "description": "Reaction temperature"
+    },
+    "duration": {
+      "type": "number", 
+      "min": 1,
+      "max": 86400,
+      "unit": "seconds",
+      "description": "Experiment duration"
+    },
+    "scan_rate": {
+      "type": "number",
+      "min": 1,
+      "max": 1000,
+      "unit": "mV/s",
+      "description": "Electrochemical scan rate"
+    },
+    "cycles": {
+      "type": "integer",
+      "min": 1,
+      "max": 100,
+      "description": "Number of measurement cycles"
+    },
+    "volume": {
+      "type": "number",
+      "min": 0.1,
+      "max": 100.0,
+      "unit": "mL",
+      "description": "Liquid volume"
+    }
+  },
+  "trigger_sources": {
+    "slack": {
+      "format": "slack_user:@username",
+      "example": "slack_user:@alice"
+    },
+    "webhook": {
+      "format": "webhook:source_name",
+      "example": "webhook:lims_integration"
+    },
+    "cron": {
+      "format": "cron:schedule_name",
+      "example": "cron:daily_maintenance"
+    },
+    "manual": {
+      "format": "manual:username",
+      "example": "manual:lab_manager"
+    }
+  }
+}

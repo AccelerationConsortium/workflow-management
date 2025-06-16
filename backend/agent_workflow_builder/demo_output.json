@@ -1,0 +1,476 @@
+{
+  "input": "First add 10ml of 0.1M NaOH solution to the reaction container,\n    then stir at 300 rpm for 5 minutes to ensure uniform mixing,\n    next heat the solution to 80°C and maintain for 10 minutes,\n    finally perform cyclic voltammetry test with scan rate 50mV/s for 3 cycles.",
+  "operations": [
+    {
+      "id": "step_1",
+      "type": "add_liquid",
+      "name": "Add Liquid",
+      "params": {
+        "volume": 10.0,
+        "chemical": "10ml",
+        "speed": 5,
+        "container": "reaction_vessel"
+      },
+      "description": "Add liquid to container"
+    },
+    {
+      "id": "step_2",
+      "type": "heat",
+      "name": "Heat Sample",
+      "params": {
+        "temperature": 80.0,
+        "duration": 5.0,
+        "ramp_rate": 5
+      },
+      "description": "Heat sample to target temperature"
+    },
+    {
+      "id": "step_3",
+      "type": "cv",
+      "name": "Cyclic Voltammetry",
+      "params": {
+        "start_voltage": -1.0,
+        "end_voltage": 1.0,
+        "scan_rate": 50.0,
+        "cycles": 3
+      },
+      "description": "Perform cyclic voltammetry test"
+    },
+    {
+      "id": "step_4",
+      "type": "stir",
+      "name": "Stir Solution",
+      "params": {
+        "speed": 300,
+        "duration": 5.0
+      },
+      "description": "Stir solution for mixing"
+    }
+  ],
+  "suggestions": [
+    {
+      "id": "suggested_equilibrate",
+      "type": "wait",
+      "name": "Suggestion: Equilibration wait",
+      "params": {
+        "duration": 120,
+        "message": "Electrode equilibrating..."
+      },
+      "description": "Suggest waiting for electrode equilibration before electrochemical test",
+      "suggestion": true
+    }
+  ],
+  "workflow_json": {
+    "metadata": {
+      "id": "20230595-d246-4971-8f6c-582689ce670c",
+      "name": "NaOH Solution Processing and Electrochemical Test Workflow",
+      "description": "Complete solution processing and analysis workflow",
+      "created_at": "2025-06-12T10:33:49.198498",
+      "created_by": "AI Agent",
+      "version": "1.0.0",
+      "tags": [
+        "AI Generated",
+        "Automated"
+      ],
+      "demo": true
+    },
+    "workflow": {
+      "nodes": [
+        {
+          "id": "start",
+          "type": "start",
+          "position": {
+            "x": 100,
+            "y": 100
+          },
+          "data": {
+            "label": "Start",
+            "description": "Workflow start",
+            "nodeType": "start"
+          },
+          "style": {
+            "backgroundColor": "#4CAF50",
+            "color": "white",
+            "border": "2px solid #2E7D32"
+          }
+        },
+        {
+          "id": "step_1",
+          "type": "operationNode",
+          "position": {
+            "x": 100,
+            "y": 250
+          },
+          "data": {
+            "label": "Add Liquid",
+            "description": "Add liquid to container",
+            "nodeType": "add_liquid",
+            "category": "liquid_handling",
+            "parameters": {
+              "volume": 10.0,
+              "chemical": "10ml",
+              "speed": 5,
+              "container": "reaction_vessel"
+            },
+            "template": {
+              "type": "add_liquid",
+              "name": "液体添加",
+              "category": "liquid_handling",
+              "description": "向容器中添加指定体积的液体",
+              "params": {
+                "volume": {
+                  "type": "number",
+                  "unit": "ml",
+                  "default": 10,
+                  "min": 0.1,
+                  "max": 1000,
+                  "description": "添加液体的体积"
+                },
+                "chemical": {
+                  "type": "string",
+                  "default": "H2O",
+                  "description": "化学试剂名称"
+                },
+                "speed": {
+                  "type": "number",
+                  "unit": "ml/min",
+                  "default": 5,
+                  "description": "添加速率"
+                },
+                "container": {
+                  "type": "string",
+                  "default": "reaction_vessel",
+                  "description": "目标容器"
+                }
+              },
+              "keywords": [
+                "加液",
+                "添加",
+                "液体",
+                "溶液",
+                "试剂",
+                "add",
+                "liquid",
+                "solution"
+              ]
+            },
+            "step_number": 1
+          },
+          "style": {
+            "backgroundColor": "#2196F3",
+            "color": "white",
+            "border": "2px solid #1976D2"
+          }
+        },
+        {
+          "id": "step_2",
+          "type": "operationNode",
+          "position": {
+            "x": 100,
+            "y": 400
+          },
+          "data": {
+            "label": "Heat Sample",
+            "description": "Heat sample to target temperature",
+            "nodeType": "heat",
+            "category": "temperature_control",
+            "parameters": {
+              "temperature": 80.0,
+              "duration": 5.0,
+              "ramp_rate": 5
+            },
+            "template": {
+              "type": "heat",
+              "name": "加热控制",
+              "category": "temperature_control",
+              "description": "将样品加热到指定温度并保持一定时间",
+              "params": {
+                "temperature": {
+                  "type": "number",
+                  "unit": "°C",
+                  "default": 25,
+                  "min": 0,
+                  "max": 200,
+                  "description": "目标温度"
+                },
+                "duration": {
+                  "type": "number",
+                  "unit": "seconds",
+                  "default": 300,
+                  "min": 1,
+                  "max": 86400,
+                  "description": "保持时间"
+                },
+                "ramp_rate": {
+                  "type": "number",
+                  "unit": "°C/min",
+                  "default": 5,
+                  "description": "升温速率"
+                }
+              },
+              "keywords": [
+                "加热",
+                "升温",
+                "保温",
+                "heat",
+                "temperature",
+                "warm"
+              ]
+            },
+            "step_number": 2
+          },
+          "style": {
+            "backgroundColor": "#FF9800",
+            "color": "white",
+            "border": "2px solid #F57C00"
+          }
+        },
+        {
+          "id": "step_3",
+          "type": "operationNode",
+          "position": {
+            "x": 100,
+            "y": 550
+          },
+          "data": {
+            "label": "Cyclic Voltammetry",
+            "description": "Perform cyclic voltammetry test",
+            "nodeType": "cv",
+            "category": "electrochemical",
+            "parameters": {
+              "start_voltage": -1.0,
+              "end_voltage": 1.0,
+              "scan_rate": 50.0,
+              "cycles": 3
+            },
+            "template": {
+              "type": "cv",
+              "name": "循环伏安法",
+              "category": "electrochemical",
+              "description": "进行循环伏安测试",
+              "params": {
+                "start_voltage": {
+                  "type": "number",
+                  "unit": "V",
+                  "default": -1.0,
+                  "description": "起始电压"
+                },
+                "end_voltage": {
+                  "type": "number",
+                  "unit": "V",
+                  "default": 1.0,
+                  "description": "结束电压"
+                },
+                "scan_rate": {
+                  "type": "number",
+                  "unit": "mV/s",
+                  "default": 50,
+                  "description": "扫描速率"
+                },
+                "cycles": {
+                  "type": "number",
+                  "default": 3,
+                  "min": 1,
+                  "max": 100,
+                  "description": "循环次数"
+                }
+              },
+              "keywords": [
+                "CV",
+                "循环伏安",
+                "电化学",
+                "扫描",
+                "cyclic",
+                "voltammetry"
+              ]
+            },
+            "step_number": 3
+          },
+          "style": {
+            "backgroundColor": "#9C27B0",
+            "color": "white",
+            "border": "2px solid #7B1FA2"
+          }
+        },
+        {
+          "id": "step_4",
+          "type": "operationNode",
+          "position": {
+            "x": 100,
+            "y": 700
+          },
+          "data": {
+            "label": "Stir Solution",
+            "description": "Stir solution for mixing",
+            "nodeType": "stir",
+            "category": "mixing",
+            "parameters": {
+              "speed": 300,
+              "duration": 5.0
+            },
+            "template": {
+              "type": "stir",
+              "name": "搅拌",
+              "category": "mixing",
+              "description": "搅拌溶液以确保混合均匀",
+              "params": {
+                "speed": {
+                  "type": "number",
+                  "unit": "rpm",
+                  "default": 300,
+                  "min": 50,
+                  "max": 2000,
+                  "description": "搅拌速度"
+                },
+                "duration": {
+                  "type": "number",
+                  "unit": "seconds",
+                  "default": 60,
+                  "description": "搅拌时间"
+                }
+              },
+              "keywords": [
+                "搅拌",
+                "混合",
+                "stir",
+                "mix",
+                "agitate"
+              ]
+            },
+            "step_number": 4
+          },
+          "style": {
+            "backgroundColor": "#00BCD4",
+            "color": "white",
+            "border": "2px solid #0097A7"
+          }
+        },
+        {
+          "id": "end",
+          "type": "end",
+          "position": {
+            "x": 100,
+            "y": 850
+          },
+          "data": {
+            "label": "End",
+            "description": "Workflow end",
+            "nodeType": "end"
+          },
+          "style": {
+            "backgroundColor": "#F44336",
+            "color": "white",
+            "border": "2px solid #C62828"
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "edge_start_to_step_1",
+          "source": "start",
+          "target": "step_1",
+          "type": "smoothstep",
+          "animated": false,
+          "style": {
+            "stroke": "#666",
+            "strokeWidth": 2
+          },
+          "label": "",
+          "labelStyle": {
+            "fontSize": "12px",
+            "color": "#666"
+          }
+        },
+        {
+          "id": "edge_step_1_to_step_2",
+          "source": "step_1",
+          "target": "step_2",
+          "type": "smoothstep",
+          "animated": false,
+          "style": {
+            "stroke": "#666",
+            "strokeWidth": 2
+          },
+          "label": "Step 1",
+          "labelStyle": {
+            "fontSize": "12px",
+            "color": "#666"
+          }
+        },
+        {
+          "id": "edge_step_2_to_step_3",
+          "source": "step_2",
+          "target": "step_3",
+          "type": "smoothstep",
+          "animated": false,
+          "style": {
+            "stroke": "#666",
+            "strokeWidth": 2
+          },
+          "label": "Step 2",
+          "labelStyle": {
+            "fontSize": "12px",
+            "color": "#666"
+          }
+        },
+        {
+          "id": "edge_step_3_to_step_4",
+          "source": "step_3",
+          "target": "step_4",
+          "type": "smoothstep",
+          "animated": false,
+          "style": {
+            "stroke": "#666",
+            "strokeWidth": 2
+          },
+          "label": "Step 3",
+          "labelStyle": {
+            "fontSize": "12px",
+            "color": "#666"
+          }
+        },
+        {
+          "id": "edge_step_4_to_end",
+          "source": "step_4",
+          "target": "end",
+          "type": "smoothstep",
+          "animated": false,
+          "style": {
+            "stroke": "#666",
+            "strokeWidth": 2
+          },
+          "label": "Step 4",
+          "labelStyle": {
+            "fontSize": "12px",
+            "color": "#666"
+          }
+        }
+      ],
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+      }
+    },
+    "execution": {
+      "status": "draft",
+      "total_steps": 4,
+      "estimated_duration": 220,
+      "required_devices": [
+        "pump",
+        "heater",
+        "temperature_controller",
+        "liquid_handler",
+        "electrodes",
+        "potentiostat",
+        "magnetic_stirrer"
+      ]
+    },
+    "validation": {
+      "is_valid": true,
+      "errors": [],
+      "warnings": [],
+      "last_validated": "2025-06-12T10:33:49.198498"
+    }
+  }
+}

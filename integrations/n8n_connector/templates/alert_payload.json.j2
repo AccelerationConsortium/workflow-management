@@ -1,0 +1,39 @@
+{
+  "experiment_id": "{{ experiment_id }}",
+  "alert_type": "{{ alert_type }}",
+  "message": "{{ message }}",
+  "level": "{{ level }}",
+  "timestamp": "{{ timestamp }}",
+  "requires_action": {{ requires_action | lower }},
+  {% if suggested_actions %}
+  "suggested_actions": {{ suggested_actions | tojson }},
+  {% endif %}
+  "metadata": {{ metadata | tojson }},
+  "actions": [
+    {
+      "label": "View Experiment",
+      "url": "{{ canvas_base_url }}/experiment/{{ experiment_id }}"
+    },
+    {% if requires_action %}
+    {
+      "label": "Pause Experiment",
+      "webhook": "{{ canvas_base_url }}/api/v1/n8n/pause-experiment",
+      "payload": {
+        "experiment_id": "{{ experiment_id }}",
+        "reason": "Human intervention required"
+      }
+    },
+    {
+      "label": "Continue Anyway",
+      "webhook": "{{ canvas_base_url }}/api/v1/n8n/inject-user-input", 
+      "payload": {
+        "experiment_id": "{{ experiment_id }}",
+        "user_input": {
+          "action": "continue",
+          "ignore_alert": "{{ alert_type }}"
+        }
+      }
+    }
+    {% endif %}
+  ]
+}
