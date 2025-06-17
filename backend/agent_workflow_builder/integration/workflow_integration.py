@@ -84,6 +84,42 @@ class WorkflowIntegration:
                 "description": "Wash equipment or container",
                 "executor": "python_executor",
                 "function": "wash"
+            },
+            "robot_move_to": {
+                "category": "robotic_control",
+                "description": "Move robotic arm to specified position",
+                "executor": "sdl_catalyst_executor",
+                "function": "robot_move_to"
+            },
+            "robot_pick": {
+                "category": "robotic_control",
+                "description": "Execute pick operation with robotic arm",
+                "executor": "sdl_catalyst_executor",
+                "function": "robot_pick"
+            },
+            "robot_place": {
+                "category": "robotic_control",
+                "description": "Execute place operation with robotic arm",
+                "executor": "sdl_catalyst_executor",
+                "function": "robot_place"
+            },
+            "robot_home": {
+                "category": "robotic_control",
+                "description": "Move robotic arm to home position",
+                "executor": "sdl_catalyst_executor",
+                "function": "robot_home"
+            },
+            "robot_execute_sequence": {
+                "category": "robotic_control",
+                "description": "Execute robot motion sequence/script",
+                "executor": "sdl_catalyst_executor",
+                "function": "robot_execute_sequence"
+            },
+            "robot_wait": {
+                "category": "robotic_control",
+                "description": "Robot wait/synchronization operation",
+                "executor": "sdl_catalyst_executor",
+                "function": "robot_wait"
             }
         }
     
@@ -389,6 +425,11 @@ class WorkflowIntegration:
                 "backgroundColor": "#4CAF50",
                 "color": "white",
                 "border": "2px solid #388E3C"
+            },
+            "robotic_control": {
+                "backgroundColor": "#E91E63",
+                "color": "white",
+                "border": "2px solid #C2185B"
             }
         }
         
@@ -422,7 +463,13 @@ class WorkflowIntegration:
                     "stir": 60,
                     "transfer": 30,
                     "wash": 60,
-                    "wait": 60
+                    "wait": 60,
+                    "robot_move_to": 10,
+                    "robot_pick": 8,
+                    "robot_place": 8,
+                    "robot_home": 15,
+                    "robot_execute_sequence": 30,
+                    "robot_wait": 5
                 }
                 total_duration += default_durations.get(operation_type, 60)
         
@@ -439,7 +486,13 @@ class WorkflowIntegration:
             "stir": ["magnetic_stirrer"],
             "transfer": ["pipette", "liquid_handler"],
             "wash": ["pump", "liquid_handler"],
-            "wait": []
+            "wait": [],
+            "robot_move_to": ["robotic_arm", "position_controller"],
+            "robot_pick": ["robotic_arm", "gripper", "sensor"],
+            "robot_place": ["robotic_arm", "gripper"],
+            "robot_home": ["robotic_arm", "position_controller"],
+            "robot_execute_sequence": ["robotic_arm", "motion_controller"],
+            "robot_wait": ["robotic_arm", "sync_controller"]
         }
         
         required_devices = set()

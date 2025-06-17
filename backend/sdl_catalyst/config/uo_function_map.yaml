@@ -160,4 +160,252 @@ PEIS:
       unit: V
       description: DC bias voltage
       min: 0
-      max: 5.0 
+      max: 5.0
+
+ROBOT_MOVE_TO:
+  function: run_robot_move_to
+  module: backend.sdl_catalyst.primitives.robotic_arm
+  description: Move robotic arm to specified position and orientation
+  parameters:
+    x:
+      type: number
+      unit: mm
+      description: X coordinate position
+      min: -1000
+      max: 1000
+    y:
+      type: number
+      unit: mm
+      description: Y coordinate position
+      min: -1000
+      max: 1000
+    z:
+      type: number
+      unit: mm
+      description: Z coordinate position
+      min: 0
+      max: 800
+    rx:
+      type: number
+      unit: deg
+      description: Rotation around X axis
+      min: -180
+      max: 180
+    ry:
+      type: number
+      unit: deg
+      description: Rotation around Y axis
+      min: -180
+      max: 180
+    rz:
+      type: number
+      unit: deg
+      description: Rotation around Z axis
+      min: -180
+      max: 180
+    speed:
+      type: number
+      unit: mm/s
+      description: Movement speed
+      min: 1
+      max: 500
+    robot_type:
+      type: string
+      unit: null
+      description: Type of robot
+      enum: ["UR3e", "Dobot", "Kinova", "Generic"]
+      default: "Generic"
+    motion_type:
+      type: string
+      unit: null
+      description: Type of motion path
+      enum: ["linear", "joint"]
+      default: "linear"
+
+ROBOT_PICK:
+  function: run_robot_pick
+  module: backend.sdl_catalyst.primitives.robotic_arm
+  description: Execute pick operation with robotic arm
+  parameters:
+    x:
+      type: number
+      unit: mm
+      description: X coordinate of pick location
+      min: -1000
+      max: 1000
+    y:
+      type: number
+      unit: mm
+      description: Y coordinate of pick location
+      min: -1000
+      max: 1000
+    z:
+      type: number
+      unit: mm
+      description: Z coordinate of pick location
+      min: 0
+      max: 800
+    approach_height:
+      type: number
+      unit: mm
+      description: Height to approach before picking
+      min: 0
+      max: 200
+      default: 50
+    grip_force:
+      type: number
+      unit: null
+      description: Gripping force (0.0-1.0)
+      min: 0.0
+      max: 1.0
+      default: 0.5
+    robot_type:
+      type: string
+      unit: null
+      description: Type of robot
+      enum: ["UR3e", "Dobot", "Kinova", "Generic"]
+      default: "Generic"
+    gripper_type:
+      type: string
+      unit: null
+      description: Type of gripper
+      enum: ["mechanical", "vacuum", "magnetic"]
+      default: "mechanical"
+
+ROBOT_PLACE:
+  function: run_robot_place
+  module: backend.sdl_catalyst.primitives.robotic_arm
+  description: Execute place operation with robotic arm
+  parameters:
+    x:
+      type: number
+      unit: mm
+      description: X coordinate of place location
+      min: -1000
+      max: 1000
+    y:
+      type: number
+      unit: mm
+      description: Y coordinate of place location
+      min: -1000
+      max: 1000
+    z:
+      type: number
+      unit: mm
+      description: Z coordinate of place location
+      min: 0
+      max: 800
+    approach_height:
+      type: number
+      unit: mm
+      description: Height to approach before placing
+      min: 0
+      max: 200
+      default: 50
+    release_delay:
+      type: number
+      unit: seconds
+      description: Delay before releasing grip
+      min: 0.0
+      max: 5.0
+      default: 0.5
+    robot_type:
+      type: string
+      unit: null
+      description: Type of robot
+      enum: ["UR3e", "Dobot", "Kinova", "Generic"]
+      default: "Generic"
+    gripper_type:
+      type: string
+      unit: null
+      description: Type of gripper
+      enum: ["mechanical", "vacuum", "magnetic"]
+      default: "mechanical"
+
+ROBOT_HOME:
+  function: run_robot_home
+  module: backend.sdl_catalyst.primitives.robotic_arm
+  description: Move robotic arm to home/origin position
+  parameters:
+    robot_type:
+      type: string
+      unit: null
+      description: Type of robot
+      enum: ["UR3e", "Dobot", "Kinova", "Generic"]
+      default: "Generic"
+    home_position_name:
+      type: string
+      unit: null
+      description: Name of home position
+      enum: ["default", "calibration", "maintenance"]
+      default: "default"
+    speed:
+      type: number
+      unit: mm/s
+      description: Movement speed to home position
+      min: 1
+      max: 200
+      default: 50
+
+ROBOT_EXECUTE_SEQUENCE:
+  function: run_robot_execute_sequence
+  module: backend.sdl_catalyst.primitives.robotic_arm
+  description: Execute predefined robot motion sequence/script
+  parameters:
+    sequence_name:
+      type: string
+      unit: null
+      description: Name of the sequence to execute
+    sequence_params:
+      type: object
+      unit: null
+      description: Parameters to pass to the sequence
+      default: {}
+    robot_type:
+      type: string
+      unit: null
+      description: Type of robot
+      enum: ["UR3e", "Dobot", "Kinova", "Generic"]
+      default: "Generic"
+
+ROBOT_WAIT:
+  function: run_robot_wait
+  module: backend.sdl_catalyst.primitives.robotic_arm
+  description: Robot wait/synchronization operation
+  parameters:
+    wait_type:
+      type: string
+      unit: null
+      description: Type of wait operation
+      enum: ["time", "signal", "condition"]
+      default: "time"
+    duration:
+      type: number
+      unit: seconds
+      description: Wait duration (for time-based waits)
+      min: 0.1
+      max: 3600
+      default: 1.0
+    signal_name:
+      type: string
+      unit: null
+      description: Name of signal to wait for
+      default: ""
+    condition:
+      type: string
+      unit: null
+      description: Condition to check
+      default: ""
+    timeout:
+      type: number
+      unit: seconds
+      description: Maximum wait time
+      min: 1
+      max: 3600
+      default: 30
+    robot_type:
+      type: string
+      unit: null
+      description: Type of robot
+      enum: ["UR3e", "Dobot", "Kinova", "Generic"]
+      default: "Generic" 
