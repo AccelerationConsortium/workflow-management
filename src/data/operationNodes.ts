@@ -24,7 +24,7 @@ export interface OperationNode {
   description?: string;
   category: "SDL Catalyst" | "SDL2" | "Sample Processing" | "Analysis & Measurement" | "Reaction Control" |
              "Separation & Purification" | "Data Acquisition" | "Environment Control" |
-             "Test" | "Catalyst Workflow" | "Workflow Control" | string; // Allow custom categories
+             "Test" | "Catalyst Workflow" | "Workflow Control" | "Robotic Control" | string; // Allow custom categories
   expanded?: boolean;
   icon?: string;
   isCustom?: boolean; // Flag for custom UOs
@@ -1765,6 +1765,639 @@ export const operationNodes: OperationNode[] = [
             description: 'Activation mode (manual/automatic)'
           }
         ]
+      }
+    ]
+  },
+
+  // Robotic Control Operations
+  {
+    type: 'robot_move_to',
+    label: 'Robot Move To',
+    description: 'Move robotic arm to specified position and orientation',
+    category: 'Robotic Control' as const,
+    expanded: false,
+    icon: '🤖',
+    specs: {
+      model: 'Universal Robot Interface',
+      manufacturer: 'Generic',
+      range: 'UR3e, Dobot, Kinova, Generic',
+      precision: '±0.1mm, ±0.1°'
+    },
+    parameters: [
+      {
+        name: 'robotType',
+        type: 'string',
+        label: 'Robot Type',
+        default: 'Generic',
+        required: true,
+        description: 'Select the robot model'
+      },
+      {
+        name: 'x',
+        type: 'number',
+        label: 'X Position',
+        unit: 'mm',
+        range: [-1000, 1000],
+        default: 0,
+        required: true,
+        description: 'Target X coordinate'
+      },
+      {
+        name: 'y',
+        type: 'number',
+        label: 'Y Position',
+        unit: 'mm',
+        range: [-1000, 1000],
+        default: 0,
+        required: true,
+        description: 'Target Y coordinate'
+      },
+      {
+        name: 'z',
+        type: 'number',
+        label: 'Z Position',
+        unit: 'mm',
+        range: [0, 500],
+        default: 100,
+        required: true,
+        description: 'Target Z coordinate'
+      },
+      {
+        name: 'rx',
+        type: 'number',
+        label: 'X Rotation',
+        unit: 'deg',
+        range: [-180, 180],
+        default: 0,
+        required: false,
+        description: 'Rotation around X axis'
+      },
+      {
+        name: 'ry',
+        type: 'number',
+        label: 'Y Rotation',
+        unit: 'deg',
+        range: [-180, 180],
+        default: 0,
+        required: false,
+        description: 'Rotation around Y axis'
+      },
+      {
+        name: 'rz',
+        type: 'number',
+        label: 'Z Rotation',
+        unit: 'deg',
+        range: [-180, 180],
+        default: 0,
+        required: false,
+        description: 'Rotation around Z axis'
+      },
+      {
+        name: 'speed',
+        type: 'number',
+        label: 'Movement Speed',
+        unit: 'mm/s',
+        range: [1, 500],
+        default: 100,
+        required: true,
+        description: 'Speed of movement'
+      },
+      {
+        name: 'motionType',
+        type: 'string',
+        label: 'Motion Type',
+        default: 'linear',
+        required: true,
+        description: 'Type of motion path (linear/joint/circular)'
+      },
+      {
+        name: 'acceleration',
+        type: 'number',
+        label: 'Acceleration',
+        unit: 'mm/s²',
+        range: [10, 1000],
+        default: 100,
+        required: false,
+        description: 'Movement acceleration'
+      },
+      {
+        name: 'blendRadius',
+        type: 'number',
+        label: 'Blend Radius',
+        unit: 'mm',
+        range: [0, 50],
+        default: 0,
+        required: false,
+        description: 'Path blending radius'
+      }
+    ],
+    inputs: [],
+    outputs: [
+      {
+        id: 'position-data',
+        label: 'Position Data',
+        type: 'dataset',
+        description: 'Actual robot position data'
+      }
+    ]
+  },
+  {
+    type: 'robot_pick',
+    label: 'Robot Pick',
+    description: 'Execute pick operation with robotic arm',
+    category: 'Robotic Control' as const,
+    expanded: false,
+    icon: '🤏',
+    specs: {
+      model: 'Universal Robot Interface',
+      manufacturer: 'Generic',
+      range: 'Multiple gripper types',
+      precision: 'Force: ±0.1N, Position: ±0.1mm'
+    },
+    parameters: [
+      {
+        name: 'robotType',
+        type: 'string',
+        label: 'Robot Type',
+        default: 'Generic',
+        required: true,
+        description: 'Select the robot model'
+      },
+      {
+        name: 'x',
+        type: 'number',
+        label: 'X Position',
+        unit: 'mm',
+        range: [-1000, 1000],
+        default: 0,
+        required: true,
+        description: 'Pick location X coordinate'
+      },
+      {
+        name: 'y',
+        type: 'number',
+        label: 'Y Position',
+        unit: 'mm',
+        range: [-1000, 1000],
+        default: 0,
+        required: true,
+        description: 'Pick location Y coordinate'
+      },
+      {
+        name: 'z',
+        type: 'number',
+        label: 'Z Position',
+        unit: 'mm',
+        range: [0, 500],
+        default: 50,
+        required: true,
+        description: 'Pick location Z coordinate'
+      },
+      {
+        name: 'objectId',
+        type: 'string',
+        label: 'Object ID',
+        default: '',
+        required: true,
+        description: 'Identifier of object to pick'
+      },
+      {
+        name: 'gripperType',
+        type: 'string',
+        label: 'Gripper Type',
+        default: 'mechanical',
+        required: true,
+        description: 'Type of gripper to use'
+      },
+      {
+        name: 'gripForce',
+        type: 'number',
+        label: 'Grip Force',
+        unit: 'N',
+        range: [0.1, 50],
+        default: 5,
+        required: true,
+        description: 'Force to apply when gripping'
+      },
+      {
+        name: 'approachHeight',
+        type: 'number',
+        label: 'Approach Height',
+        unit: 'mm',
+        range: [5, 100],
+        default: 20,
+        required: false,
+        description: 'Height above object to approach from'
+      },
+      {
+        name: 'speed',
+        type: 'number',
+        label: 'Movement Speed',
+        unit: 'mm/s',
+        range: [1, 200],
+        default: 50,
+        required: false,
+        description: 'Speed of pick movement'
+      },
+      {
+        name: 'verifyPick',
+        type: 'boolean',
+        label: 'Verify Pick',
+        default: true,
+        required: false,
+        description: 'Verify object was successfully picked'
+      }
+    ],
+    inputs: [
+      {
+        id: 'target-object',
+        label: 'Target Object',
+        type: 'solid',
+        required: true,
+        description: 'Object to be picked up'
+      }
+    ],
+    outputs: [
+      {
+        id: 'picked-object',
+        label: 'Picked Object',
+        type: 'solid',
+        description: 'Object held by gripper'
+      },
+      {
+        id: 'pick-result',
+        label: 'Pick Result',
+        type: 'dataset',
+        description: 'Pick operation result data'
+      }
+    ]
+  },
+  {
+    type: 'robot_place',
+    label: 'Robot Place',
+    description: 'Execute place operation with robotic arm',
+    category: 'Robotic Control' as const,
+    expanded: false,
+    icon: '🤲',
+    specs: {
+      model: 'Universal Robot Interface',
+      manufacturer: 'Generic',
+      range: 'Multiple gripper types',
+      precision: 'Position: ±0.1mm, Force: ±0.1N'
+    },
+    parameters: [
+      {
+        name: 'robotType',
+        type: 'string',
+        label: 'Robot Type',
+        default: 'Generic',
+        required: true,
+        description: 'Select the robot model'
+      },
+      {
+        name: 'x',
+        type: 'number',
+        label: 'X Position',
+        unit: 'mm',
+        range: [-1000, 1000],
+        default: 0,
+        required: true,
+        description: 'Place location X coordinate'
+      },
+      {
+        name: 'y',
+        type: 'number',
+        label: 'Y Position',
+        unit: 'mm',
+        range: [-1000, 1000],
+        default: 0,
+        required: true,
+        description: 'Place location Y coordinate'
+      },
+      {
+        name: 'z',
+        type: 'number',
+        label: 'Z Position',
+        unit: 'mm',
+        range: [0, 500],
+        default: 50,
+        required: true,
+        description: 'Place location Z coordinate'
+      },
+      {
+        name: 'objectId',
+        type: 'string',
+        label: 'Object ID',
+        default: '',
+        required: true,
+        description: 'Identifier of object to place'
+      },
+      {
+        name: 'placementType',
+        type: 'string',
+        label: 'Placement Type',
+        default: 'gentle',
+        required: true,
+        description: 'Type of placement (gentle/firm/precise)'
+      },
+      {
+        name: 'releaseDelay',
+        type: 'number',
+        label: 'Release Delay',
+        unit: 's',
+        range: [0, 5],
+        default: 0.5,
+        required: false,
+        description: 'Delay before releasing object'
+      },
+      {
+        name: 'approachHeight',
+        type: 'number',
+        label: 'Approach Height',
+        unit: 'mm',
+        range: [5, 100],
+        default: 20,
+        required: false,
+        description: 'Height above target to approach from'
+      },
+      {
+        name: 'speed',
+        type: 'number',
+        label: 'Movement Speed',
+        unit: 'mm/s',
+        range: [1, 200],
+        default: 50,
+        required: false,
+        description: 'Speed of place movement'
+      },
+      {
+        name: 'verifyPlace',
+        type: 'boolean',
+        label: 'Verify Placement',
+        default: true,
+        required: false,
+        description: 'Verify object was successfully placed'
+      }
+    ],
+    inputs: [
+      {
+        id: 'object-to-place',
+        label: 'Object to Place',
+        type: 'solid',
+        required: true,
+        description: 'Object to be placed'
+      }
+    ],
+    outputs: [
+      {
+        id: 'placed-object',
+        label: 'Placed Object',
+        type: 'solid',
+        description: 'Object after placement'
+      },
+      {
+        id: 'place-result',
+        label: 'Place Result',
+        type: 'dataset',
+        description: 'Place operation result data'
+      }
+    ]
+  },
+  {
+    type: 'robot_home',
+    label: 'Robot Home',
+    description: 'Move robotic arm to home/origin position',
+    category: 'Robotic Control' as const,
+    expanded: false,
+    icon: '🏠',
+    specs: {
+      model: 'Universal Robot Interface',
+      manufacturer: 'Generic',
+      range: 'Multiple home positions',
+      precision: '±0.1mm, ±0.1°'
+    },
+    parameters: [
+      {
+        name: 'robotType',
+        type: 'string',
+        label: 'Robot Type',
+        default: 'Generic',
+        required: true,
+        description: 'Select the robot model'
+      },
+      {
+        name: 'speed',
+        type: 'number',
+        label: 'Movement Speed',
+        unit: 'mm/s',
+        range: [1, 500],
+        default: 100,
+        required: true,
+        description: 'Speed to return home'
+      },
+      {
+        name: 'safeMode',
+        type: 'boolean',
+        label: 'Safe Mode',
+        default: true,
+        required: false,
+        description: 'Use safe trajectory to avoid obstacles'
+      },
+      {
+        name: 'waitAfter',
+        type: 'number',
+        label: 'Wait After Home',
+        unit: 's',
+        range: [0, 10],
+        default: 0,
+        required: false,
+        description: 'Wait time after reaching home position'
+      },
+      {
+        name: 'reason',
+        type: 'string',
+        label: 'Reason',
+        default: '',
+        required: false,
+        description: 'Reason for returning to home position'
+      }
+    ],
+    inputs: [],
+    outputs: [
+      {
+        id: 'home-result',
+        label: 'Home Result',
+        type: 'dataset',
+        description: 'Home operation result data'
+      }
+    ]
+  },
+  {
+    type: 'robot_execute_sequence',
+    label: 'Robot Execute Sequence',
+    description: 'Execute predefined robot motion sequence/script',
+    category: 'Robotic Control' as const,
+    expanded: false,
+    icon: '🔄',
+    specs: {
+      model: 'Universal Robot Interface',
+      manufacturer: 'Generic',
+      range: 'Custom sequence scripts',
+      precision: 'Sequence dependent'
+    },
+    parameters: [
+      {
+        name: 'robotType',
+        type: 'string',
+        label: 'Robot Type',
+        default: 'Generic',
+        required: true,
+        description: 'Select the robot model'
+      },
+      {
+        name: 'sequenceName',
+        type: 'string',
+        label: 'Sequence Name',
+        default: '',
+        required: true,
+        description: 'Name of the sequence to execute'
+      },
+      {
+        name: 'sequenceFile',
+        type: 'string',
+        label: 'Sequence File',
+        default: '',
+        required: false,
+        description: 'Path to sequence file (optional)'
+      },
+      {
+        name: 'speed',
+        type: 'number',
+        label: 'Execution Speed',
+        unit: 'x',
+        range: [0.1, 2.0],
+        default: 1.0,
+        required: true,
+        description: 'Speed multiplier for sequence execution'
+      },
+      {
+        name: 'loops',
+        type: 'number',
+        label: 'Loop Count',
+        range: [1, 100],
+        default: 1,
+        required: true,
+        description: 'Number of times to repeat sequence'
+      },
+      {
+        name: 'abortOnError',
+        type: 'boolean',
+        label: 'Abort on Error',
+        default: true,
+        required: false,
+        description: 'Stop execution if error occurs'
+      },
+      {
+        name: 'timeoutS',
+        type: 'number',
+        label: 'Timeout',
+        unit: 's',
+        range: [1, 3600],
+        default: 300,
+        required: true,
+        description: 'Maximum execution time'
+      }
+    ],
+    inputs: [
+      {
+        id: 'sequence-input',
+        label: 'Sequence Input',
+        type: 'dataset',
+        required: false,
+        description: 'Input data for sequence'
+      }
+    ],
+    outputs: [
+      {
+        id: 'sequence-result',
+        label: 'Sequence Result',
+        type: 'dataset',
+        description: 'Sequence execution result data'
+      }
+    ]
+  },
+  {
+    type: 'robot_wait',
+    label: 'Robot Wait',
+    description: 'Robot wait/synchronization operation',
+    category: 'Robotic Control' as const,
+    expanded: false,
+    icon: '⏳',
+    specs: {
+      model: 'Universal Robot Interface',
+      manufacturer: 'Generic',
+      range: 'Time/Signal/Condition based',
+      precision: '±0.1s'
+    },
+    parameters: [
+      {
+        name: 'robotType',
+        type: 'string',
+        label: 'Robot Type',
+        default: 'Generic',
+        required: true,
+        description: 'Select the robot model'
+      },
+      {
+        name: 'duration',
+        type: 'number',
+        label: 'Wait Duration',
+        unit: 's',
+        range: [0.1, 300],
+        default: 1,
+        required: true,
+        description: 'Time to wait'
+      },
+      {
+        name: 'reason',
+        type: 'string',
+        label: 'Reason',
+        default: '',
+        required: false,
+        description: 'Reason for waiting'
+      },
+      {
+        name: 'skipable',
+        type: 'boolean',
+        label: 'Skipable',
+        default: false,
+        required: false,
+        description: 'Allow user to skip this wait'
+      },
+      {
+        name: 'showCountdown',
+        type: 'boolean',
+        label: 'Show Countdown',
+        default: true,
+        required: false,
+        description: 'Display countdown timer'
+      }
+    ],
+    inputs: [
+      {
+        id: 'sync-input',
+        label: 'Sync Input',
+        type: 'signal',
+        required: false,
+        description: 'Input signal for synchronization'
+      }
+    ],
+    outputs: [
+      {
+        id: 'wait-result',
+        label: 'Wait Result',
+        type: 'dataset',
+        description: 'Wait operation result data'
       }
     ]
   },

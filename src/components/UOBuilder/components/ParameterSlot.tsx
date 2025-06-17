@@ -603,6 +603,241 @@ export const ParameterSlot: React.FC<ParameterSlotProps> = ({
                 />
               </>
             )}
+
+            {/* Robot Move To Position Configuration */}
+            {componentType === 'ROBOT_MOVE_TO' && (
+              <>
+                <FormControl size="small" fullWidth>
+                  <InputLabel>Robot Type</InputLabel>
+                  <Select
+                    value={config.robotType || 'Generic'}
+                    onChange={(e) => onConfigChange({ robotType: e.target.value })}
+                  >
+                    <MenuItem value="UR3e">UR3e</MenuItem>
+                    <MenuItem value="Dobot">Dobot</MenuItem>
+                    <MenuItem value="Kinova">Kinova</MenuItem>
+                    <MenuItem value="Generic">Generic</MenuItem>
+                  </Select>
+                </FormControl>
+
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <TextField
+                    size="small"
+                    label="X Position (mm)"
+                    type="number"
+                    value={config.x || 0}
+                    onChange={(e) => onConfigChange({ x: Number(e.target.value) })}
+                    inputProps={{ min: -1000, max: 1000 }}
+                  />
+                  <TextField
+                    size="small"
+                    label="Y Position (mm)"
+                    type="number"
+                    value={config.y || 0}
+                    onChange={(e) => onConfigChange({ y: Number(e.target.value) })}
+                    inputProps={{ min: -1000, max: 1000 }}
+                  />
+                  <TextField
+                    size="small"
+                    label="Z Position (mm)"
+                    type="number"
+                    value={config.z || 100}
+                    onChange={(e) => onConfigChange({ z: Number(e.target.value) })}
+                    inputProps={{ min: 0, max: 500 }}
+                  />
+                </Box>
+
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <TextField
+                    size="small"
+                    label="Speed (mm/s)"
+                    type="number"
+                    value={config.speed || 100}
+                    onChange={(e) => onConfigChange({ speed: Number(e.target.value) })}
+                    inputProps={{ min: 1, max: 1000 }}
+                  />
+                  <FormControl size="small" sx={{ minWidth: 120 }}>
+                    <InputLabel>Motion Type</InputLabel>
+                    <Select
+                      value={config.motionType || 'linear'}
+                      onChange={(e) => onConfigChange({ motionType: e.target.value })}
+                    >
+                      <MenuItem value="linear">Linear</MenuItem>
+                      <MenuItem value="joint">Joint</MenuItem>
+                      <MenuItem value="arc">Arc</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Box>
+              </>
+            )}
+
+            {/* Robot Pick/Place Configuration */}
+            {(['ROBOT_PICK', 'ROBOT_PLACE'].includes(componentType)) && (
+              <>
+                <FormControl size="small" fullWidth>
+                  <InputLabel>Robot Type</InputLabel>
+                  <Select
+                    value={config.robotType || 'Generic'}
+                    onChange={(e) => onConfigChange({ robotType: e.target.value })}
+                  >
+                    <MenuItem value="UR3e">UR3e</MenuItem>
+                    <MenuItem value="Dobot">Dobot</MenuItem>
+                    <MenuItem value="Kinova">Kinova</MenuItem>
+                    <MenuItem value="Generic">Generic</MenuItem>
+                  </Select>
+                </FormControl>
+
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <TextField
+                    size="small"
+                    label="X Position (mm)"
+                    type="number"
+                    value={config.x || 0}
+                    onChange={(e) => onConfigChange({ x: Number(e.target.value) })}
+                    inputProps={{ min: -1000, max: 1000 }}
+                  />
+                  <TextField
+                    size="small"
+                    label="Y Position (mm)"
+                    type="number"
+                    value={config.y || 0}
+                    onChange={(e) => onConfigChange({ y: Number(e.target.value) })}
+                    inputProps={{ min: -1000, max: 1000 }}
+                  />
+                  <TextField
+                    size="small"
+                    label="Z Position (mm)"
+                    type="number"
+                    value={config.z || 100}
+                    onChange={(e) => onConfigChange({ z: Number(e.target.value) })}
+                    inputProps={{ min: 0, max: 500 }}
+                  />
+                </Box>
+
+                <TextField
+                  size="small"
+                  label="Object ID"
+                  value={config.objectId || ''}
+                  onChange={(e) => onConfigChange({ objectId: e.target.value })}
+                  fullWidth
+                  placeholder="e.g., vial_001, sample_tube"
+                />
+
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <TextField
+                    size="small"
+                    label="Grip Force (%)"
+                    type="number"
+                    value={config.gripForce || 50}
+                    onChange={(e) => onConfigChange({ gripForce: Number(e.target.value) })}
+                    inputProps={{ min: 1, max: 100 }}
+                  />
+                  <TextField
+                    size="small"
+                    label="Approach Height (mm)"
+                    type="number"
+                    value={config.approachHeight || 20}
+                    onChange={(e) => onConfigChange({ approachHeight: Number(e.target.value) })}
+                    inputProps={{ min: 5, max: 100 }}
+                  />
+                </Box>
+              </>
+            )}
+
+            {/* Robot Execute Sequence Configuration */}
+            {componentType === 'ROBOT_EXECUTE_SEQUENCE' && (
+              <>
+                <FormControl size="small" fullWidth>
+                  <InputLabel>Robot Type</InputLabel>
+                  <Select
+                    value={config.robotType || 'Generic'}
+                    onChange={(e) => onConfigChange({ robotType: e.target.value })}
+                  >
+                    <MenuItem value="UR3e">UR3e</MenuItem>
+                    <MenuItem value="Dobot">Dobot</MenuItem>
+                    <MenuItem value="Kinova">Kinova</MenuItem>
+                    <MenuItem value="Generic">Generic</MenuItem>
+                  </Select>
+                </FormControl>
+
+                <TextField
+                  size="small"
+                  label="Sequence Name"
+                  value={config.sequenceName || ''}
+                  onChange={(e) => onConfigChange({ sequenceName: e.target.value })}
+                  fullWidth
+                  placeholder="e.g., pick_and_place_routine"
+                />
+
+                <TextField
+                  size="small"
+                  label="Sequence File Path"
+                  value={config.sequenceFile || ''}
+                  onChange={(e) => onConfigChange({ sequenceFile: e.target.value })}
+                  fullWidth
+                  placeholder="e.g., sequences/my_sequence.json"
+                />
+
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <TextField
+                    size="small"
+                    label="Timeout (seconds)"
+                    type="number"
+                    value={config.timeoutS || 300}
+                    onChange={(e) => onConfigChange({ timeoutS: Number(e.target.value) })}
+                    inputProps={{ min: 1 }}
+                  />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={config.abortOnError || true}
+                        onChange={(e) => onConfigChange({ abortOnError: e.target.checked })}
+                      />
+                    }
+                    label="Abort on error"
+                  />
+                </Box>
+              </>
+            )}
+
+            {/* Robot Home and Wait Configuration */}
+            {(['ROBOT_HOME', 'ROBOT_WAIT'].includes(componentType)) && (
+              <>
+                <FormControl size="small" fullWidth>
+                  <InputLabel>Robot Type</InputLabel>
+                  <Select
+                    value={config.robotType || 'Generic'}
+                    onChange={(e) => onConfigChange({ robotType: e.target.value })}
+                  >
+                    <MenuItem value="UR3e">UR3e</MenuItem>
+                    <MenuItem value="Dobot">Dobot</MenuItem>
+                    <MenuItem value="Kinova">Kinova</MenuItem>
+                    <MenuItem value="Generic">Generic</MenuItem>
+                  </Select>
+                </FormControl>
+
+                {componentType === 'ROBOT_WAIT' && (
+                  <TextField
+                    size="small"
+                    label="Wait Duration (seconds)"
+                    type="number"
+                    value={config.duration || 1}
+                    onChange={(e) => onConfigChange({ duration: Number(e.target.value) })}
+                    inputProps={{ min: 0.1, step: 0.1 }}
+                    fullWidth
+                  />
+                )}
+
+                <TextField
+                  size="small"
+                  label="Reason/Description"
+                  value={config.reason || ''}
+                  onChange={(e) => onConfigChange({ reason: e.target.value })}
+                  fullWidth
+                  placeholder={componentType === 'ROBOT_HOME' ? 'e.g., Return to safe position' : 'e.g., Wait for user confirmation'}
+                />
+              </>
+            )}
           </Box>
         </Box>
       </Collapse>
@@ -867,6 +1102,142 @@ export const ParameterSlot: React.FC<ParameterSlotProps> = ({
               )}
               <Typography variant="caption" color="text.secondary">
                 {config.skippable ? 'Skippable' : 'Required'}
+              </Typography>
+            </Box>
+          </Box>
+        );
+
+      // Robot control components preview
+      case 'ROBOT_MOVE_TO':
+        return (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+              🤖 {config.label}
+            </Typography>
+            <Box sx={{ p: 1, bgcolor: '#e3f2fd', borderRadius: 1, border: '1px solid #2196F3' }}>
+              <Typography variant="caption" sx={{ display: 'block' }}>
+                Robot: {config.robotType || 'Generic'}
+              </Typography>
+              <Typography variant="caption" sx={{ display: 'block' }}>
+                Position: ({config.x || 0}, {config.y || 0}, {config.z || 100}) mm
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Speed: {config.speed || 100} mm/s | Motion: {config.motionType || 'linear'}
+              </Typography>
+            </Box>
+          </Box>
+        );
+
+      case 'ROBOT_PICK':
+        return (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+              🤏 {config.label}
+            </Typography>
+            <Box sx={{ p: 1, bgcolor: '#e8f5e8', borderRadius: 1, border: '1px solid #4caf50' }}>
+              <Typography variant="caption" sx={{ display: 'block' }}>
+                Robot: {config.robotType || 'Generic'}
+              </Typography>
+              <Typography variant="caption" sx={{ display: 'block' }}>
+                Object: {config.objectId || 'Not specified'}
+              </Typography>
+              <Typography variant="caption" sx={{ display: 'block' }}>
+                Position: ({config.x || 0}, {config.y || 0}, {config.z || 100}) mm
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Grip Force: {config.gripForce || 50}% | Approach: {config.approachHeight || 20}mm
+              </Typography>
+            </Box>
+          </Box>
+        );
+
+      case 'ROBOT_PLACE':
+        return (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+              📦 {config.label}
+            </Typography>
+            <Box sx={{ p: 1, bgcolor: '#fff3e0', borderRadius: 1, border: '1px solid #ff9800' }}>
+              <Typography variant="caption" sx={{ display: 'block' }}>
+                Robot: {config.robotType || 'Generic'}
+              </Typography>
+              <Typography variant="caption" sx={{ display: 'block' }}>
+                Object: {config.objectId || 'Not specified'}
+              </Typography>
+              <Typography variant="caption" sx={{ display: 'block' }}>
+                Position: ({config.x || 0}, {config.y || 0}, {config.z || 100}) mm
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Grip Force: {config.gripForce || 50}% | Approach: {config.approachHeight || 20}mm
+              </Typography>
+            </Box>
+          </Box>
+        );
+
+      case 'ROBOT_HOME':
+        return (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+              🏠 {config.label}
+            </Typography>
+            <Box sx={{ p: 1, bgcolor: '#f3e5f5', borderRadius: 1, border: '1px solid #9c27b0' }}>
+              <Typography variant="caption" sx={{ display: 'block' }}>
+                Robot: {config.robotType || 'Generic'}
+              </Typography>
+              {config.reason && (
+                <Typography variant="caption" sx={{ display: 'block', fontStyle: 'italic' }}>
+                  Reason: {config.reason}
+                </Typography>
+              )}
+              <Typography variant="caption" color="text.secondary">
+                Return to home position
+              </Typography>
+            </Box>
+          </Box>
+        );
+
+      case 'ROBOT_WAIT':
+        return (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+              ⏱️ {config.label}
+            </Typography>
+            <Box sx={{ p: 1, bgcolor: '#fafafa', borderRadius: 1, border: '1px solid #757575' }}>
+              <Typography variant="caption" sx={{ display: 'block' }}>
+                Robot: {config.robotType || 'Generic'}
+              </Typography>
+              <Typography variant="caption" sx={{ display: 'block' }}>
+                Duration: {config.duration || 1} seconds
+              </Typography>
+              {config.reason && (
+                <Typography variant="caption" sx={{ display: 'block', fontStyle: 'italic' }}>
+                  Reason: {config.reason}
+                </Typography>
+              )}
+            </Box>
+          </Box>
+        );
+
+      case 'ROBOT_EXECUTE_SEQUENCE':
+        return (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+              🔄 {config.label}
+            </Typography>
+            <Box sx={{ p: 1, bgcolor: '#e1f5fe', borderRadius: 1, border: '1px solid #03a9f4' }}>
+              <Typography variant="caption" sx={{ display: 'block' }}>
+                Robot: {config.robotType || 'Generic'}
+              </Typography>
+              <Typography variant="caption" sx={{ display: 'block' }}>
+                Sequence: {config.sequenceName || 'Not specified'}
+              </Typography>
+              {config.sequenceFile && (
+                <Typography variant="caption" sx={{ display: 'block' }}>
+                  File: {config.sequenceFile}
+                </Typography>
+              )}
+              <Typography variant="caption" color="text.secondary">
+                Timeout: {config.timeoutS || 300}s | {config.abortOnError ? 'Abort on error' : 'Continue on error'}
               </Typography>
             </Box>
           </Box>
