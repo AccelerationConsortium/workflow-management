@@ -89,6 +89,8 @@ storybook-static/
 *.tfstate.backup
 
 .history
-
+.claude
 # Documentation (development artifacts)
 documentation/
+temp/
+tests/

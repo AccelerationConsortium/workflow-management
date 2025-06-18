@@ -19,7 +19,9 @@ import {
   Alert,
   Chip,
   IconButton,
-  Tooltip
+  Tooltip,
+  Tabs,
+  Tab
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -32,9 +34,10 @@ import {
 
 import { ComponentLibrary } from './ComponentLibrary';
 import { ParameterSlot } from './components/ParameterSlot';
+import { EnhancedUOForm } from './EnhancedUOForm';
 import { useUOBuilder } from './hooks/useUOBuilder';
 import { useDragDrop } from './hooks/useDragDrop';
-import { ComponentLibraryItem } from './types';
+import { ComponentLibraryItem, UOPort, UOSpecs, UOPrimitive, SupportedDevice, UOConstraints, EnvironmentRequirements } from './types';
 import { DEFAULT_UO_CATEGORIES, COMPONENT_LIBRARY } from './config/componentLibrary';
 
 interface StructuredUOBuilderProps {
@@ -60,6 +63,16 @@ export const StructuredUOBuilder: React.FC<StructuredUOBuilderProps> = ({
   ]);
 
   const [previewMode, setPreviewMode] = useState(false);
+
+  // Enhanced UO fields
+  const [inputs, setInputs] = useState<UOPort[]>([]);
+  const [outputs, setOutputs] = useState<UOPort[]>([]);
+  const [specs, setSpecs] = useState<UOSpecs>({});
+  const [primitives, setPrimitives] = useState<UOPrimitive[]>([]);
+  const [supportedDevices, setSupportedDevices] = useState<SupportedDevice[]>([]);
+  const [constraints, setConstraints] = useState<UOConstraints>({});
+  const [environment, setEnvironment] = useState<EnvironmentRequirements>({});
+  const [currentTab, setCurrentTab] = useState<'parameters' | 'enhanced'>('parameters');
 
   // 添加新的参数插槽
   const addParameterSlot = () => {
@@ -217,19 +230,19 @@ export const StructuredUOBuilder: React.FC<StructuredUOBuilderProps> = ({
     setParameterSlots(exampleSlots);
   };
 
-  // 生成UO Schema
+  // Enhanced UO Schema generation
   const generateUOSchema = () => {
     const parameters = parameterSlots
       .filter(slot => slot.component)
       .map(slot => {
         const componentType = slot.component!.type;
 
-        // 为工作流模块生成详细的参数结构
+        // Generate detailed parameter structure for workflow modules
         if (['DEVICE_INITIALIZATION', 'USER_CONFIRMATION', 'LIQUID_TRANSFER', 'START_REACTION', 'TRIGGER_MEASUREMENT', 'PAUSE_DELAY'].includes(componentType)) {
           return generateWorkflowModuleParameters(slot);
         }
 
-        // 基础参数类型的处理
+        // Handle basic parameter types
         return generateBasicModuleParameters(slot);
       });
 
@@ -239,8 +252,18 @@ export const StructuredUOBuilder: React.FC<StructuredUOBuilderProps> = ({
       description: state.description,
       category: state.category,
       parameters,
+      // Enhanced fields to match preset UO structure
+      inputs: inputs.length > 0 ? inputs : undefined,
+      outputs: outputs.length > 0 ? outputs : undefined,
+      specs: Object.keys(specs).length > 0 ? specs : undefined,
+      primitives: primitives.length > 0 ? primitives : undefined,
+      supportedDevices: supportedDevices.length > 0 ? supportedDevices : undefined,
+      constraints: Object.keys(constraints).length > 0 ? constraints : undefined,
+      environment: Object.keys(environment).length > 0 ? environment : undefined,
       createdAt: new Date().toISOString(),
-      version: '1.0.0'
+      version: '1.0.0',
+      icon: '🔧', // Default icon for custom UOs
+      isCustom: true
     };
   };
 
@@ -576,68 +599,104 @@ export const StructuredUOBuilder: React.FC<StructuredUOBuilderProps> = ({
             )}
           </Paper>
 
-          {/* Parameter Slots */}
-          <Paper elevation={2} sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="h6">
-                Parameter Modules
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  startIcon={<AddIcon />}
-                  onClick={addParameterSlot}
-                >
-                  Add Parameter
-                </Button>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  color="secondary"
-                  onClick={loadExampleUO}
-                >
-                  Load Example
-                </Button>
+          {/* Tabbed Configuration Interface */}
+          <Paper elevation={2} sx={{ p: 0 }}>
+            <Tabs
+              value={currentTab}
+              onChange={(_, newValue) => setCurrentTab(newValue)}
+              sx={{ borderBottom: 1, borderColor: 'divider' }}
+            >
+              <Tab label="Parameters" value="parameters" />
+              <Tab label="Enhanced Configuration" value="enhanced" />
+            </Tabs>
+
+            {/* Parameters Tab */}
+            {currentTab === 'parameters' && (
+              <Box sx={{ p: 3 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h6">
+                    Parameter Modules
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      startIcon={<AddIcon />}
+                      onClick={addParameterSlot}
+                    >
+                      Add Parameter
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      color="secondary"
+                      onClick={loadExampleUO}
+                    >
+                      Load Example
+                    </Button>
+                  </Box>
+                </Box>
+
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                  Drag components from the right panel into the slots below to build your UO interface
+                </Typography>
+
+                {/* Parameter Slots List */}
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  {parameterSlots.map((slot) => (
+                    <ParameterSlot
+                      key={slot.id}
+                      slot={slot}
+                      onDrop={(component) => handleSlotDrop(slot.id, component)}
+                      onConfigChange={(config) => updateSlotConfig(slot.id, config)}
+                      onRemove={() => removeParameterSlot(slot.id)}
+                      canRemove={parameterSlots.length > 1}
+                      previewMode={previewMode}
+                    />
+                  ))}
+                </Box>
+
+                {parameterSlots.filter(slot => slot.component).length === 0 && (
+                  <Box
+                    sx={{
+                      border: '2px dashed #ccc',
+                      borderRadius: 2,
+                      p: 4,
+                      textAlign: 'center',
+                      color: 'text.secondary',
+                      mt: 2
+                    }}
+                  >
+                    <Typography variant="body1">
+                      Drag components here to build your UO interface
+                    </Typography>
+                    <Typography variant="body2">
+                      Start by dragging parameter components from the right panel
+                    </Typography>
+                  </Box>
+                )}
               </Box>
-            </Box>
+            )}
 
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              Drag components from the right panel into the slots below to build your UO interface
-            </Typography>
-
-            {/* Parameter Slots List */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {parameterSlots.map((slot) => (
-                <ParameterSlot
-                  key={slot.id}
-                  slot={slot}
-                  onDrop={(component) => handleSlotDrop(slot.id, component)}
-                  onConfigChange={(config) => updateSlotConfig(slot.id, config)}
-                  onRemove={() => removeParameterSlot(slot.id)}
-                  canRemove={parameterSlots.length > 1}
-                  previewMode={previewMode}
+            {/* Enhanced Configuration Tab */}
+            {currentTab === 'enhanced' && (
+              <Box sx={{ p: 3 }}>
+                <EnhancedUOForm
+                  inputs={inputs}
+                  outputs={outputs}
+                  specs={specs}
+                  primitives={primitives}
+                  supportedDevices={supportedDevices}
+                  constraints={constraints}
+                  environment={environment}
+                  onInputsChange={setInputs}
+                  onOutputsChange={setOutputs}
+                  onSpecsChange={setSpecs}
+                  onPrimitivesChange={setPrimitives}
+                  onSupportedDevicesChange={setSupportedDevices}
+                  onConstraintsChange={setConstraints}
+                  onEnvironmentChange={setEnvironment}
                 />
-              ))}
-            </Box>
-
-            {parameterSlots.filter(slot => slot.component).length === 0 && (
-              <Box
-                sx={{
-                  border: '2px dashed #ccc',
-                  borderRadius: 2,
-                  p: 4,
-                  textAlign: 'center',
-                  color: 'text.secondary',
-                  mt: 2
-                }}
-              >
-                <Typography variant="body1">
-                  Drag components here to build your UO interface
-                </Typography>
-                <Typography variant="body2">
-                  Start by dragging parameter components from the right panel
-                </Typography>
               </Box>
             )}
           </Paper>
