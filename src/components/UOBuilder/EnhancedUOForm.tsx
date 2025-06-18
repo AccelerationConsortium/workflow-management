@@ -31,7 +31,7 @@ import {
   Output as OutputIcon,
   Settings as SpecsIcon,
   Security as ConstraintsIcon,
-  Eco as EnvironmentIcon
+  Public as EnvironmentIcon
 } from '@mui/icons-material';
 
 import {
