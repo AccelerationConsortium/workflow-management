@@ -2,9 +2,9 @@
   "templates": {
     "add_liquid": {
       "type": "add_liquid",
-      "name": "液体添加",
+      "name": "Add Liquid",
       "category": "liquid_handling",
-      "description": "向容器中添加指定体积的液体",
+      "description": "Add specified volume of liquid to container",
       "params": {
         "volume": {
           "type": "number",
@@ -12,32 +12,32 @@
           "default": 10,
           "min": 0.1,
           "max": 1000,
-          "description": "添加液体的体积"
+          "description": "Volume of liquid to add"
         },
         "chemical": {
           "type": "string", 
           "default": "H2O",
-          "description": "化学试剂名称"
+          "description": "Chemical reagent name"
         },
         "speed": {
           "type": "number",
           "unit": "ml/min",
           "default": 5,
-          "description": "添加速率"
+          "description": "Addition rate"
         },
         "container": {
           "type": "string",
           "default": "reaction_vessel",
-          "description": "目标容器"
+          "description": "Target container"
         }
       },
-      "keywords": ["加液", "添加", "液体", "溶液", "试剂", "add", "liquid", "solution"]
+      "keywords": ["add", "liquid", "solution", "reagent", "dispense", "pour", "inject"]
     },
     "heat": {
       "type": "heat",
-      "name": "加热控制",
+      "name": "Heat Control",
       "category": "temperature_control",
-      "description": "将样品加热到指定温度并保持一定时间",
+      "description": "Heat sample to specified temperature and maintain for duration",
       "params": {
         "temperature": {
           "type": "number",
@@ -45,7 +45,7 @@
           "default": 25,
           "min": 0,
           "max": 200,
-          "description": "目标温度"
+          "description": "Target temperature"
         },
         "duration": {
           "type": "number",
@@ -53,104 +53,104 @@
           "default": 300,
           "min": 1,
           "max": 86400,
-          "description": "保持时间"
+          "description": "Duration to maintain temperature"
         },
         "ramp_rate": {
           "type": "number",
           "unit": "°C/min",
           "default": 5,
-          "description": "升温速率"
+          "description": "Temperature ramp rate"
         }
       },
-      "keywords": ["加热", "升温", "保温", "heat", "temperature", "warm"]
+      "keywords": ["heat", "temperature", "warm", "heating", "thermal", "control"]
     },
     "cv": {
       "type": "cv",
-      "name": "循环伏安法",
+      "name": "Cyclic Voltammetry",
       "category": "electrochemical",
-      "description": "进行循环伏安测试",
+      "description": "Perform cyclic voltammetry measurement",
       "params": {
         "start_voltage": {
           "type": "number",
           "unit": "V",
           "default": -1.0,
-          "description": "起始电压"
+          "description": "Starting voltage"
         },
         "end_voltage": {
           "type": "number",
           "unit": "V", 
           "default": 1.0,
-          "description": "结束电压"
+          "description": "End voltage"
         },
         "scan_rate": {
           "type": "number",
           "unit": "mV/s",
           "default": 50,
-          "description": "扫描速率"
+          "description": "Scan rate"
         },
         "cycles": {
           "type": "number",
           "default": 3,
           "min": 1,
           "max": 100,
-          "description": "循环次数"
+          "description": "Number of cycles"
         }
       },
-      "keywords": ["CV", "循环伏安", "电化学", "扫描", "cyclic", "voltammetry"]
+      "keywords": ["CV", "cyclic", "voltammetry", "electrochemical", "scan", "potential"]
     },
     "lsv": {
       "type": "lsv",
-      "name": "线性扫描伏安法",
+      "name": "Linear Sweep Voltammetry",
       "category": "electrochemical",
-      "description": "进行线性扫描伏安测试",
+      "description": "Perform linear sweep voltammetry measurement",
       "params": {
         "start_voltage": {
           "type": "number",
           "unit": "V",
           "default": -1.0,
-          "description": "起始电压"
+          "description": "Starting voltage"
         },
         "end_voltage": {
           "type": "number",
           "unit": "V",
           "default": 1.0,
-          "description": "结束电压"
+          "description": "End voltage"
         },
         "scan_rate": {
           "type": "number",
           "unit": "mV/s",
           "default": 10,
-          "description": "扫描速率"
+          "description": "Scan rate"
         }
       },
-      "keywords": ["LSV", "线性扫描", "伏安", "linear", "sweep", "voltammetry"]
+      "keywords": ["LSV", "linear", "sweep", "voltammetry", "electrochemical", "potential"]
     },
     "ocv": {
       "type": "ocv",
-      "name": "开路电压",
+      "name": "Open Circuit Voltage",
       "category": "electrochemical", 
-      "description": "测量开路电压",
+      "description": "Measure open circuit voltage",
       "params": {
         "duration": {
           "type": "number",
           "unit": "seconds",
           "default": 60,
-          "description": "测量时间"
+          "description": "Measurement duration"
         },
         "sampling_rate": {
           "type": "number",
           "unit": "Hz",
           "default": 1,
-          "description": "采样频率"
+          "description": "Sampling frequency"
         }
       },
-      "keywords": ["OCV", "开路电压", "电位", "open", "circuit", "voltage"]
+      "keywords": ["OCV", "open", "circuit", "voltage", "potential", "electrochemical"]
     },
     "stir": {
       "type": "stir", 
-      "name": "搅拌",
+      "name": "Stir Solution",
       "category": "mixing",
-      "description": "搅拌溶液以确保混合均匀",
+      "description": "Stir solution to ensure uniform mixing",
       "params": {
         "speed": {
           "type": "number",
@@ -158,102 +158,402 @@
           "default": 300,
           "min": 50,
           "max": 2000,
-          "description": "搅拌速度"
+          "description": "Stirring speed"
         },
         "duration": {
           "type": "number",
           "unit": "seconds",
           "default": 60,
-          "description": "搅拌时间"
+          "description": "Stirring duration"
         }
       },
-      "keywords": ["搅拌", "混合", "stir", "mix", "agitate"]
+      "keywords": ["stir", "mix", "agitate", "mixing", "solution", "blend"]
     },
     "wait": {
       "type": "wait",
-      "name": "等待",
+      "name": "Wait",
       "category": "timing",
-      "description": "等待指定时间",
+      "description": "Wait for specified duration",
       "params": {
         "duration": {
           "type": "number",
           "unit": "seconds", 
           "default": 60,
           "min": 1,
-          "description": "等待时间"
+          "description": "Wait duration"
         },
         "message": {
           "type": "string",
-          "default": "等待中...",
-          "description": "等待时显示的消息"
+          "default": "Waiting...",
+          "description": "Message to display during wait"
         }
       },
-      "keywords": ["等待", "暂停", "wait", "pause", "delay"]
+      "keywords": ["wait", "pause", "delay", "timing", "hold", "suspend"]
     },
     "transfer": {
       "type": "transfer",
-      "name": "样品转移",
+      "name": "Sample Transfer",
       "category": "liquid_handling",
-      "description": "将样品从一个容器转移到另一个容器",
+      "description": "Transfer sample from one container to another",
       "params": {
         "volume": {
           "type": "number",
           "unit": "ml",
           "default": 1,
-          "description": "转移体积"
+          "description": "Transfer volume"
         },
         "source": {
           "type": "string",
           "default": "source_container",
-          "description": "源容器"
+          "description": "Source container"
         },
         "destination": {
           "type": "string", 
           "default": "dest_container",
-          "description": "目标容器"
+          "description": "Destination container"
         },
         "speed": {
           "type": "number",
           "unit": "ml/min",
           "default": 2,
-          "description": "转移速率"
+          "description": "Transfer rate"
         }
       },
-      "keywords": ["转移", "移液", "取样", "transfer", "pipette", "move"]
+      "keywords": ["transfer", "pipette", "move", "sample", "liquid", "transport"]
     },
     "wash": {
       "type": "wash",
-      "name": "清洗",
+      "name": "Wash",
       "category": "cleaning",
-      "description": "清洗设备或容器",
+      "description": "Wash equipment or container",
       "params": {
         "solvent": {
           "type": "string",
           "default": "DI_water",
-          "description": "清洗溶剂"
+          "description": "Washing solvent"
         },
         "volume": {
           "type": "number",
           "unit": "ml",
           "default": 10,
-          "description": "清洗液体积"
+          "description": "Washing liquid volume"
         },
         "cycles": {
           "type": "number",
           "default": 3,
-          "description": "清洗次数"
+          "description": "Number of wash cycles"
         }
       },
-      "keywords": ["清洗", "洗涤", "冲洗", "wash", "rinse", "clean"]
+      "keywords": ["wash", "rinse", "clean", "cleaning", "solvent", "purge"]
+    },
+    "robot_move_to": {
+      "type": "robot_move_to",
+      "name": "Robot Move To Position",
+      "category": "robotic_control",
+      "description": "Move robotic arm to specified position and orientation",
+      "params": {
+        "x": {
+          "type": "number",
+          "unit": "mm",
+          "default": 0,
+          "min": -1000,
+          "max": 1000,
+          "description": "X coordinate position"
+        },
+        "y": {
+          "type": "number",
+          "unit": "mm",
+          "default": 0,
+          "min": -1000,
+          "max": 1000,
+          "description": "Y coordinate position"
+        },
+        "z": {
+          "type": "number",
+          "unit": "mm",
+          "default": 100,
+          "min": 0,
+          "max": 800,
+          "description": "Z coordinate position"
+        },
+        "rx": {
+          "type": "number",
+          "unit": "deg",
+          "default": 0,
+          "min": -180,
+          "max": 180,
+          "description": "Rotation around X axis"
+        },
+        "ry": {
+          "type": "number",
+          "unit": "deg",
+          "default": 0,
+          "min": -180,
+          "max": 180,
+          "description": "Rotation around Y axis"
+        },
+        "rz": {
+          "type": "number",
+          "unit": "deg",
+          "default": 0,
+          "min": -180,
+          "max": 180,
+          "description": "Rotation around Z axis"
+        },
+        "speed": {
+          "type": "number",
+          "unit": "mm/s",
+          "default": 100,
+          "min": 1,
+          "max": 500,
+          "description": "Movement speed"
+        },
+        "robot_type": {
+          "type": "string",
+          "default": "Generic",
+          "enum": ["UR3e", "Dobot", "Kinova", "Generic"],
+          "description": "Type of robot"
+        },
+        "motion_type": {
+          "type": "string",
+          "default": "linear",
+          "enum": ["linear", "joint"],
+          "description": "Type of motion path"
+        }
+      },
+      "keywords": ["robot", "arm", "move", "position", "coordinate", "UR3e", "Dobot", "Kinova"]
+    },
+    "robot_pick": {
+      "type": "robot_pick",
+      "name": "Robot Pick Object",
+      "category": "robotic_control",
+      "description": "Execute pick operation with robotic arm",
+      "params": {
+        "x": {
+          "type": "number",
+          "unit": "mm",
+          "default": 0,
+          "min": -1000,
+          "max": 1000,
+          "description": "X coordinate of pick location"
+        },
+        "y": {
+          "type": "number",
+          "unit": "mm",
+          "default": 0,
+          "min": -1000,
+          "max": 1000,
+          "description": "Y coordinate of pick location"
+        },
+        "z": {
+          "type": "number",
+          "unit": "mm",
+          "default": 50,
+          "min": 0,
+          "max": 800,
+          "description": "Z coordinate of pick location"
+        },
+        "approach_height": {
+          "type": "number",
+          "unit": "mm",
+          "default": 50,
+          "min": 0,
+          "max": 200,
+          "description": "Height to approach before picking"
+        },
+        "grip_force": {
+          "type": "number",
+          "default": 0.5,
+          "min": 0.0,
+          "max": 1.0,
+          "description": "Gripping force (0.0-1.0)"
+        },
+        "robot_type": {
+          "type": "string",
+          "default": "Generic",
+          "enum": ["UR3e", "Dobot", "Kinova", "Generic"],
+          "description": "Type of robot"
+        },
+        "gripper_type": {
+          "type": "string",
+          "default": "mechanical",
+          "enum": ["mechanical", "vacuum", "magnetic"],
+          "description": "Type of gripper"
+        }
+      },
+      "keywords": ["robot", "pick", "grip", "grasp", "gripper", "object", "grab"]
+    },
+    "robot_place": {
+      "type": "robot_place",
+      "name": "Robot Place Object",
+      "category": "robotic_control",
+      "description": "Execute place operation with robotic arm",
+      "params": {
+        "x": {
+          "type": "number",
+          "unit": "mm",
+          "default": 0,
+          "min": -1000,
+          "max": 1000,
+          "description": "X coordinate of place location"
+        },
+        "y": {
+          "type": "number",
+          "unit": "mm",
+          "default": 0,
+          "min": -1000,
+          "max": 1000,
+          "description": "Y coordinate of place location"
+        },
+        "z": {
+          "type": "number",
+          "unit": "mm",
+          "default": 50,
+          "min": 0,
+          "max": 800,
+          "description": "Z coordinate of place location"
+        },
+        "approach_height": {
+          "type": "number",
+          "unit": "mm",
+          "default": 50,
+          "min": 0,
+          "max": 200,
+          "description": "Height to approach before placing"
+        },
+        "release_delay": {
+          "type": "number",
+          "unit": "seconds",
+          "default": 0.5,
+          "min": 0.0,
+          "max": 5.0,
+          "description": "Delay before releasing grip"
+        },
+        "robot_type": {
+          "type": "string",
+          "default": "Generic",
+          "enum": ["UR3e", "Dobot", "Kinova", "Generic"],
+          "description": "Type of robot"
+        },
+        "gripper_type": {
+          "type": "string",
+          "default": "mechanical",
+          "enum": ["mechanical", "vacuum", "magnetic"],
+          "description": "Type of gripper"
+        }
+      },
+      "keywords": ["robot", "place", "release", "drop", "put", "deposit", "gripper"]
+    },
+    "robot_home": {
+      "type": "robot_home",
+      "name": "Robot Return Home",
+      "category": "robotic_control",
+      "description": "Move robotic arm to home/origin position",
+      "params": {
+        "robot_type": {
+          "type": "string",
+          "default": "Generic",
+          "enum": ["UR3e", "Dobot", "Kinova", "Generic"],
+          "description": "Type of robot"
+        },
+        "home_position_name": {
+          "type": "string",
+          "default": "default",
+          "enum": ["default", "calibration", "maintenance"],
+          "description": "Name of home position"
+        },
+        "speed": {
+          "type": "number",
+          "unit": "mm/s",
+          "default": 50,
+          "min": 1,
+          "max": 200,
+          "description": "Movement speed to home position"
+        }
+      },
+      "keywords": ["robot", "home", "origin", "return", "reset", "initial"]
+    },
+    "robot_execute_sequence": {
+      "type": "robot_execute_sequence",
+      "name": "Robot Execute Sequence",
+      "category": "robotic_control",
+      "description": "Execute predefined robot motion sequence/script",
+      "params": {
+        "sequence_name": {
+          "type": "string",
+          "default": "pick_and_place",
+          "description": "Name of the sequence to execute"
+        },
+        "sequence_params": {
+          "type": "object",
+          "default": {},
+          "description": "Parameters to pass to the sequence"
+        },
+        "robot_type": {
+          "type": "string",
+          "default": "Generic",
+          "enum": ["UR3e", "Dobot", "Kinova", "Generic"],
+          "description": "Type of robot"
+        }
+      },
+      "keywords": ["robot", "sequence", "script", "program", "routine", "batch"]
+    },
+    "robot_wait": {
+      "type": "robot_wait",
+      "name": "Robot Wait/Sync",
+      "category": "robotic_control",
+      "description": "Robot wait/synchronization operation",
+      "params": {
+        "wait_type": {
+          "type": "string",
+          "default": "time",
+          "enum": ["time", "signal", "condition"],
+          "description": "Type of wait operation"
+        },
+        "duration": {
+          "type": "number",
+          "unit": "seconds",
+          "default": 1.0,
+          "min": 0.1,
+          "max": 3600,
+          "description": "Wait duration (for time-based waits)"
+        },
+        "signal_name": {
+          "type": "string",
+          "default": "",
+          "description": "Name of signal to wait for"
+        },
+        "condition": {
+          "type": "string",
+          "default": "",
+          "description": "Condition to check"
+        },
+        "timeout": {
+          "type": "number",
+          "unit": "seconds",
+          "default": 30,
+          "min": 1,
+          "max": 3600,
+          "description": "Maximum wait time"
+        },
+        "robot_type": {
+          "type": "string",
+          "default": "Generic",
+          "enum": ["UR3e", "Dobot", "Kinova", "Generic"],
+          "description": "Type of robot"
+        }
+      },
+      "keywords": ["robot", "wait", "sync", "pause", "delay", "synchronization"]
     }
   },
   "categories": {
-    "liquid_handling": "液体处理",
-    "temperature_control": "温度控制", 
-    "electrochemical": "电化学测试",
-    "mixing": "混合搅拌",
-    "timing": "时间控制",
-    "cleaning": "清洗",
-    "measurement": "测量分析"
+    "liquid_handling": "Liquid Handling",
+    "temperature_control": "Temperature Control", 
+    "electrochemical": "Electrochemical Testing",
+    "mixing": "Mixing & Stirring",
+    "timing": "Timing Control",
+    "cleaning": "Cleaning",
+    "measurement": "Measurement & Analysis",
+    "robotic_control": "Robotic Control"
   }
 }

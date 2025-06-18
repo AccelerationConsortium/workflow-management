@@ -96,8 +96,10 @@ import { ControlPanel } from './components/ControlPanel';
 import { useControlPanelState } from './hooks/useControlPanelState';
 import { SDLCatalystNodes } from './components/OperationNodes/SDLCatalyst';
 import { SDL2Nodes } from './components/OperationNodes/SDL2';
+import { RoboticControlNodes } from './components/OperationNodes/RoboticControl';
 import Sidebar from './components/Sidebar';
 import TestStylePage from './components/TestStylePage';
+import TestRobotParameters from './components/TestRobotParameters';
 import { UORegistrationButton } from './components/UOBuilder/UORegistrationButton';
 import { UOManagementModal } from './components/UOManagement';
 import { EdgeConfig as EdgeConfigFromComponent } from './components/EdgeConfig';
@@ -206,11 +208,18 @@ const MemoizedSDL2Nodes = Object.entries(SDL2Nodes).reduce((acc, [key, component
   [key]: memo((props: NodeProps) => React.createElement(component as React.ComponentType<NodeProps>, props))
 }), {});
 
+// Define Robotic Control node types
+const MemoizedRoboticControlNodes = Object.entries(RoboticControlNodes).reduce((acc, [key, component]) => ({
+  ...acc,
+  [key]: memo((props: NodeProps) => React.createElement(component as React.ComponentType<NodeProps>, props))
+}), {});
+
 // Define all node types
 const ALL_NODE_TYPES: NodeTypes = {
   ...baseNodeTypes,
   ...MemoizedSDLCatalystNodes,
   ...MemoizedSDL2Nodes,
+  ...MemoizedRoboticControlNodes,
   customUO: memo(CustomUONode), // 添加自定义UO节点类型
   // custom: CustomEdge, // Removed: CustomEdge is an edge type, should be in edgeTypes
 };
@@ -465,29 +474,60 @@ function Flow() {
       }
 
       const nodeId = `${type}_${getId()}`;
+      
+      // Initialize node data based on type
+      let nodeData = {
+        ...nodeDefinition,
+        id: nodeId,
+        workflowId: state.currentWorkflow?.id || undefined,
+        customUOId: customUO ? type : undefined,
+        schema: customUO || undefined,
+      };
+
+      // Initialize robotic control node parameters with defaults
+      if (type.startsWith('robot_')) {
+        const defaultParams = nodeDefinition?.parameters?.reduce((acc: any, param: any) => {
+          acc[param.name] = param.default !== undefined ? param.default : 
+                            param.type === 'number' ? 0 : 
+                            param.type === 'boolean' ? false : '';
+          return acc;
+        }, {}) || {};
+
+        nodeData = {
+          ...nodeData,
+          ...defaultParams,
+          onChange: (newData: any) => {
+            setNodes(nds =>
+              nds.map(node =>
+                node.id === nodeId
+                  ? { ...node, data: newData }
+                  : node
+              )
+            );
+          }
+        };
+      }
+
+      // Add parameter change callback for custom UO nodes
+      if (customUO) {
+        nodeData.onParameterChange = (parameters: Record<string, any>) => {
+          console.log(`Parameters changed for custom UO ${nodeId}:`, parameters);
+          // Update the node's data with the new parameters
+          setNodes(nds =>
+            nds.map(node =>
+              node.id === nodeId
+                ? { ...node, data: { ...node.data, params: parameters } }
+                : node
+            )
+          );
+        };
+      }
+
       const newNode = {
         id: nodeId,
         type: nodeType,
         position,
-        data: {
-          ...nodeDefinition,
-          id: nodeId,
-          workflowId: state.currentWorkflow?.id || undefined,
-          customUOId: customUO ? type : undefined,
-          schema: customUO || undefined,
-          // Add parameter change callback for custom UO nodes
-          onParameterChange: customUO ? (parameters: Record<string, any>) => {
-            console.log(`Parameters changed for custom UO ${nodeId}:`, parameters);
-            // Update the node's data with the new parameters
-            setNodes(nds =>
-              nds.map(node =>
-                node.id === nodeId
-                  ? { ...node, data: { ...node.data, params: parameters } }
-                  : node
-              )
-            );
-          } : undefined,
-        },
+        data: nodeData,
       };
 
       console.log('Creating new node:', newNode);
@@ -827,12 +867,36 @@ function Flow() {
 
     const transformedNodes = filteredNodes.map(node => {
       const label = node.data?.label || node.type || 'Unnamed Node';
-      const params = node.data?.params || {};
+      let params = node.data?.params || {};
 
       // For custom UO nodes, use the original custom UO type instead of 'customUO'
       let nodeType = node.type;
       if (node.type === 'customUO' && node.data?.customUOId) {
         nodeType = node.data.customUOId;
+      }
+
+      // Special handling for Robotic Control nodes
+      // These nodes store parameters directly in node.data, not in node.data.params
+      const roboticControlTypes = [
+        'robot_move_to', 'robot_pick', 'robot_place',
+        'robot_home', 'robot_execute_sequence', 'robot_wait'
+      ];
+
+      if (roboticControlTypes.includes(nodeType)) {
+        // For robotic control nodes, extract parameters from node.data
+        // Find the node definition to get parameter names
+        const nodeDefinition = operationNodes.find(n => n.type === nodeType);
+        if (nodeDefinition && nodeDefinition.parameters) {
+          params = {};
+          nodeDefinition.parameters.forEach(param => {
+            const paramValue = node.data?.[param.name];
+            if (paramValue !== undefined) {
+              params[param.name] = paramValue;
+            } else if (param.default !== undefined) {
+              params[param.name] = param.default;
+            }
+          });
+        }
       }
 
       return {
@@ -1491,6 +1555,14 @@ function Flow() {
   const onNodeSelect = (nodeId: string) => {
     setCurrentNodeId(nodeId);
   };
+
+  // Check for test mode
+  const urlParams = new URLSearchParams(window.location.search);
+  const testMode = urlParams.get('test');
+
+  if (testMode === 'robot-parameters') {
+    return <TestRobotParameters />;
+  }
 
   return (
     <Box sx={{ position: 'relative', height: '100vh' }}>

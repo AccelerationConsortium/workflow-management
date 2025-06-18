@@ -105,13 +105,22 @@ export type UOComponent =
   | RangeSliderComponent
   | TextAreaComponent;
 
-// UO Builder state
+// Enhanced UO Builder state
 export interface UOBuilderState {
   name: string;
   description: string;
   category: string;
   components: UOComponent[];
   previewMode: boolean;
+  // Enhanced fields
+  inputs: UOPort[];
+  outputs: UOPort[];
+  specs: UOSpecs;
+  primitives: UOPrimitive[];
+  supportedDevices: SupportedDevice[];
+  constraints: UOConstraints;
+  environment: EnvironmentRequirements;
+  icon?: string;
 }
 
 // Component library item (for the right sidebar)
@@ -124,15 +133,24 @@ export interface ComponentLibraryItem {
   defaultProps: Partial<UOComponent> | any;
 }
 
-// Generated UO schema from the builder
+// Enhanced UO schema to match preset UO structure
 export interface GeneratedUOSchema {
   id: string;
   name: string;
   description: string;
   category: string;
   parameters: GeneratedParameter[];
+  inputs?: UOPort[];
+  outputs?: UOPort[];
+  specs?: UOSpecs;
+  primitives?: UOPrimitive[];
+  supportedDevices?: SupportedDevice[];
+  constraints?: UOConstraints;
+  environment?: EnvironmentRequirements;
   createdAt: string;
   version: string;
+  icon?: string;
+  isCustom: boolean;
 }
 
 export interface GeneratedParameter {
@@ -149,6 +167,103 @@ export interface GeneratedParameter {
   };
   unit?: string;
   description?: string;
+}
+
+// Input/Output port definitions
+export interface UOPort {
+  id: string;
+  label: string;
+  type: string; // 'liquid', 'gas', 'solid', 'signal', 'data', etc.
+  required: boolean;
+  description?: string;
+  constraints?: {
+    flowRate?: [number, number];
+    temperature?: [number, number];
+    pressure?: [number, number];
+    volume?: [number, number];
+  };
+}
+
+// Hardware/Software specifications
+export interface UOSpecs {
+  model?: string;
+  manufacturer?: string;
+  range?: string;
+  precision?: string;
+  type?: string;
+  ports?: string;
+  switchingTime?: string;
+  powerRequirement?: string;
+  dimensions?: string;
+  weight?: string;
+  operatingTemperature?: string;
+  communicationProtocol?: string;
+}
+
+// Control primitives (low-level operations)
+export interface UOPrimitive {
+  id: string;
+  name: string;
+  description: string;
+  order: number;
+  pythonCode: string;
+  parameters?: PrimitiveParameter[];
+  returnType?: string;
+  errorHandling?: string;
+}
+
+export interface PrimitiveParameter {
+  name: string;
+  type: 'string' | 'number' | 'boolean';
+  default?: any;
+  description?: string;
+  required?: boolean;
+}
+
+// Supported device configurations
+export interface SupportedDevice {
+  manufacturer: string;
+  model: string;
+  constraints: {
+    plateFormat?: string[];
+    volumeRange?: [number, number];
+    temperature?: [number, number];
+    pressure?: [number, number];
+    flowRate?: [number, number];
+  };
+  compatibility?: string[];
+  driverVersion?: string;
+}
+
+// UO constraints and limitations
+export interface UOConstraints {
+  maxConcurrentOperations?: number;
+  requiredCalibration?: boolean;
+  maintenanceInterval?: string;
+  operationalLimits?: {
+    temperature?: [number, number];
+    pressure?: [number, number];
+    flowRate?: [number, number];
+    volume?: [number, number];
+  };
+  safetyRequirements?: string[];
+}
+
+// Environment requirements
+export interface EnvironmentRequirements {
+  temperature?: [number, number];
+  humidity?: [number, number];
+  ventilation?: 'required' | 'recommended' | 'none';
+  fumeHood?: boolean;
+  cleanRoom?: boolean;
+  vibrationIsolation?: boolean;
+  electricalRequirements?: {
+    voltage?: string;
+    current?: string;
+    frequency?: string;
+  };
+  gasSupply?: string[];
+  wasteHandling?: string[];
 }
 
 // Registration result

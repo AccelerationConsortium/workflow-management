@@ -1,0 +1,341 @@
+/**
+ * Styles for Robotic Control nodes
+ */
+
+.robotic-node {
+  background-color: white;
+  border: 2px solid #E0E0E0;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-width: 250px;
+  max-width: 300px;
+  transition: all 0.2s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+.robotic-node.selected {
+  border-color: #2196F3;
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.robotic-node .node-header {
+  background-color: #E3F2FD;
+  padding: 12px 16px;
+  border-radius: 6px 6px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: grab;
+}
+
+.robotic-node .node-header:active {
+  cursor: grabbing;
+}
+
+.robotic-node .node-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #1976D2;
+}
+
+.robotic-node .node-icon {
+  font-size: 18px;
+}
+
+.robotic-node .node-content {
+  padding: 12px 16px;
+}
+
+.robotic-node .node-description {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.robotic-node .parameters-section {
+  border-top: 1px solid #E0E0E0;
+  padding-top: 12px;
+}
+
+.robotic-node .parameter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.robotic-node .parameter-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #424242;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.robotic-node .parameter-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #212121;
+}
+
+.robotic-node .parameter-unit {
+  font-size: 12px;
+  color: #757575;
+}
+
+.robotic-node .position-display {
+  background-color: #F5F5F5;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-family: 'Monaco', 'Consolas', monospace;
+  font-size: 12px;
+  margin: 4px 0;
+}
+
+.robotic-node .position-coords {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.robotic-node .coord-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.robotic-node .coord-label {
+  color: #9E9E9E;
+  font-weight: 600;
+}
+
+.robotic-node .coord-value {
+  color: #1976D2;
+  font-weight: 500;
+}
+
+.robotic-node .robot-type-chip {
+  background-color: #1976D2;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.robotic-node .motion-type-chip {
+  background-color: #FFA726;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.robotic-node .status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.robotic-node .status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #4CAF50;
+}
+
+.robotic-node .status-dot.error {
+  background-color: #F44336;
+}
+
+.robotic-node .status-dot.warning {
+  background-color: #FF9800;
+}
+
+/* Node type specific colors */
+.robotic-node.move-to {
+  border-left: 4px solid #2196F3;
+}
+
+.robotic-node.pick {
+  border-left: 4px solid #4CAF50;
+}
+
+.robotic-node.place {
+  border-left: 4px solid #FF9800;
+}
+
+.robotic-node.home {
+  border-left: 4px solid #9C27B0;
+}
+
+.robotic-node.sequence {
+  border-left: 4px solid #00BCD4;
+}
+
+.robotic-node.wait {
+  border-left: 4px solid #757575;
+}
+
+/* Handle styles */
+.robotic-node .node-handle {
+  width: 12px;
+  height: 12px;
+  background-color: #2196F3;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.robotic-node .node-handle.input {
+  top: -6px;
+}
+
+.robotic-node .node-handle.output {
+  bottom: -6px;
+}
+
+/* Accordion styles */
+.robotic-node .MuiAccordion-root {
+  box-shadow: none;
+  background-color: transparent;
+  margin: 0 !important;
+}
+
+.robotic-node .MuiAccordionSummary-root {
+  min-height: 36px !important;
+  padding: 0 12px;
+  background-color: #F5F5F5;
+  border-radius: 4px;
+  margin: 8px 0;
+}
+
+.robotic-node .MuiAccordionSummary-content {
+  margin: 8px 0 !important;
+  font-size: 13px;
+  font-weight: 600;
+  color: #616161;
+}
+
+.robotic-node .MuiAccordionDetails-root {
+  padding: 8px 0;
+}
+
+/* Input field styles */
+.robotic-node .MuiTextField-root {
+  margin: 4px 0;
+}
+
+.robotic-node .MuiInputBase-root {
+  font-size: 13px;
+}
+
+.robotic-node .MuiInputLabel-root {
+  font-size: 12px;
+}
+
+.robotic-node .MuiInputBase-input {
+  padding: 8px 12px;
+  cursor: text;
+}
+
+.robotic-node .MuiSelect-root {
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.robotic-node .MuiSelect-select {
+  cursor: pointer;
+}
+
+.robotic-node .MuiSwitch-root {
+  cursor: pointer;
+}
+
+.robotic-node .MuiFormControlLabel-root {
+  cursor: pointer;
+}
+
+/* Ensure parameter controls don't trigger accordion */
+.robotic-node .parameter-field {
+  position: relative;
+  z-index: 1;
+}
+
+.robotic-node .parameter-field .MuiTextField-root,
+.robotic-node .parameter-field .MuiFormControl-root,
+.robotic-node .parameter-field .MuiFormControlLabel-root {
+  pointer-events: auto;
+}
+
+/* Number input specific styles */
+.robotic-node input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.robotic-node input[type="number"]::-webkit-outer-spin-button,
+.robotic-node input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Select dropdown styles */
+.robotic-node .MuiSelect-icon {
+  cursor: pointer;
+}
+
+.robotic-node .MuiMenuItem-root {
+  font-size: 13px;
+}
+
+/* Action buttons */
+.robotic-node .node-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #E0E0E0;
+}
+
+.robotic-node .action-button {
+  flex: 1;
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 4px;
+  border: 1px solid #E0E0E0;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.robotic-node .action-button:hover {
+  background-color: #F5F5F5;
+  border-color: #2196F3;
+  color: #2196F3;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .robotic-node {
+    min-width: 200px;
+  }
+  
+  .robotic-node .node-title {
+    font-size: 13px;
+  }
+  
+  .robotic-node .node-description {
+    font-size: 11px;
+  }
+}
