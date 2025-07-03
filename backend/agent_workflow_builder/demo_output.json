@@ -114,9 +114,9 @@
             },
             "template": {
               "type": "add_liquid",
-              "name": "液体添加",
+              "name": "Add Liquid",
               "category": "liquid_handling",
-              "description": "向容器中添加指定体积的液体",
+              "description": "Add specified volume of liquid to container",
               "params": {
                 "volume": {
                   "type": "number",
@@ -124,31 +124,31 @@
                   "default": 10,
                   "min": 0.1,
                   "max": 1000,
-                  "description": "添加液体的体积"
+                  "description": "Add liquid to container"
                 },
                 "chemical": {
                   "type": "string",
                   "default": "H2O",
-                  "description": "化学试剂名称"
+                  "description": "Chemical reagent name"
                 },
                 "speed": {
                   "type": "number",
                   "unit": "ml/min",
                   "default": 5,
-                  "description": "添加速率"
+                  "description": "Addition rate"
                 },
                 "container": {
                   "type": "string",
                   "default": "reaction_vessel",
-                  "description": "目标容器"
+                  "description": "Target container"
                 }
               },
               "keywords": [
-                "加液",
-                "添加",
-                "液体",
-                "溶液",
-                "试剂",
+                "Add Liquid",
+                "Add",
+                "Liquid",
+                "Solution",
+                "Chemical",
                 "add",
                 "liquid",
                 "solution"
@@ -181,9 +181,9 @@
             },
             "template": {
               "type": "heat",
-              "name": "加热控制",
+              "name": "Heating Control",
               "category": "temperature_control",
-              "description": "将样品加热到指定温度并保持一定时间",
+              "description": "Heat sample to specified temperature and maintain for duration",
               "params": {
                 "temperature": {
                   "type": "number",
@@ -191,7 +191,7 @@
                   "default": 25,
                   "min": 0,
                   "max": 200,
-                  "description": "目标温度"
+                  "description": "Target temperature"
                 },
                 "duration": {
                   "type": "number",
@@ -199,19 +199,19 @@
                   "default": 300,
                   "min": 1,
                   "max": 86400,
-                  "description": "保持时间"
+                  "description": "Duration to maintain temperature"
                 },
                 "ramp_rate": {
                   "type": "number",
                   "unit": "°C/min",
                   "default": 5,
-                  "description": "升温速率"
+                  "description": "Temperature ramp rate"
                 }
               },
               "keywords": [
-                "加热",
-                "升温",
-                "保温",
+                "Heating",
+                "Ramp",
+                "Maintain",
                 "heat",
                 "temperature",
                 "warm"
@@ -245,41 +245,41 @@
             },
             "template": {
               "type": "cv",
-              "name": "循环伏安法",
+              "name": "Cyclic Voltammetry",
               "category": "electrochemical",
-              "description": "进行循环伏安测试",
+              "description": "Perform cyclic voltammetry analysis",
               "params": {
                 "start_voltage": {
                   "type": "number",
                   "unit": "V",
                   "default": -1.0,
-                  "description": "起始电压"
+                  "description": "Initial voltage"
                 },
                 "end_voltage": {
                   "type": "number",
                   "unit": "V",
                   "default": 1.0,
-                  "description": "结束电压"
+                  "description": "Final voltage"
                 },
                 "scan_rate": {
                   "type": "number",
                   "unit": "mV/s",
                   "default": 50,
-                  "description": "扫描速率"
+                  "description": "Scan rate"
                 },
                 "cycles": {
                   "type": "number",
                   "default": 3,
                   "min": 1,
                   "max": 100,
-                  "description": "循环次数"
+                  "description": "Number of cycles"
                 }
               },
               "keywords": [
                 "CV",
-                "循环伏安",
-                "电化学",
-                "扫描",
+                "Cyclic Voltammetry",
+                "Electrochemical",
+                "Scan",
                 "cyclic",
                 "voltammetry"
               ]
@@ -312,7 +312,7 @@
               "type": "stir",
               "name": "搅拌",
               "category": "mixing",
-              "description": "搅拌溶液以确保混合均匀",
+              "description": "Stir solution for mixing",
               "params": {
                 "speed": {
                   "type": "number",
@@ -320,18 +320,18 @@
                   "default": 300,
                   "min": 50,
                   "max": 2000,
-                  "description": "搅拌速度"
+                  "description": "Stirring speed"
                 },
                 "duration": {
                   "type": "number",
                   "unit": "seconds",
                   "default": 60,
-                  "description": "搅拌时间"
+                  "description": "Stirring duration"
                 }
               },
               "keywords": [
-                "搅拌",
-                "混合",
+                "Stir",
+                "Mix",
                 "stir",
                 "mix",
                 "agitate"

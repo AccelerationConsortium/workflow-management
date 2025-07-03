@@ -27,7 +27,7 @@ export const ConditionalEdge: React.FC<ConditionalEdgeProps> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   
-  // 获取边的路径
+  // get edge path
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
     sourceY,
@@ -37,7 +37,7 @@ export const ConditionalEdge: React.FC<ConditionalEdgeProps> = ({
     targetPosition,
   });
   
-  // 根据条件类型确定边的样式
+  // compute edge style based on condition type
   const getEdgeStyle = () => {
     const conditionType = data?.condition?.type || 'boolean';
     
@@ -59,7 +59,7 @@ export const ConditionalEdge: React.FC<ConditionalEdgeProps> = ({
     };
   };
   
-  // 获取标签文本
+  // get label text
   const getLabelText = () => {
     const conditionType = data?.condition?.type || 'boolean';
     
@@ -84,7 +84,7 @@ export const ConditionalEdge: React.FC<ConditionalEdgeProps> = ({
         onMouseLeave={() => setIsHovered(false)}
       />
       
-      {/* 边标签 */}
+      {/* edge label */}
       <text>
         <textPath
           href={`#${id}`}
@@ -102,7 +102,7 @@ export const ConditionalEdge: React.FC<ConditionalEdgeProps> = ({
         </textPath>
       </text>
       
-      {/* 条件描述提示 */}
+      {/* node description tooltip */}
       {isHovered && data?.condition?.description && (
         <foreignObject
           width={120}
