@@ -9,7 +9,7 @@ from backend.executors.sdl_catalyst_executor import SDLCatalystExecutor
 from backend.executors.base_executor import TaskConfig, TaskStatus
 from backend.api.websocket_service import ws_manager, handle_workflow_subscription, handle_broadcast_subscription
 
-# 配置日志
+# configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -22,22 +22,22 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Workflow Management API")
 
-# 全局执行器实例
+# global executor instance
 executor = SDLCatalystExecutor()
 
 class WorkflowRequest(BaseModel):
-    """工作流请求模型"""
+    """workflow request model"""
     workflow_type: str
     workflow_config: Dict[str, Any]
 
 class WorkflowResponse(BaseModel):
-    """工作流响应模型"""
+    """workflow response model"""
     run_id: str
     status: str
     message: str
 
 class WorkflowStatus(BaseModel):
-    """工作流状态模型"""
+    """workflow status model"""
     run_id: str
     status: str
     progress: float
@@ -49,28 +49,28 @@ class WorkflowStatus(BaseModel):
 
 @app.on_event("startup")
 async def startup_event():
-    """应用启动时初始化执行器"""
+    """initialize executor on startup"""
     await executor.initialize()
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    """应用关闭时清理资源"""
+    """clean up executor on shutdown"""
     await executor.cleanup()
 
 @app.post("/run", response_model=WorkflowResponse)
 async def run_workflow(request: WorkflowRequest, background_tasks: BackgroundTasks):
-    """启动工作流执行"""
+    """start workflow execution"""
     run_id = str(uuid.uuid4())
     
     try:
-        # 创建任务配置
+        # create task config
         config = TaskConfig(
             task_id=run_id,
             task_type=request.workflow_type,
             parameters={"workflow_config": request.workflow_config}
         )
         
-        # 在后台执行任务
+        # execute task in background
         background_tasks.add_task(executor.execute_task, config)
         
         logger.info(f"Started workflow execution: {run_id}")
@@ -86,12 +86,12 @@ async def run_workflow(request: WorkflowRequest, background_tasks: BackgroundTas
 
 @app.get("/status/{run_id}", response_model=WorkflowStatus)
 async def get_workflow_status(run_id: str):
-    """获取工作流状态"""
+    """get workflow status"""
     try:
-        # 获取任务状态
+        # get task status
         status = await executor.get_status(run_id)
         
-        # 获取工作流状态
+        # get workflow state
         workflow_state = executor.get_workflow_state(f"sdl_wf_{run_id}")
         
         if workflow_state is None:
@@ -114,7 +114,7 @@ async def get_workflow_status(run_id: str):
 
 @app.get("/logs/{run_id}")
 async def get_workflow_logs(run_id: str):
-    """获取工作流日志"""
+    """get workflow logs"""
     try:
         workflow_state = executor.get_workflow_state(f"sdl_wf_{run_id}")
         if workflow_state is None:
@@ -131,10 +131,10 @@ async def get_workflow_logs(run_id: str):
 
 @app.websocket("/ws")
 async def websocket_broadcast_endpoint(websocket: WebSocket):
-    """广播订阅端点"""
+    """broadcast endpoint"""
     await handle_broadcast_subscription(websocket)
 
 @app.websocket("/ws/{run_id}")
 async def websocket_workflow_endpoint(websocket: WebSocket, run_id: str):
-    """工作流状态订阅端点"""
+    """subscribe to workflow updates"""
     await handle_workflow_subscription(websocket, run_id) 
