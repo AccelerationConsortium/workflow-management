@@ -5,6 +5,7 @@ import { DataUploadNode } from './DataUploadNode';
 import { OperationNode } from '@/types/workflow';
 import { SDLCatalystNodes } from './SDLCatalyst';
 import { SDL2Nodes } from './SDL2';
+import { SDL7Nodes } from './SDL7';
 
 // Create a map to store node components
 const nodeComponentMap = new Map();
@@ -93,12 +94,14 @@ export const nodeComponents = {
   BalanceControl,
   Activation,
   ...SDLCatalystNodes,
-  ...SDL2Nodes
+  ...SDL2Nodes,
+  ...SDL7Nodes
 };
 
 export {
   FileNodeComponent as FileNode,
   DataUploadNodeComponent as DataUploadNode,
   SDLCatalystNodes,
-  SDL2Nodes
+  SDL2Nodes,
+  SDL7Nodes
 };

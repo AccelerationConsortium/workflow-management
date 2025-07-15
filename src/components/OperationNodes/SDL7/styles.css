@@ -1,0 +1,142 @@
+.sdl7-node {
+  background: #fff;
+  border: 2px solid #6b46c1;
+  border-radius: 8px;
+  padding: 0;
+  min-width: 300px;
+  box-shadow: 0 2px 4px rgba(107, 70, 193, 0.1);
+  transition: all 0.2s ease;
+}
+
+.sdl7-node:hover {
+  box-shadow: 0 4px 8px rgba(107, 70, 193, 0.2);
+  transform: translateY(-1px);
+}
+
+.sdl7-node .node-header {
+  background: linear-gradient(135deg, #6b46c1 0%, #8b5cf6 100%);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px 6px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sdl7-node .node-header svg {
+  color: white;
+}
+
+.sdl7-node .node-content {
+  padding: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.sdl7-node .node-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sdl7-node .node-content::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 3px;
+}
+
+.sdl7-node .node-content::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.sdl7-node .node-content::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Different colors for different SDL7 operation types */
+.sdl7-node.hplc-sample .node-header {
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+}
+
+.sdl7-node.hplc-sample {
+  border-color: #3b82f6;
+}
+
+.sdl7-node.extraction .node-header {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+}
+
+.sdl7-node.extraction {
+  border-color: #10b981;
+}
+
+.sdl7-node.initialization .node-header {
+  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+}
+
+.sdl7-node.initialization {
+  border-color: #f59e0b;
+}
+
+.sdl7-node.solvent .node-header {
+  background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+}
+
+.sdl7-node.solvent {
+  border-color: #ef4444;
+}
+
+/* Parameter group styling */
+.sdl7-node .MuiDivider-root {
+  margin: 4px 0;
+}
+
+.sdl7-node .MuiTextField-root {
+  margin: 4px 0;
+}
+
+.sdl7-node .MuiFormControl-root {
+  margin: 4px 0;
+}
+
+.sdl7-node .MuiFormControlLabel-root {
+  margin: 4px 0;
+}
+
+/* Chip styling for primitive operations */
+.sdl7-node .MuiChip-root {
+  background-color: rgba(107, 70, 193, 0.1);
+  border-color: rgba(107, 70, 193, 0.3);
+  color: #6b46c1;
+  font-weight: 500;
+}
+
+/* Handle styling */
+.sdl7-node .react-flow__handle {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #6b46c1;
+  background: white;
+}
+
+.sdl7-node .react-flow__handle-top {
+  top: -6px;
+}
+
+.sdl7-node .react-flow__handle-bottom {
+  bottom: -6px;
+}
+
+.sdl7-node .react-flow__handle:hover {
+  background: #6b46c1;
+  transform: scale(1.2);
+}
+
+/* Button styling */
+.sdl7-node .MuiButton-outlined {
+  border-color: #6b46c1;
+  color: #6b46c1;
+}
+
+.sdl7-node .MuiButton-outlined:hover {
+  background-color: rgba(107, 70, 193, 0.05);
+  border-color: #8b5cf6;
+}
