@@ -20,4 +20,30 @@ model File {
 
   @@index([nodeId])
   @@index([inputId])
+}
+
+model ExperimentRun {
+  id              String   @id @default(uuid())
+  userId          String?  // User who triggered the run
+  workflowId      String   // Workflow identifier
+  configHash      String   // Configuration hash for reproducibility
+  inputSummary    Json?    // Input files or parameters
+  outputSummary   Json?    // Output results (JSON, plots, logs)
+  functionName    String?  // Name of algorithm or unit operation
+  environment     Json?    // Python/Conda environment or container info
+  gitCommitHash   String?  // Git commit hash if available
+  triggerSource   String?  // CLI command or frontend trigger source
+  status          String   @default("pending") // pending, running, completed, failed
+  startTime       DateTime @default(now())
+  endTime         DateTime?
+  duration        Int?     // Runtime duration in milliseconds
+  errorMessage    String?  // Error details if failed
+  metadata        Json?    // Additional metadata
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([workflowId])
+  @@index([userId])
+  @@index([status])
+  @@index([startTime])
 } 

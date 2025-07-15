@@ -30,6 +30,7 @@ import ComputerIcon from '@mui/icons-material/Computer';
 import ScienceIcon from '@mui/icons-material/Science';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import SettingsIcon from '@mui/icons-material/Settings';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 
 // Import BaseNode separately
 import { BaseNode } from './components/BaseNode';
@@ -96,6 +97,7 @@ import { ControlPanel } from './components/ControlPanel';
 import { useControlPanelState } from './hooks/useControlPanelState';
 import { SDLCatalystNodes } from './components/OperationNodes/SDLCatalyst';
 import { SDL2Nodes } from './components/OperationNodes/SDL2';
+import { SDL7Nodes, SDL7NodeConfigs } from './components/OperationNodes/SDL7';
 import { RoboticControlNodes } from './components/OperationNodes/RoboticControl';
 import Sidebar from './components/Sidebar';
 import TestStylePage from './components/TestStylePage';
@@ -103,6 +105,9 @@ import TestRobotParameters from './components/TestRobotParameters';
 import { UORegistrationButton } from './components/UOBuilder/UORegistrationButton';
 import { UOManagementModal } from './components/UOManagement';
 import { EdgeConfig as EdgeConfigFromComponent } from './components/EdgeConfig';
+import { CheckboxTest } from './components/CheckboxTest';
+import { ExecutionTracePanel } from './components/ExecutionTracePanel';
+import { TemplateLibrary } from './components/TemplateLibrary';
 
 // 创建主题
 const theme = createTheme({
@@ -208,6 +213,12 @@ const MemoizedSDL2Nodes = Object.entries(SDL2Nodes).reduce((acc, [key, component
   [key]: memo((props: NodeProps) => React.createElement(component as React.ComponentType<NodeProps>, props))
 }), {});
 
+// Define SDL7 node types
+const MemoizedSDL7Nodes = Object.entries(SDL7Nodes).reduce((acc, [key, component]) => ({
+  ...acc,
+  [key]: memo((props: NodeProps) => React.createElement(component as React.ComponentType<NodeProps>, props))
+}), {});
+
 // Define Robotic Control node types
 const MemoizedRoboticControlNodes = Object.entries(RoboticControlNodes).reduce((acc, [key, component]) => ({
   ...acc,
@@ -219,8 +230,9 @@ const ALL_NODE_TYPES: NodeTypes = {
   ...baseNodeTypes,
   ...MemoizedSDLCatalystNodes,
   ...MemoizedSDL2Nodes,
+  ...MemoizedSDL7Nodes,
   ...MemoizedRoboticControlNodes,
-  customUO: memo(CustomUONode), // 添加自定义UO节点类型
+  customUO: memo(CustomUONode), // added customUO node type
   // custom: CustomEdge, // Removed: CustomEdge is an edge type, should be in edgeTypes
 };
 
@@ -320,12 +332,13 @@ function Flow() {
   const [showUOManagement, setShowUOManagement] = useState(false);
   const [isSimulating, setIsSimulating] = useState(false);
   const [validationProgress, setValidationProgress] = useState<ValidationProgress | null>(null);
+  const [showTemplateLibrary, setShowTemplateLibrary] = useState(false);
   const [validationError, setValidationError] = useState<ValidationResult | null>(null);
   const [showErrorDialog, setShowErrorDialog] = useState(false);
 
-  // 获取测试节点数据
+  // get local test UOs
   useEffect(() => {
-    // 使用本地数据
+    // use local test UOs
     const testNodes = operationNodes.filter(node => node.category === 'Test');
     setTestUOs(testNodes);
   }, []);
@@ -447,14 +460,14 @@ function Flow() {
         y: event.clientY - reactFlowBounds.top,
       });
 
-      // 检查是否是自定义UO
+      // Check if it's a custom UO
       const customUO = customUOService.getUOById(type);
 
       let nodeDefinition;
       let nodeType = type;
 
       if (customUO) {
-        // 自定义UO
+        // custom UO
         nodeDefinition = {
           type: type,
           label: customUO.name,
@@ -462,9 +475,9 @@ function Flow() {
           category: customUO.category,
           isCustom: true
         };
-        nodeType = 'customUO'; // 使用通用的customUO节点类型
+        nodeType = 'customUO'; // Use the generic customUO node type
       } else {
-        // 标准节点
+        // standard UO
         nodeDefinition = operationNodes.find(node => node.type === type);
 
         if (!nodeDefinition) {
@@ -506,6 +519,26 @@ function Flow() {
             );
           }
         };
+      }
+
+      // Initialize SDL7 node parameters with defaults
+      if (type.startsWith('sdl7')) {
+        const sdl7Config = SDL7NodeConfigs.find(config => config.type === type);
+        if (sdl7Config && sdl7Config.defaultData) {
+          nodeData = {
+            ...nodeData,
+            ...sdl7Config.defaultData,
+            onDataChange: (newData: any) => {
+              setNodes(nds =>
+                nds.map(node =>
+                  node.id === nodeId
+                    ? { ...node, data: newData }
+                    : node
+                )
+              );
+            }
+          };
+        }
       }
 
       // Add parameter change callback for custom UO nodes
@@ -597,7 +630,7 @@ function Flow() {
     setContextMenu(null);
   }, [contextMenu, nodes, setNodes]);
 
-  // 点击画布时关闭右键菜单
+  // when click on the pane, close the context menu
   const onPaneClick = useCallback(() => {
     setContextMenu(null);
     setSelectedNode(null);
@@ -637,12 +670,12 @@ function Flow() {
     if (contextMenu) {
       const sourceNode = nodes.find(node => node.id === contextMenu.nodeId);
       if (sourceNode) {
-        // 创建新节点，复制原节点的数据
+        // create a new node with the same data but a new ID
         const newNode = {
           ...sourceNode,
-          id: `${sourceNode.type}-${Date.now()}`, // 生成新的唯一ID
+          id: `${sourceNode.type}-${Date.now()}`, // generate a new unique ID
           position: {
-            x: sourceNode.position.x + 250, // 在原节点右侧创建
+            x: sourceNode.position.x + 250, // create the new node to the right of the original
             y: sourceNode.position.y
           }
         };
@@ -848,8 +881,200 @@ function Flow() {
   }, [setNodes]);
 
   /**
+   * Expands SDL7 unit operations into their primitive operations
+   * @param {Object} node - The SDL7 node to expand
+   * @returns {Array} Array of primitive operation nodes
+   */
+  const expandSDL7Node = useCallback((node: any) => {
+    const primitiveNodes: any[] = [];
+    
+    switch (node.type) {
+      case 'sdl7PrepareAndInjectHPLCSample':
+        // Always add sample_aliquot
+        primitiveNodes.push({
+          id: `${node.id}_sample_aliquot`,
+          type: "sample_aliquot",
+          params: {
+            source_tray: node.params?.source_tray || "reaction_tray",
+            source_vial: node.params?.source_vial || "A1",
+            dest_tray: node.params?.dest_tray || "hplc",
+            dest_vial: node.params?.dest_vial || "A1",
+            aliquot_volume_ul: node.params?.aliquot_volume_ul || 100
+          },
+          uo: node.type,
+          uo_id: node.id,
+          label: `${node.label} - sample_aliquot`
+        });
+        
+        // Conditionally add weigh_container
+        if (node.params?.perform_weighing === true) {
+          primitiveNodes.push({
+            id: `${node.id}_weigh_container`,
+            type: "weigh_container",
+            params: {
+              vial: node.params?.dest_vial || "A1",
+              tray: node.params?.dest_tray || "hplc",
+              sample_name: node.params?.sample_name || `Sample_${node.params?.dest_vial || 'A1'}`,
+              to_hplc_inst: true
+            },
+            uo: node.type,
+            uo_id: node.id,
+            condition: "perform_weighing == true",
+            label: `${node.label} - weigh_container`
+          });
+        }
+        
+        // Always add run_hplc
+        primitiveNodes.push({
+          id: `${node.id}_run_hplc`,
+          type: "run_hplc",
+          params: {
+            method: node.params?.hplc_method || "standard_curve_01",
+            sample_name: node.params?.sample_name || `Sample_${node.params?.dest_vial || 'A1'}`,
+            stall: node.params?.stall || false,
+            vial: node.params?.dest_vial || "A1",
+            vial_hplc_location: `P2-${node.params?.dest_vial || 'A1'}`,
+            inj_vol: node.params?.injection_volume || 5
+          },
+          uo: node.type,
+          uo_id: node.id,
+          label: `${node.label} - run_hplc`
+        });
+        break;
+        
+      case 'sdl7RunExtractionAndTransferToHPLC':
+        primitiveNodes.push({
+          id: `${node.id}_run_extraction`,
+          type: "run_extraction",
+          params: {
+            stir_time: node.params?.stir_time || 5,
+            settle_time: node.params?.settle_time || 2,
+            rate: node.params?.rate || 1000,
+            reactor: node.params?.reactor || 1,
+            time_units: node.params?.time_units || "min",
+            output_file: `extraction_${node.params?.sample_name || 'sample'}.csv`
+          },
+          uo: node.type,
+          uo_id: node.id,
+          label: `${node.label} - run_extraction`
+        });
+        
+        primitiveNodes.push({
+          id: `${node.id}_extraction_vial_from_reactor`,
+          type: "extraction_vial_from_reactor",
+          params: {
+            vial: node.params?.extraction_vial || "A1"
+          },
+          uo: node.type,
+          uo_id: node.id,
+          label: `${node.label} - extraction_vial_from_reactor`
+        });
+        
+        if (node.params?.perform_aliquot !== false) {
+          primitiveNodes.push({
+            id: `${node.id}_sample_aliquot`,
+            type: "sample_aliquot",
+            params: {
+              source_tray: "extraction_tray",
+              source_vial: node.params?.extraction_vial || "A1",
+              dest_tray: "hplc",
+              dest_vial: node.params?.extraction_vial || "A1",
+              aliquot_volume_ul: node.params?.aliquot_volume_ul || 100
+            },
+            uo: node.type,
+            uo_id: node.id,
+            condition: "perform_aliquot == true",
+            label: `${node.label} - sample_aliquot`
+          });
+        }
+        
+        primitiveNodes.push({
+          id: `${node.id}_run_hplc`,
+          type: "run_hplc",
+          params: {
+            method: node.params?.hplc_method || "extraction_analysis",
+            sample_name: node.params?.sample_name || "Extraction_Sample",
+            stall: false,
+            vial: node.params?.extraction_vial || "A1",
+            vial_hplc_location: `P2-${node.params?.extraction_vial || 'A1'}`,
+            inj_vol: node.params?.injection_volume || 10
+          },
+          uo: node.type,
+          uo_id: node.id,
+          label: `${node.label} - run_hplc`
+        });
+        break;
+        
+      case 'sdl7DeckInitialization':
+        primitiveNodes.push({
+          id: `${node.id}_initialize_deck`,
+          type: "initialize_deck",
+          params: {
+            experiment_name: node.params?.experiment_name || "SDL7_Experiment",
+            solvent_file: node.params?.solvent_file || "solvents_default.csv",
+            method_name: node.params?.method_name || "standard_curve_01",
+            inj_vol: node.params?.injection_volume || 5
+          },
+          uo: node.type,
+          uo_id: node.id,
+          label: `${node.label} - initialize_deck`
+        });
+        
+        primitiveNodes.push({
+          id: `${node.id}_hplc_instrument_setup`,
+          type: "hplc_instrument_setup",
+          params: {
+            method: node.params?.method_name || "standard_curve_01",
+            injection_volume: node.params?.injection_volume || 5,
+            sequence: node.params?.sequence || null
+          },
+          uo: node.type,
+          uo_id: node.id,
+          label: `${node.label} - hplc_instrument_setup`
+        });
+        break;
+        
+      case 'sdl7AddSolventToSampleVial':
+        primitiveNodes.push({
+          id: `${node.id}_add_solvent`,
+          type: "add_solvent",
+          params: {
+            vial: node.params?.vial || "A1",
+            tray: node.params?.tray || "hplc",
+            solvent: node.params?.solvent || "Methanol",
+            solvent_vol: node.params?.solvent_vol || 900,
+            clean: node.params?.clean || false
+          },
+          uo: node.type,
+          uo_id: node.id,
+          label: `${node.label} - add_solvent`
+        });
+        
+        if (node.params?.perform_weighing === true) {
+          primitiveNodes.push({
+            id: `${node.id}_weigh_container`,
+            type: "weigh_container",
+            params: {
+              vial: node.params?.vial || "A1",
+              tray: node.params?.tray || "hplc",
+              sample_name: node.params?.sample_name || `${node.params?.solvent || 'Methanol'}_${node.params?.vial || 'A1'}`,
+              to_hplc_inst: false
+            },
+            uo: node.type,
+            uo_id: node.id,
+            condition: "perform_weighing == true",
+            label: `${node.label} - weigh_container`
+          });
+        }
+        break;
+    }
+    
+    return primitiveNodes;
+  }, []);
+
+  /**
    * Generates the workflow payload in the format matching test.json.
-   * Includes global_config, structured nodes, and simplified edges.
+   * SDL7 nodes are expanded into their primitive operations.
    * @returns {object | null} The workflow data object or null if generation fails.
    */
   const generateWorkflowPayload = useCallback(() => {
@@ -865,7 +1090,7 @@ function Flow() {
       return true; // Keep all other nodes
     });
 
-    const transformedNodes = filteredNodes.map(node => {
+    const transformedNodes = filteredNodes.flatMap(node => {
       const label = node.data?.label || node.type || 'Unnamed Node';
       let params = node.data?.params || {};
 
@@ -873,6 +1098,22 @@ function Flow() {
       let nodeType = node.type;
       if (node.type === 'customUO' && node.data?.customUOId) {
         nodeType = node.data.customUOId;
+      }
+
+      // Special handling for SDL7 nodes - expand them into primitive operations
+      if (nodeType?.startsWith('sdl7')) {
+        // Get parameters from node.data.parameters for SDL7 nodes
+        const sdl7Params = node.data?.parameters || {};
+        
+        const expandedNode = {
+          id: node.id,
+          type: nodeType,
+          label: label,
+          params: sdl7Params
+        };
+        
+        // Expand SDL7 nodes into primitive operations
+        return expandSDL7Node(expandedNode);
       }
 
       // Special handling for Robotic Control nodes
@@ -899,20 +1140,49 @@ function Flow() {
         }
       }
 
-      return {
+      return [{
         id: node.id,
         type: nodeType,
         label: label,
         params: params
-      };
+      }];
+    }).flat();
+
+    // Create a mapping from original node IDs to expanded node IDs
+    const nodeIdMapping: Record<string, { first: string; last: string }> = {};
+    
+    // Build the mapping for SDL7 nodes
+    filteredNodes.forEach(node => {
+      if (node.type?.startsWith('sdl7')) {
+        const expandedNodes = transformedNodes.filter(n => n.uo_id === node.id);
+        if (expandedNodes.length > 0) {
+          nodeIdMapping[node.id] = {
+            first: expandedNodes[0].id,
+            last: expandedNodes[expandedNodes.length - 1].id
+          };
+        }
+      }
     });
 
-    // --- Edges Transformation (FIXED) ---
+    // --- Edges Transformation with SDL7 node handling ---
     const transformedEdges = edges.map(edge => {
+      let source = edge.source;
+      let target = edge.target;
+      
+      // Update source if it's an SDL7 node that was expanded
+      if (nodeIdMapping[source]) {
+        source = nodeIdMapping[source].last; // Use the last primitive node as source
+      }
+      
+      // Update target if it's an SDL7 node that was expanded
+      if (nodeIdMapping[target]) {
+        target = nodeIdMapping[target].first; // Use the first primitive node as target
+      }
+      
       return {
         id: edge.id,                     // Include edge id
-        source: edge.source,
-        target: edge.target,
+        source: source,
+        target: target,
         sourceHandle: edge.sourceHandle, // Include sourceHandle
         targetHandle: edge.targetHandle, // Include targetHandle
         type: edge.type,                 // Include edge type (e.g., 'conditional', 'custom')
@@ -922,13 +1192,29 @@ function Flow() {
         style: edge.style               // Optional: include style object
       };
     });
+    
+    // Add edges to connect primitive operations within expanded SDL7 nodes
+    const internalEdges: any[] = [];
+    filteredNodes.forEach(node => {
+      if (node.type?.startsWith('sdl7')) {
+        const expandedNodes = transformedNodes.filter(n => n.uo_id === node.id);
+        for (let i = 0; i < expandedNodes.length - 1; i++) {
+          internalEdges.push({
+            id: `${node.id}_edge_${i}`,
+            source: expandedNodes[i].id,
+            target: expandedNodes[i + 1].id,
+            type: 'default'
+          });
+        }
+      }
+    });
 
     // --- Combine with Global Config ---
     const finalPayload = {
       // Don't include default global_config unless explicitly needed
       // Users should add their own global_config if needed
       nodes: transformedNodes,
-      edges: transformedEdges
+      edges: [...transformedEdges, ...internalEdges]
     };
 
      // Basic validation
@@ -942,7 +1228,7 @@ function Flow() {
 
 
     return finalPayload;
-  }, [nodes, edges]); // Dependencies: nodes and edges
+  }, [nodes, edges, expandSDL7Node]); // Dependencies: nodes, edges, and expandSDL7Node
 
   /**
    * Handles saving the workflow to local storage and downloading as a JSON file.
@@ -1210,7 +1496,7 @@ function Flow() {
   const Toolbar = () => {
     const createButtonRef = useRef<HTMLButtonElement>(null);
 
-    // 定义按钮样式
+    // define common button style
     const buttonStyle = {
       borderRadius: '12px',
       padding: '10px 16px',
@@ -1231,7 +1517,7 @@ function Flow() {
       }
     };
 
-    // 定义不同按钮的颜色 - 使用赛博柔和色调
+    // define button colors
     const buttonColors = {
       create: {
         backgroundColor: '#41C4A9', // Deep Aqua
@@ -1281,6 +1567,13 @@ function Flow() {
         '&:hover': {
           backgroundColor: '#E55A5A',
         }
+      },
+      template: {
+        backgroundColor: '#9C27B0', // Purple
+        color: 'white',
+        '&:hover': {
+          backgroundColor: '#7B1FA2',
+        }
       }
     };
 
@@ -1325,6 +1618,18 @@ function Flow() {
             startIcon={<SettingsIcon sx={{ fontSize: 22 }} />}
           >
             Manage UOs
+          </Button>
+
+          {/* Template Library Button */}
+          <Button
+            onClick={() => setShowTemplateLibrary(true)}
+            sx={{
+              ...buttonStyle,
+              ...buttonColors.template
+            }}
+            startIcon={<LibraryBooksIcon sx={{ fontSize: 22 }} />}
+          >
+            Template Library
           </Button>
 
           <Button
@@ -1482,8 +1787,6 @@ function Flow() {
     event.preventDefault();
     event.stopPropagation();
 
-    // 不再显示属性面板，取消basic/advance卡片功能
-    // 保留事件处理以防止其他副作用
   }, []);
 
   const handleNodeUpdate = useCallback(async (
@@ -1491,10 +1794,10 @@ function Flow() {
     data: Partial<UnitOperation>
   ) => {
     try {
-      // 调用API更新节点数据
+      // call the API to update the node
       const updatedUO = await unitOperationService.updateUnitOperation(nodeId, data);
 
-      // 更新本地状态
+      // update the node in the state
       setNodes(nds =>
         nds.map(node =>
           node.id === nodeId
@@ -1504,7 +1807,7 @@ function Flow() {
       );
     } catch (error) {
       console.error('Failed to update node:', error);
-      // 这里可以添加错误提示
+      // show error message
     }
   }, []);
 
@@ -1520,7 +1823,7 @@ function Flow() {
     }
   }, [state.isCreatingWorkflow, state.selectedNodeIds]);
 
-  // 当节点变化时，同步到 WorkflowContext
+  // when nodes or edges change, update the context
   useEffect(() => {
     dispatch({ type: 'SET_NODES', payload: nodes });
   }, [nodes, dispatch]);
@@ -1529,7 +1832,7 @@ function Flow() {
     dispatch({ type: 'SET_EDGES', payload: edges });
   }, [edges, dispatch]);
 
-  // 确保在创建工作流时初始化 currentWorkflow
+  // make sure we have a valid workflow before creating one
   const handleCreateWorkflow = () => {
     dispatch({
       type: 'SET_CURRENT_WORKFLOW',
@@ -1551,7 +1854,7 @@ function Flow() {
     dispatch({ type: 'SET_WORKFLOW_CREATING', payload: true });
   };
 
-  // 在节点选择时更新当前节点
+  // update the selected node in the context
   const onNodeSelect = (nodeId: string) => {
     setCurrentNodeId(nodeId);
   };
@@ -1705,7 +2008,7 @@ function Flow() {
           onUndo={handleUndo}
           onApplyOptimizationSuggestion={(parameters) => {
             if (selectedNode) {
-              // 应用优化建议到节点参数
+              // apply the parameters
               Object.entries(parameters).forEach(([paramId, value]) => {
                 handleParameterChange(selectedNode.id, paramId, value);
               });
@@ -1714,7 +2017,7 @@ function Flow() {
         />
       </div>
 
-      {/* 添加保存工作流的对话框 */}
+      {/* add save workflow dialog */}
       {showSaveDialog && (
         <SaveWorkflowDialog
           onSave={handleSaveWorkflow}
@@ -1722,7 +2025,7 @@ function Flow() {
         />
       )}
 
-      {/* 添加加载工作流的对话框 */}
+      {/* add load workflow dialog */}
       {showLoadDialog && (
         <LoadWorkflowDialog
           onLoad={handleLoadWorkflow}
@@ -1737,6 +2040,35 @@ function Flow() {
         onEditUO={(uo) => {
           // TODO: Implement UO editing functionality
           console.log('Edit UO:', uo);
+        }}
+      />
+
+      {/* Template Library */}
+      <TemplateLibrary
+        open={showTemplateLibrary}
+        onClose={() => setShowTemplateLibrary(false)}
+        onUseTemplate={(template) => {
+          // Create a new node from the template
+          const newNode = {
+            id: getId(),
+            type: template.nodeType,
+            position: { x: 300, y: 200 }, // Default position
+            data: {
+              label: template.name,
+              parameters: template.parameters,
+              nodeType: template.nodeType,
+              category: template.category,
+              description: template.description,
+              primitiveOperations: template.primitiveOperations,
+              fromTemplate: true,
+              templateId: template.id
+            }
+          };
+          
+          setNodes(nds => [...nds, newNode]);
+          setShowTemplateLibrary(false);
+          
+          console.log('Template applied as new node:', template.name);
         }}
       />
 
@@ -1760,18 +2092,39 @@ function Flow() {
           validationResult={validationError}
         />
       )}
+
+      {/* Execution Trace Panel */}
+      <ExecutionTracePanel
+        workflowId={state.currentWorkflow?.id || 'default'}
+        nodes={nodes}
+        isRunning={isSimulating}
+      />
     </Box>
   );
 }
 
 function App() {
-  // 添加一个状态来控制是否显示测试页面
+  // addtest page
   const [showTestPage, setShowTestPage] = useState(false);
+  const [showCheckboxTest, setShowCheckboxTest] = useState(false);
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      {showTestPage ? (
+      {showCheckboxTest ? (
+        <>
+          <Box sx={{ position: 'fixed', top: 10, left: 10, zIndex: 9999 }}>
+            <Button
+              variant="contained"
+              onClick={() => setShowCheckboxTest(false)}
+              size="small"
+            >
+              Back to Main App
+            </Button>
+          </Box>
+          <CheckboxTest />
+        </>
+      ) : showTestPage ? (
         <>
           <Box sx={{ position: 'fixed', top: 10, left: 10, zIndex: 9999 }}>
             <Button
@@ -1786,13 +2139,21 @@ function App() {
         </>
       ) : (
         <>
-          <Box sx={{ position: 'fixed', top: 10, right: 10, zIndex: 9999 }}>
+          <Box sx={{ position: 'fixed', top: 10, right: 10, zIndex: 9999, display: 'flex', gap: 1 }}>
             <Button
               variant="contained"
               onClick={() => setShowTestPage(true)}
               size="small"
             >
               Test Styles
+            </Button>
+            <Button
+              variant="contained"
+              onClick={() => setShowCheckboxTest(true)}
+              size="small"
+              color="secondary"
+            >
+              Test Checkbox
             </Button>
           </Box>
           <WorkflowProvider>

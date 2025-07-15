@@ -1,0 +1,272 @@
+{
+    "sdl7": {
+        "add_solvent": {
+            "docstring": "add_solvent docstring placeholder",
+            "parameters": [
+                {
+                    "name": "vial",
+                    "type": "str",
+                    "default": "A1"
+                },
+                {
+                    "name": "tray",
+                    "type": "str",
+                    "default": "hplc"
+                },
+                {
+                    "name": "solvent",
+                    "type": "str",
+                    "default": "Methanol"
+                },
+                {
+                    "name": "solvent_vol",
+                    "type": [
+                        "float",
+                        "int"
+                    ],
+                    "default": 900
+                },
+                {
+                    "name": "clean",
+                    "type": "bool",
+                    "default": false
+                }
+            ]
+        },
+        "extraction_vial_from_reactor": {
+            "docstring": "Moves the extraction vial from the reactor to the vial plate at the specified slot.",
+            "parameters": [
+                {
+                    "name": "vial",
+                    "type": "str",
+                    "default": null
+                }
+            ]
+        },
+        "extraction_vial_to_reactor": {
+            "docstring": "Moves the extraction vial to the reactor for extraction & monitoring.",
+            "parameters": [
+                {
+                    "name": "vial",
+                    "type": "str",
+                    "default": null
+                }
+            ]
+        },
+        "get_hplc_data": {
+            "docstring": "Loads the HPLC data for the specified vial.\n\nAvailable channels:\nchannels:{\"A\": 210,\n          \"B\": 230,\n          \"C\": 254,\n          \"D\": 290,\n          \"F\": 320}",
+            "parameters": [
+                {
+                    "name": "vial",
+                    "type": "str"
+                },
+                {
+                    "name": "channel",
+                    "type": "str",
+                    "default": null
+                },
+                {
+                    "name": "wavelength",
+                    "type": "int",
+                    "default": 210
+                },
+                {
+                    "name": "peaks",
+                    "type": "bool",
+                    "default": true
+                }
+            ]
+        },
+        "hplc_instrument_setup": {
+            "docstring": "sets up hplc for experiment",
+            "parameters": [
+                {
+                    "name": "method",
+                    "type": "str",
+                    "default": null
+                },
+                {
+                    "name": "injection_volume",
+                    "type": "float",
+                    "default": 10.0
+                },
+                {
+                    "name": "sequence",
+                    "type": "str",
+                    "default": null
+                }
+            ]
+        },
+        "initialize_deck": {
+            "docstring": "Ensures all units are prepped and ready to run a workflow.\nThese include homing the robotic arm, zeroing the balance,\nensuring hplc instrument is on, etc",
+            "parameters": [
+                {
+                    "name": "experiment_name",
+                    "type": "str",
+                    "default": null
+                },
+                {
+                    "name": "solvent_file",
+                    "type": "str",
+                    "default": null
+                },
+                {
+                    "name": "method_name",
+                    "type": "str",
+                    "default": null
+                },
+                {
+                    "name": "inj_vol",
+                    "type": "int",
+                    "default": 5
+                }
+            ]
+        },
+        "remove_vial_from_hplc": {
+            "docstring": "remove_vial_from_hplc docstring placeholder",
+            "parameters": []
+        },
+        "run_extraction": {
+            "docstring": "run_extraction docstring placeholder",
+            "parameters": [
+                {
+                    "name": "stir_time",
+                    "type": [
+                        "int",
+                        "float"
+                    ],
+                    "default": 1
+                },
+                {
+                    "name": "settle_time",
+                    "type": [
+                        "int",
+                        "float"
+                    ],
+                    "default": 1
+                },
+                {
+                    "name": "rate",
+                    "type": "int",
+                    "default": 1000
+                },
+                {
+                    "name": "reactor",
+                    "type": "int",
+                    "default": 1
+                },
+                {
+                    "name": "time_units",
+                    "type": "str",
+                    "default": "min"
+                },
+                {
+                    "name": "output_file",
+                    "type": "str",
+                    "default": null
+                }
+            ]
+        },
+        "run_hplc": {
+            "docstring": "Runs the specified HPLC experiment.",
+            "parameters": [
+                {
+                    "name": "method",
+                    "type": "str",
+                    "default": null
+                },
+                {
+                    "name": "sample_name",
+                    "type": "str",
+                    "default": null
+                },
+                {
+                    "name": "stall",
+                    "type": "bool",
+                    "default": false
+                },
+                {
+                    "name": "vial",
+                    "type": "str",
+                    "default": null
+                },
+                {
+                    "name": "vial_hplc_location",
+                    "type": "str",
+                    "default": "P2-B1"
+                },
+                {
+                    "name": "inj_vol",
+                    "type": "int",
+                    "default": 5
+                }
+            ]
+        },
+        "sample_aliquot": {
+            "docstring": "sample_aliquot docstring placeholder",
+            "parameters": [
+                {
+                    "name": "source_tray",
+                    "type": "str",
+                    "default": null
+                },
+                {
+                    "name": "source_vial",
+                    "type": "str",
+                    "default": null
+                },
+                {
+                    "name": "dest_tray",
+                    "type": "str",
+                    "default": "hplc"
+                },
+                {
+                    "name": "dest_vial",
+                    "type": "str",
+                    "default": null
+                },
+                {
+                    "name": "aliquot_volume_ul",
+                    "type": [
+                        "float",
+                        "int"
+                    ],
+                    "default": 100
+                }
+            ]
+        },
+        "volume_iterations": {
+            "docstring": "volume_iterations docstring placeholder",
+            "parameters": [
+                {
+                    "name": "volume"
+                }
+            ]
+        },
+        "weigh_container": {
+            "docstring": "weigh_container docstring placeholder",
+            "parameters": [
+                {
+                    "name": "vial",
+                    "type": "str",
+                    "default": null
+                },
+                {
+                    "name": "tray",
+                    "type": "str",
+                    "default": null
+                },
+                {
+                    "name": "sample_name",
+                    "type": "str",
+                    "default": null
+                },
+                {
+                    "name": "to_hplc_inst",
+                    "type": "bool",
+                    "default": false
+                }
+            ]
+        }
+    }
+}
