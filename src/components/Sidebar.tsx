@@ -209,6 +209,8 @@ const Sidebar: React.FC = () => {
     'Environment Control': '#4BBCD4',
     'Catalyst Workflow': '#7B68EE',
     'SDL Catalyst': '#9C27B0',
+    'SDL1': '#E91E63', // Pink for SDL1 Zinc Electrodeposition
+    'SDL7': '#2196F3', // Blue for SDL7
     // Default colors for custom categories
     'Separation': '#FF6B6B',
     'Chemical Reaction': '#4ECDC4',

@@ -1,0 +1,36 @@
+export const metadata = {
+  name: 'Sequence Control',
+  description: 'Loop and conditional control for experimental sequences',
+  category: 'control',
+  version: '1.0.0',
+  author: 'SDL1 Team',
+  tags: ['control', 'loop', 'sequence', 'condition', 'iteration'],
+  capabilities: [
+    'Fixed count loops',
+    'Time-based loops',
+    'Condition-based loops',
+    'Custom break conditions',
+    'Counter management',
+    'Safety iteration limits',
+  ],
+  limitations: [
+    'No nested loop support',
+    'Limited condition expression complexity',
+    'No real-time condition monitoring',
+    'Fixed safety iteration limit',
+  ],
+  primitiveOperations: [
+    'initialize_loop',
+    'check_condition',
+    'increment_counter',
+    'evaluate_break_condition',
+    'loop_iteration',
+    'finalize_loop',
+    'wait',
+  ],
+  requiredResources: [
+    'Loop control system',
+    'Condition evaluation engine',
+    'Counter/timer system',
+  ],
+};

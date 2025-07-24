@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test SDL7 Checkbox</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-steps {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .test-step {
+            margin-bottom: 10px;
+        }
+        .success {
+            color: #4caf50;
+            font-weight: bold;
+        }
+        .error {
+            color: #f44336;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>SDL7 Checkbox Functionality Test</h1>
+        
+        <div class="test-steps">
+            <h3>Test Steps:</h3>
+            <div class="test-step">1. Open the main application at <a href="http://localhost:5175/" target="_blank">http://localhost:5175/</a></div>
+            <div class="test-step">2. From the SDL7 section in the sidebar, drag a "Prepare & Inject HPLC Sample" node onto the canvas</div>
+            <div class="test-step">3. Click the expand button (down arrow) on the node to show the form</div>
+            <div class="test-step">4. Navigate to the "Weighing Options" section</div>
+            <div class="test-step">5. Test the "Perform Weighing" checkbox - it should be checked by default and you should be able to uncheck it</div>
+            <div class="test-step">6. Navigate to the "HPLC Configuration" section</div>
+            <div class="test-step">7. Test the "Stall After Injection" checkbox - it should be unchecked by default and you should be able to check it</div>
+            <div class="test-step">8. Verify that the HPLC Method dropdown works correctly</div>
+        </div>
+
+        <h3>Expected Results:</h3>
+        <ul>
+            <li><span class="success">✓</span> HPLC Method dropdown opens and shows options when clicked</li>
+            <li><span class="success">✓</span> "Perform Weighing" checkbox can be unchecked and checked</li>
+            <li><span class="success">✓</span> "Stall After Injection" checkbox can be checked and unchecked</li>
+            <li><span class="success">✓</span> When "Perform Weighing" is unchecked, the "Sample Name" field should disappear</li>
+            <li><span class="success">✓</span> All form interactions should work without interfering with node dragging</li>
+        </ul>
+
+        <h3>Changes Made:</h3>
+        <ul>
+            <li>Added <code>nodrag</code> class to prevent React Flow from interfering with form controls</li>
+            <li>Changed checkbox checked logic from <code>!!value</code> to <code>value === true</code> for better boolean handling</li>
+            <li>Added <code>e.stopPropagation()</code> to prevent event bubbling issues</li>
+            <li>Fixed parameter initialization to properly merge defaults with existing parameters</li>
+            <li>Updated TypeScript type assertions to fix compilation errors</li>
+        </ul>
+
+        <h3>Files Modified:</h3>
+        <ul>
+            <li><code>src/components/OperationNodes/SDL7/BaseUONode.tsx</code></li>
+            <li><code>src/components/OperationNodes/SDL7/BaseUO.tsx</code></li>
+            <li><code>src/components/OperationNodes/SDL7/UnitOperations/PrepareAndInjectHPLCSample/index.tsx</code></li>
+            <li><code>src/components/OperationNodes/SDL7/UnitOperations/RunExtractionAndTransferToHPLC/index.tsx</code></li>
+        </ul>
+    </div>
+</body>
+</html>

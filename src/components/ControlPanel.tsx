@@ -19,6 +19,7 @@ import { VisualizationTemplateSelector } from './VisualizationTemplateSelector';
 import { ShortcutHintPanel } from './ShortcutHintPanel';
 import { OptimizerPanel } from './OptimizerPanel';
 import { OperationHistoryPanel } from './OperationHistoryPanel';
+import { ProvenanceHistoryPanel } from './ProvenanceHistoryPanel';
 import { ParameterImpact } from '../services/parameterLinkageService';
 import { VisualizationTemplate } from '../services/visualizationTemplateService';
 import { OptimizationParameter } from '../services/optimizer/optimizerService';
@@ -177,6 +178,29 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
               <OperationHistoryPanel
                 groups={operationGroups}
                 onUndo={onUndo}
+              />
+            </AccordionDetails>
+          </Accordion>
+
+          <Accordion
+            expanded={expandedPanel === 'provenance'}
+            onChange={handlePanelChange('provenance')}
+          >
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              sx={{ borderBottom: 1, borderColor: 'divider', backgroundColor: '#f8f9fa' }}
+            >
+              <Typography sx={{ fontWeight: 600, color: '#6c757d' }}>
+                📋 Experiment Runs
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <ProvenanceHistoryPanel
+                workflowId={workflowId}
+                maxHeight={400}
+                onRunSelect={(run) => {
+                  console.log('Selected experiment run:', run);
+                }}
               />
             </AccordionDetails>
           </Accordion>
