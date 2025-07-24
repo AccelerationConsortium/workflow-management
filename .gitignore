@@ -92,5 +92,8 @@ storybook-static/
 .claude
 # Documentation (development artifacts)
 documentation/
+doc/
 temp/
 tests/
+.vercel
+

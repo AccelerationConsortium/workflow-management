@@ -1,6 +1,7 @@
 import { SDL_CATALYST_NODE_TYPES } from '../components/OperationNodes/SDLCatalyst';
 import { SDL2_NODE_TYPES } from '../components/OperationNodes/SDL2';
 import { SDL7NodeConfigs } from '../components/OperationNodes/SDL7';
+import { SDL1NodeConfigs } from '../components/OperationNodes/SDL1';
 
 interface PrimitiveParameter {
   name: string;
@@ -23,7 +24,7 @@ export interface OperationNode {
   type: string;
   label: string;
   description?: string;
-  category: "SDL Catalyst" | "SDL2" | "SDL7" | "Sample Processing" | "Analysis & Measurement" | "Reaction Control" |
+  category: "SDL Catalyst" | "SDL1" | "SDL2" | "SDL7" | "Sample Processing" | "Analysis & Measurement" | "Reaction Control" |
              "Separation & Purification" | "Data Acquisition" | "Environment Control" |
              "Test" | "Catalyst Workflow" | "Workflow Control" | "Robotic Control" | string; // Allow custom categories
   expanded?: boolean;
@@ -82,6 +83,13 @@ export const operationNodes: OperationNode[] = [
   ...SDL2_NODE_TYPES.map(nodeType => ({
     ...nodeType,
     description: nodeType.description || nodeType.label,
+    expanded: false
+  })),
+  ...SDL1NodeConfigs.map(nodeConfig => ({
+    type: nodeConfig.type,
+    label: nodeConfig.label,
+    description: nodeConfig.description,
+    category: "SDL1" as const,
     expanded: false
   })),
   ...SDL7NodeConfigs.map(nodeConfig => ({

@@ -1,91 +1,91 @@
-# SDL7 Features Implementation Summary
+# SDL7 Features and Template Library - Deployment Summary
 
-## ✅ Features Already Implemented
+## 🚀 Latest Deployment Status
 
-### 1. Weigh Container Primitive
-- **Location**: `src/components/OperationNodes/SDL7/UnitOperations/PrepareAndInjectHPLCSample/index.tsx`
-- **Implementation**: Lines 33-44
-- When "Perform Weighing" checkbox is checked, the `weigh_container` primitive is automatically added
-- Parameters include:
-  - `vial`: Uses destination vial from form
-  - `tray`: Uses destination tray from form
-  - `sample_name`: Uses form value OR defaults to `Sample_${dest_vial}`
-  - `to_hplc_inst`: Set to `true`
+**Branch:** `feature-sdl7-uo`  
+**Date:** 2025-07-15  
+**Status:** Pushed to GitHub - Awaiting Vercel Preview Deployment
 
-### 2. Sample Name Default Fallback
-- **Default Pattern**: `Sample_${dest_vial}`
-- **Implementation**: Line 40 in `PrepareAndInjectHPLCSample/index.tsx`
-- If user leaves the "Sample Name" field empty, it automatically generates a name based on the destination vial
-- Example: If dest_vial is "A1", sample_name becomes "Sample_A1"
+## ✅ Features Implemented
 
-### 3. Initialize Deck Primitive
-- **Component**: `DeckInitialization`
-- **Location**: `src/components/OperationNodes/SDL7/UnitOperations/DeckInitialization/`
-- **Primitives Generated**:
-  1. `initialize_deck` - Homes robotic arm, zeros balance, ensures HPLC is ready
-  2. `hplc_instrument_setup` - Sets up HPLC with method and injection volume
-- **Parameters**:
-  - `experiment_name`: Default "SDL7_Experiment"
-  - `solvent_file`: Default "solvents_default.csv"
-  - `method_name`: Selectable from dropdown
-  - `injection_volume`: Default 5 μL
+### 1. **SDL7 Import Button Fix**
+- **Issue Fixed:** Import button wasn't triggering file picker
+- **Root Cause:** File input was inside Collapse component, only rendered when expanded
+- **Solution:** Moved file input outside Collapse to ensure it's always in DOM
+- **Result:** Import now works whether node is expanded or collapsed
 
-## 📋 How to Use
+### 2. **Template Library System**
+- **New Button:** Purple "Template Library" button added to main toolbar
+- **Features:**
+  - Create templates from configured SDL7 nodes
+  - Browse templates with filtering (category, difficulty, tags)
+  - Use templates to create new nodes instantly
+  - Export/import templates as JSON files
+  - Pre-loaded standard templates (HPLC, Deck Init)
+  - Usage tracking and metadata
 
-### For Weighing:
-1. Drag "Prepare & Inject HPLC Sample" node onto canvas
-2. Check "Perform Weighing" checkbox
-3. Leave "Sample Name" empty for automatic naming, or enter custom name
-4. The `weigh_container` primitive will be included in the workflow
+### 3. **Execution Trace Viewer**
+- Real-time workflow execution visualization
+- Timeline view with status indicators
+- Expandable details for each step
+- Integration with simulation mode
 
-### For Deck Initialization:
-1. Drag "Deck Initialization" node onto canvas (it's in the SDL7 section)
-2. Configure experiment name and solvent file if needed
-3. Select HPLC method
-4. This should be the first node in your workflow
+## 🔧 Technical Details
 
-## 🔧 Current Checkbox Implementation
-The checkboxes now use the "Simple DIV" implementation that bypasses React Flow's event handling:
-- ✅ Clickable and responsive
-- ✅ Proper state management
-- ✅ Visual feedback with custom checkbox design
+### Files Modified:
+- `src/App.tsx` - Added Template Library button and functionality
+- `src/components/OperationNodes/SDL7/BaseUONode.tsx` - Fixed import button
+- `src/components/TemplateLibrary/index.tsx` - Complete template UI
+- `src/services/templateService.ts` - Template persistence logic
+- `src/components/ExecutionTraceViewer/` - Execution visualization
+- `src/services/executionTraceService.ts` - Execution state management
 
-## 📊 Primitive Operations JSON Structure
+### Key Fixes:
+```tsx
+// Before (Broken):
+<Collapse in={expanded}>
+  <input ref={fileInputRef} type="file" hidden />
+</Collapse>
 
-### weigh_container
-```json
-{
-  "operation": "weigh_container",
-  "condition": "perform_weighing == true",
-  "parameters": {
-    "vial": "A1",
-    "tray": "hplc",
-    "sample_name": "Sample_A1",
-    "to_hplc_inst": true
-  }
-}
+// After (Fixed):
+<Collapse in={expanded}>
+  {/* content */}
+</Collapse>
+<input ref={fileInputRef} type="file" hidden />
 ```
 
-### initialize_deck
-```json
-{
-  "operation": "initialize_deck",
-  "parameters": {
-    "experiment_name": "SDL7_Experiment",
-    "solvent_file": "solvents_default.csv",
-    "method_name": "standard_curve_01",
-    "inj_vol": 5
-  }
-}
-```
+## 📦 Deployment Checklist
 
-## 🎯 Testing the Features
+- [x] Code committed to `feature-sdl7-uo`
+- [x] Pushed to GitHub
+- [ ] Vercel preview deployment created
+- [ ] Preview URL tested
+- [ ] Import functionality verified
+- [ ] Template Library tested
+- [ ] Ready for merge to main
 
-1. Open the application
-2. From the sidebar, look for the "SDL7" section
-3. You should see these nodes:
-   - Deck Initialization
-   - Prepare & Inject HPLC Sample
-   - Run Extraction & Transfer to HPLC
-   - Add Solvent to Sample Vial
-4. Drag them onto the canvas and test the functionality
+## 🔗 Deployment URLs
+
+- **GitHub Branch:** https://github.com/SissiFeng/workflow-management/tree/feature-sdl7-uo
+- **Vercel Preview:** _Awaiting deployment URL_
+- **Production:** _After merge to main_
+
+## 📝 Testing Instructions
+
+1. **Test Import Button:**
+   - Add any SDL7 node to workflow
+   - Click Import button (both expanded and collapsed states)
+   - Select a JSON file
+   - Verify parameters are imported
+
+2. **Test Template Library:**
+   - Click purple "Template Library" button
+   - Browse pre-loaded templates
+   - Use a template to create a node
+   - Save a custom template from SDL7 node
+   - Export/import template files
+
+3. **Test Execution Trace:**
+   - Create a workflow
+   - Run simulation mode
+   - View execution progress in trace viewer

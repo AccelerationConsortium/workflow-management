@@ -1,0 +1,60 @@
+{
+  "metadata": {
+    "id": "test-workflow-123",
+    "name": "Test UO Fixes",
+    "description": "Test workflow to verify UO representation consistency",
+    "createdAt": "2025-01-15T10:00:00Z",
+    "updatedAt": "2025-01-15T10:00:00Z",
+    "author": "test",
+    "version": "1.0",
+    "tags": ["test", "uo", "sdl7"]
+  },
+  "workflow": {
+    "nodes": [
+      {
+        "id": "test-sdl7-node-1",
+        "type": "sdl7PrepareAndInjectHPLCSample",
+        "label": "Test HPLC Sample",
+        "params": {
+          "source_tray": "reaction_tray",
+          "source_vial": "A1",
+          "dest_tray": "hplc",
+          "dest_vial": "B1",
+          "aliquot_volume_ul": 150,
+          "perform_weighing": true,
+          "sample_name": "Test Sample",
+          "hplc_method": "test_method",
+          "injection_volume": 10,
+          "stall": false
+        },
+        "preserveAsUO": true
+      },
+      {
+        "id": "test-sdl7-node-2",
+        "type": "sdl7PrepareAndInjectHPLCSample",
+        "label": "Test HPLC Sample 2",
+        "params": {
+          "source_tray": "reaction_tray",
+          "source_vial": "A2",
+          "dest_tray": "hplc",
+          "dest_vial": "B2",
+          "aliquot_volume_ul": 100,
+          "perform_weighing": false,
+          "sample_name": "Test Sample 2",
+          "hplc_method": "standard_curve_01",
+          "injection_volume": 5,
+          "stall": true
+        },
+        "preserveAsUO": true
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-1",
+        "source": "test-sdl7-node-1",
+        "target": "test-sdl7-node-2",
+        "type": "custom"
+      }
+    ]
+  }
+}
