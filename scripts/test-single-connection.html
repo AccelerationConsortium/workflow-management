@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Single Connection Point Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-header {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+        }
+        .test-title {
+            font-weight: bold;
+            color: #2196F3;
+            margin-bottom: 10px;
+        }
+        .test-steps {
+            list-style-type: decimal;
+            padding-left: 20px;
+        }
+        .test-steps li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        .expected-result {
+            background: #e8f5e8;
+            padding: 10px;
+            border-left: 4px solid #4CAF50;
+            margin-top: 10px;
+        }
+        .warning {
+            background: #fff3cd;
+            padding: 10px;
+            border-left: 4px solid #ffc107;
+            margin-top: 10px;
+        }
+        .feature-list {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        .feature-list ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .feature-list li {
+            margin-bottom: 5px;
+        }
+        .success {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .info {
+            color: #2196F3;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>🎯 Single Connection Point Test Guide</h1>
+            <p>Test the new single connection point design for UO nodes</p>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📋 Test 1: Visual Verification</div>
+            <ol class="test-steps">
+                <li>Open the workflow management application</li>
+                <li>Navigate to any SDL level (SDL1, SDL2, or SDL7)</li>
+                <li>Drag any UO node onto the canvas</li>
+                <li>Observe the connection points on the node</li>
+            </ol>
+            <div class="expected-result">
+                <strong>✅ Expected Result:</strong>
+                <ul>
+                    <li>Only TWO connection points visible (left and right sides)</li>
+                    <li>NO connection points on top or bottom</li>
+                    <li>Connection points positioned at the center height of the node</li>
+                    <li>Connection points are slightly larger (16px) and more visible</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🖱️ Test 2: Hover Interaction</div>
+            <ol class="test-steps">
+                <li>Hover over the left connection point</li>
+                <li>Hover over the right connection point</li>
+                <li>Move cursor away from connection points</li>
+            </ol>
+            <div class="expected-result">
+                <strong>✅ Expected Result:</strong>
+                <ul>
+                    <li>Cursor changes to crosshair (✚) when hovering over connection points</li>
+                    <li>Connection points scale up (1.3x) on hover</li>
+                    <li>Connection points change color to match node theme on hover</li>
+                    <li>Smooth animation transitions</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🔗 Test 3: Connection Creation</div>
+            <ol class="test-steps">
+                <li>Place two UO nodes on the canvas</li>
+                <li>Click and drag from the RIGHT connection point of the first node</li>
+                <li>Drop the connection on the LEFT connection point of the second node</li>
+                <li>Try connecting in the reverse direction (left to right)</li>
+            </ol>
+            <div class="expected-result">
+                <strong>✅ Expected Result:</strong>
+                <ul>
+                    <li>Connection line appears when dragging from right connection point</li>
+                    <li>Connection successfully created when dropped on left connection point</li>
+                    <li>Connection line follows the cursor smoothly</li>
+                    <li>Both directions should work (right-to-left and left-to-right)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🎨 Test 4: Multi-SDL Consistency</div>
+            <ol class="test-steps">
+                <li>Test the same connection behavior in SDL1 (pink theme)</li>
+                <li>Test the same connection behavior in SDL7 (purple theme)</li>
+                <li>Test the same connection behavior in SDL2 (blue theme)</li>
+                <li>Compare the visual consistency across all SDL levels</li>
+            </ol>
+            <div class="expected-result">
+                <strong>✅ Expected Result:</strong>
+                <ul>
+                    <li>All SDL levels have identical connection point positioning</li>
+                    <li>Connection points match their respective theme colors</li>
+                    <li>Hover effects work consistently across all SDL levels</li>
+                    <li>Connection creation works the same way in all SDL levels</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">⚠️ Test 5: Edge Cases</div>
+            <ol class="test-steps">
+                <li>Try to connect a node to itself</li>
+                <li>Try to create multiple connections from the same output</li>
+                <li>Try to create multiple connections to the same input</li>
+                <li>Test connection deletion by selecting and pressing Delete</li>
+            </ol>
+            <div class="warning">
+                <strong>⚠️ Note:</strong> These behaviors depend on React Flow's built-in connection validation rules and may vary based on your application's connection logic.
+            </div>
+        </div>
+
+        <div class="feature-list">
+            <h3 class="info">🚀 Key Improvements Implemented:</h3>
+            <ul>
+                <li><span class="success">✅</span> Eliminated confusion with multiple connection points</li>
+                <li><span class="success">✅</span> Clearer visual hierarchy with side-mounted connections</li>
+                <li><span class="success">✅</span> Larger, more accessible connection points (16px vs 14px)</li>
+                <li><span class="success">✅</span> Intuitive left-to-right workflow direction</li>
+                <li><span class="success">✅</span> Maintained all existing hover and animation effects</li>
+                <li><span class="success">✅</span> Consistent implementation across all SDL levels</li>
+                <li><span class="success">✅</span> Preserved crosshair cursor for clear interaction feedback</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🐛 Troubleshooting</div>
+            <p><strong>If you still see top/bottom connection points:</strong></p>
+            <ul>
+                <li>Hard refresh the browser (Ctrl+F5 or Cmd+Shift+R)</li>
+                <li>Clear browser cache</li>
+                <li>Check browser developer console for any errors</li>
+            </ul>
+            
+            <p><strong>If connections don't work:</strong></p>
+            <ul>
+                <li>Ensure you're dragging from right connection point to left connection point</li>
+                <li>Check that both nodes are properly loaded</li>
+                <li>Verify no JavaScript errors in browser console</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📝 Test Results</div>
+            <p>After completing all tests, you should have:</p>
+            <ul>
+                <li>Confirmed single connection points on left and right sides only</li>
+                <li>Verified smooth hover interactions with proper visual feedback</li>
+                <li>Successfully created connections between nodes</li>
+                <li>Tested consistency across all SDL levels</li>
+                <li>Experienced improved usability with no connection point confusion</li>
+            </ul>
+            
+            <div class="expected-result">
+                <strong>🎉 Success Criteria:</strong> If all tests pass, the single connection point design has been successfully implemented and provides a cleaner, more intuitive user experience for workflow creation.
+            </div>
+        </div>
+    </div>
+</body>
+</html>

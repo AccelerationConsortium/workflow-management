@@ -8,6 +8,7 @@ from datetime import datetime
 from backend.executors.sdl_catalyst_executor import SDLCatalystExecutor
 from backend.executors.base_executor import TaskConfig, TaskStatus
 from backend.api.websocket_service import ws_manager, handle_workflow_subscription, handle_broadcast_subscription
+from backend.api.experiment_runs_api import router as experiment_runs_router
 
 # configure logging
 logging.basicConfig(
@@ -21,6 +22,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Workflow Management API")
+
+# Include experiment runs router
+app.include_router(experiment_runs_router)
 
 # global executor instance
 executor = SDLCatalystExecutor()

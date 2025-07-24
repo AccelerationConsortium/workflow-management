@@ -1,0 +1,37 @@
+export const metadata = {
+  name: 'Data Export',
+  description: 'Export experimental data to various file formats with metadata support',
+  category: 'data',
+  version: '1.0.0',
+  author: 'SDL1 Team',
+  tags: ['data', 'export', 'save', 'file', 'csv', 'excel', 'json'],
+  capabilities: [
+    'Multiple export formats (CSV, Excel, JSON)',
+    'Customizable file naming patterns',
+    'Metadata inclusion',
+    'Separate AC/DC data files for impedance',
+    'Data integrity verification',
+    'Configurable export paths',
+  ],
+  limitations: [
+    'No real-time streaming export',
+    'Limited to predefined formats',
+    'No data compression',
+    'No cloud storage integration',
+  ],
+  primitiveOperations: [
+    'collect_data',
+    'format_data',
+    'create_file',
+    'write_metadata',
+    'write_data',
+    'save_file',
+    'verify_export',
+    'wait',
+  ],
+  requiredResources: [
+    'File system write permissions',
+    'Data buffer/memory',
+    'Export directory',
+  ],
+};
