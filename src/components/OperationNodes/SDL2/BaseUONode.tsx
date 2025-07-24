@@ -213,8 +213,68 @@ export const BaseUONode: React.FC<BaseUONodeProps> = ({ data, selected }) => {
   const showJSONControls = data.canImportJSON !== false;
 
   return (
-    <div className={`sdl2-node ${selected ? 'selected' : ''}`}>
-      <Handle type="target" position={Position.Top} />
+    <div className={`sdl2-node ${selected ? 'selected' : ''}`} style={{ position: 'relative' }}>
+      {/* Single central connection point - can act as both input and output */}
+      <Handle
+        type="source"
+        position={Position.Right}
+        id={`${id}-connection`}
+        style={{
+          background: '#fff',
+          border: '3px solid #4BBCD4',
+          width: '16px',
+          height: '16px',
+          borderRadius: '50%',
+          zIndex: 10,
+          boxShadow: '0 2px 8px rgba(75, 188, 212, 0.3)',
+          transition: 'all 0.2s ease',
+          right: '-8px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          cursor: 'crosshair',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-50%) scale(1.3)';
+          e.currentTarget.style.background = '#4BBCD4';
+          e.currentTarget.style.boxShadow = '0 4px 12px rgba(75, 188, 212, 0.5)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
+          e.currentTarget.style.background = '#fff';
+          e.currentTarget.style.boxShadow = '0 2px 8px rgba(75, 188, 212, 0.3)';
+        }}
+      />
+
+      {/* Hidden target handle for receiving connections */}
+      <Handle
+        type="target"
+        position={Position.Left}
+        id={`${id}-target`}
+        style={{
+          background: '#fff',
+          border: '3px solid #4BBCD4',
+          width: '16px',
+          height: '16px',
+          borderRadius: '50%',
+          zIndex: 10,
+          boxShadow: '0 2px 8px rgba(75, 188, 212, 0.3)',
+          transition: 'all 0.2s ease',
+          left: '-8px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          cursor: 'crosshair',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-50%) scale(1.3)';
+          e.currentTarget.style.background = '#4BBCD4';
+          e.currentTarget.style.boxShadow = '0 4px 12px rgba(75, 188, 212, 0.5)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
+          e.currentTarget.style.background = '#fff';
+          e.currentTarget.style.boxShadow = '0 2px 8px rgba(75, 188, 212, 0.3)';
+        }}
+      />
 
       <Box className="node-header">
         <Typography variant="h6">{data.label}</Typography>
@@ -313,7 +373,7 @@ export const BaseUONode: React.FC<BaseUONodeProps> = ({ data, selected }) => {
         </AccordionDetails>
       </Accordion>
 
-      <Handle type="source" position={Position.Bottom} />
+
     </div>
   );
 };

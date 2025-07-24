@@ -98,6 +98,7 @@ import { useControlPanelState } from './hooks/useControlPanelState';
 import { SDLCatalystNodes } from './components/OperationNodes/SDLCatalyst';
 import { SDL2Nodes } from './components/OperationNodes/SDL2';
 import { SDL7Nodes, SDL7NodeConfigs } from './components/OperationNodes/SDL7';
+import { SDL1Nodes, SDL1NodeConfigs } from './components/OperationNodes/SDL1';
 import { RoboticControlNodes } from './components/OperationNodes/RoboticControl';
 import Sidebar from './components/Sidebar';
 import TestStylePage from './components/TestStylePage';
@@ -219,6 +220,12 @@ const MemoizedSDL7Nodes = Object.entries(SDL7Nodes).reduce((acc, [key, component
   [key]: memo((props: NodeProps) => React.createElement(component as React.ComponentType<NodeProps>, props))
 }), {});
 
+// Define SDL1 node types - testing one by one
+const MemoizedSDL1Nodes = Object.entries(SDL1Nodes).reduce((acc, [key, component]) => ({
+  ...acc,
+  [key]: memo((props: NodeProps) => React.createElement(component as React.ComponentType<NodeProps>, props))
+}), {});
+
 // Define Robotic Control node types
 const MemoizedRoboticControlNodes = Object.entries(RoboticControlNodes).reduce((acc, [key, component]) => ({
   ...acc,
@@ -231,6 +238,7 @@ const ALL_NODE_TYPES: NodeTypes = {
   ...MemoizedSDLCatalystNodes,
   ...MemoizedSDL2Nodes,
   ...MemoizedSDL7Nodes,
+  ...MemoizedSDL1Nodes,
   ...MemoizedRoboticControlNodes,
   customUO: memo(CustomUONode), // added customUO node type
   // custom: CustomEdge, // Removed: CustomEdge is an edge type, should be in edgeTypes
@@ -528,6 +536,26 @@ function Flow() {
           nodeData = {
             ...nodeData,
             ...sdl7Config.defaultData,
+            onDataChange: (newData: any) => {
+              setNodes(nds =>
+                nds.map(node =>
+                  node.id === nodeId
+                    ? { ...node, data: newData }
+                    : node
+                )
+              );
+            }
+          };
+        }
+      }
+
+      // Initialize SDL1 node parameters with defaults
+      if (type.startsWith('sdl1')) {
+        const sdl1Config = SDL1NodeConfigs.find(config => config.type === type);
+        if (sdl1Config && sdl1Config.defaultData) {
+          nodeData = {
+            ...nodeData,
+            ...sdl1Config.defaultData,
             onDataChange: (newData: any) => {
               setNodes(nds =>
                 nds.map(node =>
@@ -890,9 +918,9 @@ function Flow() {
     
     switch (node.type) {
       case 'sdl7PrepareAndInjectHPLCSample':
-        // Always add sample_aliquot
+        // Step 1: PREPARE - sample_aliquot (prepare sample)
         primitiveNodes.push({
-          id: `${node.id}_sample_aliquot`,
+          id: `${node.id}_prepare`,
           type: "sample_aliquot",
           params: {
             source_tray: node.params?.source_tray || "reaction_tray",
@@ -903,13 +931,14 @@ function Flow() {
           },
           uo: node.type,
           uo_id: node.id,
-          label: `${node.label} - sample_aliquot`
+          order: 1,
+          label: `${node.label} - prepare`
         });
         
-        // Conditionally add weigh_container
+        // Step 2: WEIGH - weigh_container (conditional)
         if (node.params?.perform_weighing === true) {
           primitiveNodes.push({
-            id: `${node.id}_weigh_container`,
+            id: `${node.id}_weigh`,
             type: "weigh_container",
             params: {
               vial: node.params?.dest_vial || "A1",
@@ -919,12 +948,17 @@ function Flow() {
             },
             uo: node.type,
             uo_id: node.id,
+            order: 2,
             condition: "perform_weighing == true",
-            label: `${node.label} - weigh_container`
+            label: `${node.label} - weigh`
           });
         }
         
-        // Always add run_hplc
+        // Step 3: INJECT - injection preparation (placeholder for future injection step)
+        // For now, we'll keep this as a comment since the actual injection is part of run_hplc
+        // TODO: Separate injection step when Maria confirms details
+        
+        // Step 4: RUN HPLC - run_hplc (inject and run)
         primitiveNodes.push({
           id: `${node.id}_run_hplc`,
           type: "run_hplc",
@@ -938,6 +972,7 @@ function Flow() {
           },
           uo: node.type,
           uo_id: node.id,
+          order: node.params?.perform_weighing === true ? 3 : 2,
           label: `${node.label} - run_hplc`
         });
         break;
@@ -1100,20 +1135,92 @@ function Flow() {
         nodeType = node.data.customUOId;
       }
 
-      // Special handling for SDL7 nodes - expand them into primitive operations
+      // Special handling for SDL7 nodes - preserve as UO unless explicitly expanded
       if (nodeType?.startsWith('sdl7')) {
         // Get parameters from node.data.parameters for SDL7 nodes
         const sdl7Params = node.data?.parameters || {};
         
-        const expandedNode = {
+        // Check if this node should be expanded to primitives
+        // Only expand if explicitly marked for expansion or if it's for execution
+        const shouldExpand = node.data?.expandToPrimitives === true || 
+                            (node.data?.executionMode === 'primitives');
+        
+        if (shouldExpand) {
+          const expandedNode = {
+            id: node.id,
+            type: nodeType,
+            label: label,
+            params: sdl7Params
+          };
+          
+          // Expand SDL7 nodes into primitive operations
+          return expandSDL7Node(expandedNode);
+        } else {
+          // Preserve as UO node
+          return [{
+            id: node.id,
+            type: nodeType,
+            label: label,
+            params: sdl7Params,
+            preserveAsUO: true
+          }];
+        }
+      }
+
+      // Special handling for SDL1 nodes - preserve rich parameter structure
+      if (nodeType?.startsWith('sdl1')) {
+        // Get parameters from node.data.parameters for SDL1 nodes (similar to SDL7)
+        const sdl1Params = node.data?.parameters || {};
+        
+        // Generate execution order information based on edges
+        const nodeConnections = {
+          predecessors: edges
+            .filter(edge => edge.target === node.id)
+            .map(edge => ({
+              sourceNodeId: edge.source,
+              sourceHandle: edge.sourceHandle,
+              targetHandle: edge.targetHandle,
+              connectionType: edge.type || 'sequential',
+              condition: (edge as any).data?.condition,
+              delay: (edge as any).data?.delay,
+              priority: (edge as any).data?.priority || 1,
+            })),
+          successors: edges
+            .filter(edge => edge.source === node.id)
+            .map(edge => ({
+              targetNodeId: edge.target,
+              sourceHandle: edge.sourceHandle,
+              targetHandle: edge.targetHandle,
+              connectionType: edge.type || 'sequential',
+              condition: (edge as any).data?.condition,
+              delay: (edge as any).data?.delay,
+              priority: (edge as any).data?.priority || 1,
+            })),
+        };
+        
+        // For SDL1, we always preserve as UO node with rich parameter structure
+        return [{
           id: node.id,
           type: nodeType,
           label: label,
-          params: sdl7Params
-        };
-        
-        // Expand SDL7 nodes into primitive operations
-        return expandSDL7Node(expandedNode);
+          params: sdl1Params,
+          preserveAsUO: true,
+          // Include rich metadata for SDL1 nodes
+          metadata: {
+            category: 'SDL1',
+            description: node.data?.description,
+            parameterGroups: node.data?.parameterGroups,
+            primitiveOperations: node.data?.primitiveOperations || [],
+            executionSteps: node.data?.executionSteps || [],
+          },
+          // Add execution order information
+          executionFlow: {
+            connections: nodeConnections,
+            executionOrder: nodeConnections.predecessors.length === 0 ? 'start' : 'dependent',
+            parallelExecution: nodeConnections.predecessors.some(p => p.connectionType === 'parallel'),
+            conditionalExecution: nodeConnections.predecessors.some(p => p.condition),
+          }
+        }];
       }
 
       // Special handling for Robotic Control nodes
@@ -1209,12 +1316,70 @@ function Flow() {
       }
     });
 
+    // --- Enhanced Edge Analysis for Execution Order ---
+    const edgeAnalysis = {
+      totalEdges: transformedEdges.length + internalEdges.length,
+      edgeTypes: {
+        sequential: transformedEdges.filter(e => e.type === 'custom' || !e.type).length,
+        parallel: transformedEdges.filter(e => e.type === 'parallel').length,
+        conditional: transformedEdges.filter(e => e.type === 'conditional').length,
+        internal: internalEdges.length,
+      },
+      executionPaths: transformedEdges.length > 0 ? transformedEdges.length + 1 : 1, // rough estimate
+      hasParallelExecution: transformedEdges.some(e => e.type === 'parallel'),
+      hasConditionalFlow: transformedEdges.some(e => e.type === 'conditional'),
+    };
+
+    // --- Generate execution order based on edges ---
+    const executionOrder: string[] = [];
+    const startNodes = transformedNodes.filter(node => 
+      !transformedEdges.some(edge => edge.target === node.id)
+    );
+    
+    // Simple topological sort for execution order
+    const visited = new Set();
+    const visiting = new Set();
+    
+    const topologicalSort = (nodeId: string): void => {
+      if (visiting.has(nodeId)) return; // Cycle detection
+      if (visited.has(nodeId)) return;
+      
+      visiting.add(nodeId);
+      
+      // Find successors
+      const successorEdges = transformedEdges.filter(e => e.source === nodeId);
+      successorEdges.forEach(edge => {
+        topologicalSort(edge.target);
+      });
+      
+      visiting.delete(nodeId);
+      visited.add(nodeId);
+      executionOrder.unshift(nodeId); // Add to beginning for correct order
+    };
+    
+    // Start with nodes that have no predecessors
+    startNodes.forEach(node => topologicalSort(node.id));
+    
     // --- Combine with Global Config ---
     const finalPayload = {
       // Don't include default global_config unless explicitly needed
       // Users should add their own global_config if needed
       nodes: transformedNodes,
-      edges: [...transformedEdges, ...internalEdges]
+      edges: [...transformedEdges, ...internalEdges],
+      
+      // Enhanced execution metadata
+      executionMetadata: {
+        edgeAnalysis,
+        suggestedExecutionOrder: executionOrder,
+        executionComplexity: edgeAnalysis.hasConditionalFlow ? 'complex' : 
+                            edgeAnalysis.hasParallelExecution ? 'parallel' : 'sequential',
+        estimatedDuration: transformedNodes.reduce((sum, node) => {
+          const estimatedTime = node.metadata?.estimatedDuration || 30; // 30s default
+          return sum + estimatedTime;
+        }, 0),
+        exportTimestamp: new Date().toISOString(),
+        exportVersion: '1.1', // Enhanced version with edge information
+      }
     };
 
      // Basic validation
@@ -1326,6 +1491,24 @@ function Flow() {
             y: Math.random() * 300
           };
 
+          // Special handling for SDL7 nodes - ensure they're preserved as UOs
+          if (node.type?.startsWith('sdl7')) {
+            return {
+              id: node.id,
+              type: node.type,
+              position,
+              data: {
+                ...nodeDefinition,
+                id: node.id,
+                label: node.label,
+                parameters: node.params || {},  // Use 'parameters' for SDL7 nodes
+                workflowId: metadata?.id,
+                preserveAsUO: true,
+                category: 'SDL7'
+              }
+            };
+          }
+
           return {
             id: node.id,
             type: node.type,
@@ -1425,12 +1608,16 @@ function Flow() {
    */
   const handleRunExperiment = useCallback(async () => {
 
-    // Reset statuses before sending the new run
+    // Reset statuses before sending the new run and set execution mode
      setNodes((nds) =>
          nds.map((n) => {
              const newData = { ...(n.data || {}) };
              delete newData.executionStatus;
              delete newData.executionMessage;
+             // Set execution mode to expand SDL7 nodes to primitives for execution
+             if (n.type?.startsWith('sdl7')) {
+               newData.executionMode = 'primitives';
+             }
              return { ...n, data: newData };
          })
      );
