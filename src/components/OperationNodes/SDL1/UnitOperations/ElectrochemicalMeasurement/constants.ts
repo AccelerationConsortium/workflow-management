@@ -23,8 +23,8 @@ export const LOG_LEVEL_OPTIONS = [
 
 export const DEFAULT_VALUES = {
   // Common parameters
-  uo_name: 'Electrochemical_Measurement',
-  description: 'Unified electrochemical measurement supporting OCV, CP, CVA, PEIS, and LSV',
+  uo_name: 'Enhanced_Electrochemical_Measurement',
+  description: 'Enhanced electrochemical measurement with real-time data collection and element sequencing',
   wait_before: 0,
   wait_after: 0,
   error_handling: 'stop',
@@ -34,48 +34,63 @@ export const DEFAULT_VALUES = {
   com_port: 'COM4',
   channel: 0,
   
-  // Measurement type
-  measurement_type: 'CP',  // Default to CP for deposition/dissolution
+  // Measurement sequence (based on zinc deposition script)
+  sequence_enabled: true,       // Enable multi-element sequence
+  sequence_cycles: 1,           // Number of full sequence cycles
   
-  // OCV parameters
-  ocv_duration: 60,            // 1 minute rest
-  ocv_sample_interval: 1.0,    // 1 second sampling
-  ocv_settle_time: 5,          // Initial settling time
-  ocv_stability_threshold: 0.001, // mV stability requirement
+  // Element 1: Deposition (CP)
+  cp_deposition_enabled: true,
+  cp_deposition_current: -0.004,    // -4mA deposition current (line 512)
+  cp_deposition_duration: 3,        // 3s as specified in script (line 512)
+  cp_deposition_voltage_limit: 1.0, // 1.0V limit (line 512)
   
-  // CP parameters (Chronopotentiometry)
-  cp_current: -0.004,          // -4mA deposition current
-  cp_duration: 720,            // 12 minutes
-  cp_sample_interval: 1.0,     // 1 second sampling
-  cp_voltage_limit_min: -2.0,  // Safety limits
-  cp_voltage_limit_max: 2.0,
+  // Element 2: Rest after deposition (OCV) 
+  ocv_post_deposition_enabled: true,
+  ocv_post_deposition_duration: 3,  // 3s rest (line 516)
+  ocv_post_deposition_sample_interval: 1.0, // 1s sampling (line 516)
   
-  // CVA parameters (Cyclic Voltammetry)
-  cva_start_voltage: -0.5,     // V vs reference
-  cva_end_voltage: 0.5,        // V vs reference
-  cva_scan_rate: 0.05,         // V/s (50 mV/s)
-  cva_cycles: 3,               // Number of CV cycles
-  cva_sample_interval: 0.01,   // 10ms sampling
+  // Element 3: PEIS after deposition
+  peis_post_deposition_enabled: true,
+  peis_post_deposition_start_freq: 10000,  // 10kHz (line 520)
+  peis_post_deposition_end_freq: 1000,     // 1kHz (line 520) 
+  peis_post_deposition_points_per_decade: 5.0, // 5 steps (line 520)
+  peis_post_deposition_dc_bias: 0.0,       // 0V bias (line 520)
+  peis_post_deposition_ac_amplitude: 0.01, // 10mV (line 520)
+  peis_post_deposition_bias_vs_ocp: true,  // vs OCP (line 521)
+  peis_post_deposition_min_cycles: 1,      // 1 cycle (line 522)
   
-  // PEIS parameters (Potentiostatic EIS)
-  peis_start_frequency: 10000,  // 10kHz
-  peis_end_frequency: 0.1,      // 0.1Hz
-  peis_points_per_decade: 5.0,  // 5 steps per decade
-  peis_ac_amplitude: 0.01,      // 10mV
-  peis_dc_bias: 0.0,            // 0V bias
-  peis_bias_vs_ocp: true,       // Bias vs OCP
-  peis_minimum_cycles: 1,       // Minimum cycles
+  // Element 4: Dissolution (CP)
+  cp_dissolution_enabled: true,
+  cp_dissolution_current: 0.004,     // +4mA dissolution current (line 526)
+  cp_dissolution_duration: 3,        // 3s (line 526)
+  cp_dissolution_voltage_limit: 1.0, // 1.0V limit (line 526)
+  cp_dissolution_max_voltage: -0.5,  // Max voltage -0.5V (line 527)
   
-  // LSV parameters (Linear Sweep Voltammetry)
-  lsv_start_voltage: -0.5,     // V vs reference
-  lsv_end_voltage: 0.5,        // V vs reference
-  lsv_scan_rate: 0.01,         // V/s (10 mV/s)
-  lsv_sample_interval: 0.01,   // 10ms sampling
+  // Element 5: Rest after dissolution (OCV)
+  ocv_post_dissolution_enabled: true,
+  ocv_post_dissolution_duration: 3,  // 3s rest (line 531)
+  ocv_post_dissolution_sample_interval: 1.0, // 1s sampling (line 531)
   
-  // Data collection parameters
-  data_collection_enabled: true,
-  cycle_dependent_collection: true,
-  data_tag: 'Electrochemical_Measurement',
+  // Element 6: PEIS after dissolution  
+  peis_post_dissolution_enabled: true,
+  peis_post_dissolution_start_freq: 10000,  // 10kHz (line 535)
+  peis_post_dissolution_end_freq: 1000,     // 1kHz (line 535)
+  peis_post_dissolution_points_per_decade: 5.0, // 5 steps (line 535)
+  peis_post_dissolution_dc_bias: 0.0,       // 0V bias (line 535)
+  peis_post_dissolution_ac_amplitude: 0.01, // 10mV (line 535)
+  peis_post_dissolution_bias_vs_ocp: true,  // vs OCP (line 536)
+  peis_post_dissolution_min_cycles: 1,      // 1 cycle (line 537)
+  
+  // Data collection and callbacks
+  real_time_data_collection: true,   // Enable real-time DC/AC data callbacks
+  data_save_enabled: true,           // Save data to CSV files
+  experiment_name_template: 'Zinc_Deposition_{timestamp}', // Naming template
+  dc_data_columns: ['timestamp_s', 'current_A', 'we_voltage_V'], // DC data format
+  ac_data_columns: ['timestamp', 'frequency', 'absoluteImpedance', 'realImpedance', 'imagImpedance', 'phaseAngle', 'numberOfCycles'], // AC data format
+  
+  // Element status tracking
+  element_logging_enabled: true,     // Log element start/stop events
+  element_status_callback: true,     // Enable element status callbacks
 };
 
 export const PARAMETER_GROUPS: Record<string, ParameterGroup> = {

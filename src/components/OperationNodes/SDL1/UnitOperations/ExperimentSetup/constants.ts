@@ -1,19 +1,23 @@
 import { ParameterGroup } from '../../types';
+import { VIAL_POSITIONS } from '../../shared/labwareConstants';
 
-// Well plate configuration - A1 to D6 (24-well plate)
 export const WELL_ADDRESS_OPTIONS = [
-  // Row A
-  { value: 'A1', label: 'A1' }, { value: 'A2', label: 'A2' }, { value: 'A3', label: 'A3' },
-  { value: 'A4', label: 'A4' }, { value: 'A5', label: 'A5' }, { value: 'A6', label: 'A6' },
-  // Row B
-  { value: 'B1', label: 'B1' }, { value: 'B2', label: 'B2' }, { value: 'B3', label: 'B3' },
-  { value: 'B4', label: 'B4' }, { value: 'B5', label: 'B5' }, { value: 'B6', label: 'B6' },
-  // Row C
-  { value: 'C1', label: 'C1' }, { value: 'C2', label: 'C2' }, { value: 'C3', label: 'C3' },
-  { value: 'C4', label: 'C4' }, { value: 'C5', label: 'C5' }, { value: 'C6', label: 'C6' },
-  // Row D
-  { value: 'D1', label: 'D1' }, { value: 'D2', label: 'D2' }, { value: 'D3', label: 'D3' },
-  { value: 'D4', label: 'D4' }, { value: 'D5', label: 'D5' }, { value: 'D6', label: 'D6' },
+  { value: 'A1', label: 'A1' }, { value: 'A2', label: 'A2' }, { value: 'A3', label: 'A3' }, { value: 'A4', label: 'A4' }, { value: 'A5', label: 'A5' },
+  { value: 'B1', label: 'B1' }, { value: 'B2', label: 'B2' }, { value: 'B3', label: 'B3' }, { value: 'B4', label: 'B4' }, { value: 'B5', label: 'B5' },
+  { value: 'C1', label: 'C1' }, { value: 'C2', label: 'C2' }, { value: 'C3', label: 'C3' }, { value: 'C4', label: 'C4' }, { value: 'C5', label: 'C5' },
+];
+
+export const NIMO_METHOD_OPTIONS = [
+  { value: 'RE', label: 'Random Exploration (RE)' },
+  { value: 'PHYSBO', label: 'Bayesian Optimization (PHYSBO)' },
+  { value: 'GRID', label: 'Grid Search' },
+  { value: 'MANUAL', label: 'Manual Selection' },
+];
+
+export const CSV_MODE_OPTIONS = [
+  { value: 'nimo_driven', label: 'NIMO-Driven (proposal_example.csv)' },
+  { value: 'user_provided', label: 'User-Provided CSV' },
+  { value: 'manual_parameters', label: 'Manual Parameter Entry' },
 ];
 
 export const ERROR_HANDLING_OPTIONS = [
@@ -31,30 +35,52 @@ export const LOG_LEVEL_OPTIONS = [
 
 export const DEFAULT_VALUES = {
   // Common parameters
-  uo_name: 'Experiment_Setup',
-  description: 'Initialize experiment with hardware configuration and well selection',
+  uo_name: 'Enhanced_Experiment_Setup',
+  description: 'Initialize experiment with NIMO integration and CSV-driven parameters',
   wait_before: 0,
   wait_after: 0,
   error_handling: 'stop',
   log_level: 'INFO',
   
-  // Experiment configuration
-  experiment_id: 'Zn_Electrodeposition',
-  test_well_address: 'A1',
-  pipette_tip_start_id: 1,
-  run_number: 1,
-  experiment_notes: '',
+  // NIMO Configuration (from script lines 693-718)
+  nimo_enabled: true,
+  nimo_method: 'RE',                    // Start with Random Exploration
+  nimo_input_file: 'combinations_7C1_to_7C4.csv',  // Main combinations file
+  nimo_output_file: 'proposal_example.csv',        // Proposal file  
+  nimo_num_objectives: 1,               // Single objective optimization
+  nimo_num_proposals: 1,                // One proposal per iteration
   
-  // Hardware configuration
-  robot_ip: '169.254.69.185',
+  // CSV Parameter Management
+  csv_mode: 'nimo_driven',              // Default to NIMO-driven mode
+  csv_file_path: 'proposal_example.csv', // Path to parameter CSV
+  manual_additives: {                   // Manual fallback values
+    A: 0, B: 0, C: 0, D: 0, E: 0, F: 0, G: 0
+  },
+  
+  // Experiment Metadata (from script lines 96-126)
+  experiment_base_name: 'ZnDeposition',
+  auto_increment_run: true,             // Auto-increment run numbers
+  data_directory: 'data',               // Base data directory
+  metadata_generation: true,            // Generate metadata.json
+  experiment_status: 'running',         // Initial status
+  
+  // Hardware configuration (from script lines 32, 204)
+  robot_ip: '169.254.69.185',          // From script line 32
   robot_port: 80,
-  squidstat_port: 'COM4',
-  squidstat_channel: 0,
+  squidstat_port: 'COM4',              // From script line 204
+  squidstat_channel: 0,                // From script line 201
+  arduino_port: 'COM3',                // Arduino port for pumps
   
-  // Safety checks
+  // Target configuration
+  target_cell: 'A1',                   // NIS reactor well (auto-assigned)
+  test_well_address: 'A1',             // Test well address for experiment
+  pipette_tip_start_id: 17,            // From script line 33
+  
+  // Safety and validation
   validate_hardware_connection: true,
-  check_pipette_tips: true,
-  verify_well_availability: true,
+  check_csv_file_exists: true,
+  verify_nimo_files: true,
+  create_data_directories: true,
 };
 
 export const PARAMETER_GROUPS: Record<string, ParameterGroup> = {

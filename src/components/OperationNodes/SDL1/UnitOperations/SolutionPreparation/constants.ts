@@ -1,23 +1,10 @@
 import { ParameterGroup } from '../../types';
+import { LABWARE_OPTIONS, PIPETTE_OPTIONS, VIAL_POSITIONS } from '../../shared/labwareConstants';
 
-export const LABWARE_OPTIONS = [
-  { value: 'vial_rack_2', label: 'Vial Rack 2' },
-  { value: 'vial_rack_7', label: 'Vial Rack 7' },
-  { value: 'vial_rack_11', label: 'Vial Rack 11' },
-  { value: 'nis_reactor', label: 'NIS Reactor' },
-];
-
-export const WELL_OPTIONS = [
-  { value: 'A1', label: 'A1' }, { value: 'A2', label: 'A2' }, { value: 'A3', label: 'A3' }, { value: 'A4', label: 'A4' }, { value: 'A5', label: 'A5' }, { value: 'A6', label: 'A6' },
-  { value: 'B1', label: 'B1' }, { value: 'B2', label: 'B2' }, { value: 'B3', label: 'B3' }, { value: 'B4', label: 'B4' }, { value: 'B5', label: 'B5' }, { value: 'B6', label: 'B6' },
-  { value: 'C1', label: 'C1' }, { value: 'C2', label: 'C2' }, { value: 'C3', label: 'C3' }, { value: 'C4', label: 'C4' }, { value: 'C5', label: 'C5' }, { value: 'C6', label: 'C6' },
-  { value: 'D1', label: 'D1' }, { value: 'D2', label: 'D2' }, { value: 'D3', label: 'D3' }, { value: 'D4', label: 'D4' }, { value: 'D5', label: 'D5' }, { value: 'D6', label: 'D6' },
-];
-
-export const PIPETTE_OPTIONS = [
-  { value: 'p1000_single_gen2', label: 'P1000 Single Gen2' },
-  { value: 'p300_single_gen2', label: 'P300 Single Gen2' },
-  { value: 'p20_single_gen2', label: 'P20 Single Gen2' },
+export const TRANSFER_MODE_OPTIONS = [
+  { value: 'single', label: 'Single Transfer' },
+  { value: 'multi_cycle', label: 'Multi-Cycle Transfer (>1000μL)' },
+  { value: 'precise', label: 'Precise Volume Transfer' },
 ];
 
 export const ERROR_HANDLING_OPTIONS = [
@@ -35,23 +22,42 @@ export const LOG_LEVEL_OPTIONS = [
 
 export const DEFAULT_VALUES = {
   // Common parameters
-  uo_name: 'ZnSO4_Solution_Prep',
-  description: 'Prepare 5mL ZnSO4 solution for electrodeposition',
+  uo_name: 'Enhanced_Solution_Prep',
+  description: 'Enhanced solution preparation with multi-cycle transfer support',
   wait_before: 0,
   wait_after: 0,
   error_handling: 'stop',
   log_level: 'INFO',
-  // Specific parameters from Python script (lines 414-432)
+  
+  // Transfer configuration
+  transfer_mode: 'multi_cycle',
   source_labware: 'vial_rack_2',
   source_well: 'A1',
   target_labware: 'nis_reactor',
-  target_well: 'A1',  // User will select actual test well
-  volume: 5000,  // 5mL as per line 424
+  target_well: 'A1',
+  
+  // Volume handling
+  total_volume: 3000,    // Total volume to transfer (μL)
+  max_volume_per_cycle: 1000,  // Max volume per aspirate/dispense cycle
   pipette_type: 'p1000_single_gen2',
-  aspiration_offset_z: 8,  // From line 427 (fltOffsetZ_from=8)
-  dispense_offset_x: -1,   // From line 428 (fltOffsetX_to=-1)
-  dispense_offset_y: 0.5,  // From line 429 (fltOffsetY_to=0.5)
-  dispense_offset_z: 0,    // From line 430 (fltOffsetZ_to=0)
+  
+  // Movement parameters
+  move_speed: 100,       // Movement speed (mm/s)
+  
+  // Aspiration parameters
+  aspiration_offset_z: 8,     // Z offset from bottom for aspiration
+  aspiration_flow_rate: 274.7, // Flow rate for aspiration (μL/s)
+  
+  // Dispense parameters  
+  dispense_offset_x: -1,      // X offset for dispensing
+  dispense_offset_y: 0.5,     // Y offset for dispensing
+  dispense_offset_z: 0,       // Z offset for dispensing
+  dispense_flow_rate: 274.7,  // Flow rate for dispensing (μL/s)
+  
+  // Safety parameters
+  blowout_enabled: true,      // Enable blowout after dispensing
+  mix_after_dispense: false,  // Mix solution after dispensing
+  mix_cycles: 3,              // Number of mixing cycles
 };
 
 export const PARAMETER_GROUPS: Record<string, ParameterGroup> = {
@@ -110,9 +116,17 @@ export const PARAMETER_GROUPS: Record<string, ParameterGroup> = {
       },
     },
   },
-  source: {
-    label: 'Source Configuration',
+  transfer: {
+    label: 'Transfer Configuration',
     parameters: {
+      transfer_mode: {
+        type: 'select',
+        label: 'Transfer Mode',
+        description: 'Method for handling volume transfers',
+        options: TRANSFER_MODE_OPTIONS,
+        defaultValue: DEFAULT_VALUES.transfer_mode,
+        required: true,
+      },
       source_labware: {
         type: 'select',
         label: 'Source Labware',
@@ -122,17 +136,13 @@ export const PARAMETER_GROUPS: Record<string, ParameterGroup> = {
         required: true,
       },
       source_well: {
-        type: 'string',
+        type: 'select',
         label: 'Source Well',
-        description: 'Well position in source labware (e.g., A1, B2)',
+        description: 'Well position in source labware',
+        options: VIAL_POSITIONS.vial_rack_2.map(pos => ({ value: pos, label: pos })),
         defaultValue: DEFAULT_VALUES.source_well,
         required: true,
       },
-    },
-  },
-  target: {
-    label: 'Target Configuration',
-    parameters: {
       target_labware: {
         type: 'select',
         label: 'Target Labware',
@@ -142,27 +152,42 @@ export const PARAMETER_GROUPS: Record<string, ParameterGroup> = {
         required: true,
       },
       target_well: {
-        type: 'string',
+        type: 'select',
         label: 'Target Well',
-        description: 'Well position in target labware (e.g., A1-D6)',
+        description: 'Well position in target labware',
+        options: VIAL_POSITIONS.nis_reactor.map(pos => ({ value: pos, label: pos })),
         defaultValue: DEFAULT_VALUES.target_well,
         required: true,
       },
     },
   },
-  liquid_handling: {
-    label: 'Liquid Handling Parameters',
+  volume_handling: {
+    label: 'Volume Handling Parameters',
     parameters: {
-      volume: {
+      total_volume: {
         type: 'number',
-        label: 'Volume',
-        description: 'Volume to transfer',
-        defaultValue: DEFAULT_VALUES.volume,
-        min: 1,
+        label: 'Total Volume',
+        description: 'Total volume to transfer',
+        defaultValue: DEFAULT_VALUES.total_volume,
+        min: 10,
         max: 10000,
-        step: 1,
+        step: 10,
         unit: 'μL',
         required: true,
+      },
+      max_volume_per_cycle: {
+        type: 'number',
+        label: 'Max Volume per Cycle',
+        description: 'Maximum volume per aspirate/dispense cycle',
+        defaultValue: DEFAULT_VALUES.max_volume_per_cycle,
+        min: 10,
+        max: 1000,
+        step: 10,
+        unit: 'μL',
+        dependsOn: {
+          parameter: 'transfer_mode',
+          value: 'multi_cycle',
+        },
       },
       pipette_type: {
         type: 'select',
@@ -172,20 +197,45 @@ export const PARAMETER_GROUPS: Record<string, ParameterGroup> = {
         defaultValue: DEFAULT_VALUES.pipette_type,
         required: true,
       },
+      move_speed: {
+        type: 'number',
+        label: 'Movement Speed',
+        description: 'Speed for pipette movements',
+        defaultValue: DEFAULT_VALUES.move_speed,
+        min: 10,
+        max: 400,
+        step: 10,
+        unit: 'mm/s',
+      },
+    },
+  },
+  aspiration: {
+    label: 'Aspiration Parameters',
+    parameters: {
       aspiration_offset_z: {
         type: 'number',
         label: 'Aspiration Offset Z',
-        description: 'Z-axis offset for aspiration',
+        description: 'Z-axis offset from bottom for aspiration',
         defaultValue: DEFAULT_VALUES.aspiration_offset_z,
         min: 0,
         max: 20,
         step: 0.1,
         unit: 'mm',
       },
+      aspiration_flow_rate: {
+        type: 'number',
+        label: 'Aspiration Flow Rate',
+        description: 'Flow rate for aspiration',
+        defaultValue: DEFAULT_VALUES.aspiration_flow_rate,
+        min: 10,
+        max: 1000,
+        step: 0.1,
+        unit: 'μL/s',
+      },
     },
   },
-  dispense_offsets: {
-    label: 'Dispense Offset Configuration',
+  dispense: {
+    label: 'Dispense Parameters',
     parameters: {
       dispense_offset_x: {
         type: 'number',
@@ -217,14 +267,58 @@ export const PARAMETER_GROUPS: Record<string, ParameterGroup> = {
         step: 0.1,
         unit: 'mm',
       },
+      dispense_flow_rate: {
+        type: 'number',
+        label: 'Dispense Flow Rate',
+        description: 'Flow rate for dispensing',
+        defaultValue: DEFAULT_VALUES.dispense_flow_rate,
+        min: 10,
+        max: 1000,
+        step: 0.1,
+        unit: 'μL/s',
+      },
+    },
+  },
+  safety: {
+    label: 'Safety & Mixing Parameters',
+    parameters: {
+      blowout_enabled: {
+        type: 'boolean',
+        label: 'Enable Blowout',
+        description: 'Perform blowout after dispensing to ensure complete transfer',
+        defaultValue: DEFAULT_VALUES.blowout_enabled,
+      },
+      mix_after_dispense: {
+        type: 'boolean',
+        label: 'Mix After Dispense',
+        description: 'Mix solution after dispensing',
+        defaultValue: DEFAULT_VALUES.mix_after_dispense,
+      },
+      mix_cycles: {
+        type: 'number',
+        label: 'Mixing Cycles',
+        description: 'Number of mixing cycles to perform',
+        defaultValue: DEFAULT_VALUES.mix_cycles,
+        min: 1,
+        max: 10,
+        step: 1,
+        unit: 'cycles',
+        dependsOn: {
+          parameter: 'mix_after_dispense',
+          value: true,
+        },
+      },
     },
   },
 };
 
 export const PRIMITIVE_OPERATIONS = [
-  'select_pipette',
+  'calculate_transfer_cycles',
+  'pickup_tip',
   'aspirate_solution',
   'move_to_target',
   'dispense_solution',
+  'blowout_tip',
+  'mix_solution',
   'drop_tip',
 ];
