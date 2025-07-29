@@ -224,7 +224,7 @@ export const BloxOptimizationNode: React.FC<{ id: string; data: any }> = ({ id, 
 // Export configuration for the node registry
 export const bloxOptimizationNodeConfig = {
   type: 'sdl1BloxOptimization',
-  displayName: 'Blox Optimization',
+  label: 'Blox Optimization',
   category: 'SDL1',
   description: 'Multi-objective Bayesian optimization using Blox framework',
   component: BloxOptimizationNode,
