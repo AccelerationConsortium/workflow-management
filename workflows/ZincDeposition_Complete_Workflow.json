@@ -1,0 +1,476 @@
+{
+  "workflow": {
+    "id": "zinc_deposition_complete",
+    "name": "Zinc Deposition Complete Workflow",
+    "description": "Complete automated zinc electrodeposition workflow with NIMO optimization, sample preparation, electrode manipulation, measurement, and cleaning",
+    "version": "1.0.0",
+    "created": "2025-01-29",
+    "author": "SDL1 Team",
+    "category": "Electrochemistry",
+    "tags": ["zinc", "electrodeposition", "NIMO", "automation", "SDL1"]
+  },
+  "nodes": [
+    {
+      "id": "experiment_setup_1",
+      "type": "sdl1ExperimentSetup",
+      "position": { "x": 100, "y": 100 },
+      "data": {
+        "label": "Experiment Setup",
+        "nodeType": "sdl1ExperimentSetup",
+        "category": "SDL1",
+        "parameters": {
+          "uo_name": "ZnDeposition_Setup",
+          "description": "Initialize zinc deposition experiment with NIMO optimization",
+          "wait_before": 0,
+          "wait_after": 2,
+          "error_handling": "stop",
+          "log_level": "INFO",
+          "nimo_enabled": true,
+          "nimo_method": "RE",
+          "nimo_input_file": "combinations_7C1_to_7C4.csv",
+          "nimo_output_file": "proposal_example.csv",
+          "nimo_num_objectives": 1,
+          "nimo_num_proposals": 1,
+          "csv_mode": "nimo_driven",
+          "csv_file_path": "proposal_example.csv",
+          "experiment_base_name": "ZnDeposition",
+          "auto_increment_run": true,
+          "data_directory": "data",
+          "metadata_generation": true,
+          "experiment_status": "running",
+          "robot_ip": "169.254.69.185",
+          "robot_port": 80,
+          "squidstat_port": "COM4",
+          "squidstat_channel": 0,
+          "arduino_port": "COM3",
+          "target_cell": "A1",
+          "test_well_address": "A1",
+          "pipette_tip_start_id": 17,
+          "validate_hardware_connection": true,
+          "check_csv_file_exists": true,
+          "verify_nimo_files": true,
+          "create_data_directories": true
+        }
+      }
+    },
+    {
+      "id": "sample_preparation_1",
+      "type": "sdl1SamplePreparation",
+      "position": { "x": 400, "y": 100 },
+      "data": {
+        "label": "Sample Preparation",
+        "nodeType": "sdl1SamplePreparation",
+        "category": "SDL1",
+        "parameters": {
+          "uo_name": "ZnDeposition_SamplePrep",
+          "description": "Prepare zinc deposition sample with conditional additives from CSV",
+          "wait_before": 0,
+          "wait_after": 1,
+          "error_handling": "stop",
+          "log_level": "INFO",
+          "target_cell": "A1",
+          "total_volume": 3000,
+          "additive_A": 0,
+          "additive_B": 0,
+          "additive_C": 0,
+          "additive_D": 0,
+          "additive_E": 0,
+          "additive_F": 0,
+          "additive_G": 0,
+          "additive_volume": 100,
+          "pipette_type": "p1000_single_gen2",
+          "move_speed": 100,
+          "dispense_offset_x": -1,
+          "dispense_offset_y": 0.5,
+          "dispense_offset_z": 0
+        }
+      }
+    },
+    {
+      "id": "electrode_manipulation_pickup",
+      "type": "sdl1ElectrodeManipulation",
+      "position": { "x": 700, "y": 100 },
+      "data": {
+        "label": "Electrode Pickup",
+        "nodeType": "sdl1ElectrodeManipulation",
+        "category": "SDL1",
+        "parameters": {
+          "uo_name": "Electrode_Pickup",
+          "description": "Pick up reference/counter electrode from rack",
+          "wait_before": 0,
+          "wait_after": 1,
+          "error_handling": "stop",
+          "log_level": "INFO",
+          "operation_type": "pickup",
+          "electrode_type": "reference",
+          "target_cell": "A1",
+          "approach_speed": 50,
+          "insertion_speed": 25,
+          "pickup_offset_x": 0.6,
+          "pickup_offset_y": 0.5,
+          "pickup_offset_z": 3
+        }
+      }
+    },
+    {
+      "id": "electrode_manipulation_insert",
+      "type": "sdl1ElectrodeManipulation",
+      "position": { "x": 1000, "y": 100 },
+      "data": {
+        "label": "Electrode Insert",
+        "nodeType": "sdl1ElectrodeManipulation",
+        "category": "SDL1",
+        "parameters": {
+          "uo_name": "Electrode_Insert",
+          "description": "Insert electrode into reactor cell for measurement",
+          "wait_before": 0,
+          "wait_after": 1,
+          "error_handling": "stop",
+          "log_level": "INFO",
+          "operation_type": "insert",
+          "electrode_type": "reference",
+          "target_cell": "A1",
+          "approach_speed": 50,
+          "insertion_speed": 25,
+          "insert_offset_x": 0.5,
+          "insert_offset_y": 0.5,
+          "insert_approach_z": 5,
+          "insert_final_z": -26
+        }
+      }
+    },
+    {
+      "id": "electrochemical_measurement_1",
+      "type": "sdl1ElectrochemicalMeasurement",
+      "position": { "x": 1300, "y": 100 },
+      "data": {
+        "label": "Zinc Deposition Measurement",
+        "nodeType": "sdl1ElectrochemicalMeasurement",
+        "category": "SDL1",
+        "parameters": {
+          "uo_name": "ZnDeposition_Measurement",
+          "description": "Complete zinc electrodeposition measurement sequence with real-time data collection",
+          "wait_before": 0,
+          "wait_after": 2,
+          "error_handling": "stop",
+          "log_level": "INFO",
+          "com_port": "COM4",
+          "channel": 0,
+          "sequence_enabled": true,
+          "sequence_cycles": 1,
+          "cp_deposition_enabled": true,
+          "cp_deposition_current": -0.004,
+          "cp_deposition_duration": 3,
+          "cp_deposition_voltage_limit": 1.0,
+          "ocv_post_deposition_enabled": true,
+          "ocv_post_deposition_duration": 3,
+          "ocv_post_deposition_sample_interval": 1.0,
+          "peis_post_deposition_enabled": true,
+          "peis_post_deposition_start_freq": 10000,
+          "peis_post_deposition_end_freq": 1000,
+          "peis_post_deposition_points_per_decade": 5.0,
+          "peis_post_deposition_dc_bias": 0.0,
+          "peis_post_deposition_ac_amplitude": 0.01,
+          "peis_post_deposition_bias_vs_ocp": true,
+          "peis_post_deposition_min_cycles": 1,
+          "cp_dissolution_enabled": true,
+          "cp_dissolution_current": 0.004,
+          "cp_dissolution_duration": 3,
+          "cp_dissolution_voltage_limit": 1.0,
+          "cp_dissolution_max_voltage": -0.5,
+          "ocv_post_dissolution_enabled": true,
+          "ocv_post_dissolution_duration": 3,
+          "ocv_post_dissolution_sample_interval": 1.0,
+          "peis_post_dissolution_enabled": true,
+          "peis_post_dissolution_start_freq": 10000,
+          "peis_post_dissolution_end_freq": 1000,
+          "peis_post_dissolution_points_per_decade": 5.0,
+          "peis_post_dissolution_dc_bias": 0.0,
+          "peis_post_dissolution_ac_amplitude": 0.01,
+          "peis_post_dissolution_bias_vs_ocp": true,
+          "peis_post_dissolution_min_cycles": 1,
+          "real_time_data_collection": true,
+          "data_save_enabled": true,
+          "experiment_name_template": "Zinc_Deposition_{timestamp}",
+          "dc_data_columns": ["timestamp_s", "current_A", "we_voltage_V"],
+          "ac_data_columns": ["timestamp", "frequency", "absoluteImpedance", "realImpedance", "imagImpedance", "phaseAngle", "numberOfCycles"],
+          "element_logging_enabled": true,
+          "element_status_callback": true
+        }
+      }
+    },
+    {
+      "id": "electrode_manipulation_remove",
+      "type": "sdl1ElectrodeManipulation",
+      "position": { "x": 1600, "y": 100 },
+      "data": {
+        "label": "Electrode Remove",
+        "nodeType": "sdl1ElectrodeManipulation",
+        "category": "SDL1",
+        "parameters": {
+          "uo_name": "Electrode_Remove",
+          "description": "Remove electrode from reactor cell after measurement",
+          "wait_before": 0,
+          "wait_after": 1,
+          "error_handling": "stop",
+          "log_level": "INFO",
+          "operation_type": "remove",
+          "electrode_type": "reference",
+          "target_cell": "A1",
+          "approach_speed": 50,
+          "insertion_speed": 25,
+          "insert_offset_x": 0.5,
+          "insert_offset_y": 0.5,
+          "insert_approach_z": 5,
+          "insert_final_z": -26
+        }
+      }
+    },
+    {
+      "id": "hardware_washing_1",
+      "type": "sdl1HardwareWashing",
+      "position": { "x": 1900, "y": 100 },
+      "data": {
+        "label": "Hardware Washing",
+        "nodeType": "sdl1HardwareWashing",
+        "category": "SDL1",
+        "parameters": {
+          "uo_name": "Reactor_Washing",
+          "description": "Automated washing of reactor cell with Arduino pumps and ultrasonic cleaning",
+          "wait_before": 0,
+          "wait_after": 2,
+          "error_handling": "stop",
+          "log_level": "INFO",
+          "target_cell": "A1",
+          "initial_drain_volume": 10.0,
+          "rinse_volume": 4.0,
+          "ultrasonic_duration": 5000,
+          "final_rinse_volume": 10.0,
+          "arduino_com_port": "COM3",
+          "approach_speed": 50,
+          "insertion_speed": 25,
+          "flush_pickup_offset_x": 0.6,
+          "flush_pickup_offset_y": 0.5,
+          "flush_insert_offset_x": 0.5,
+          "flush_insert_offset_y": 0.5,
+          "flush_approach_z": 5,
+          "flush_final_z": -57,
+          "flush_return_offset_z": 6
+        }
+      }
+    },
+    {
+      "id": "electrode_manipulation_return",
+      "type": "sdl1ElectrodeManipulation",
+      "position": { "x": 2200, "y": 100 },
+      "data": {
+        "label": "Electrode Return",
+        "nodeType": "sdl1ElectrodeManipulation",
+        "category": "SDL1",
+        "parameters": {
+          "uo_name": "Electrode_Return",
+          "description": "Return electrode to rack after washing",
+          "wait_before": 0,
+          "wait_after": 1,
+          "error_handling": "stop",
+          "log_level": "INFO",
+          "operation_type": "return",
+          "electrode_type": "reference",
+          "target_cell": "A1",
+          "approach_speed": 50,
+          "insertion_speed": 25,
+          "return_offset_z": 6
+        }
+      }
+    },
+    {
+      "id": "data_export_1",
+      "type": "sdl1DataExport",
+      "position": { "x": 2500, "y": 100 },
+      "data": {
+        "label": "Data Export & NIMO Update",
+        "nodeType": "sdl1DataExport",
+        "category": "SDL1",
+        "parameters": {
+          "uo_name": "ZnDeposition_DataExport",
+          "description": "Export experimental data and update NIMO optimization files",
+          "wait_before": 0,
+          "wait_after": 0,
+          "error_handling": "stop",
+          "log_level": "INFO",
+          "export_format": "csv",
+          "include_metadata": true,
+          "compress_output": false,
+          "export_path": "data/exports",
+          "filename_pattern": "ZnDeposition_{timestamp}_{run_number}",
+          "include_raw_data": true,
+          "include_processed_data": true,
+          "nimo_update_enabled": true,
+          "objective_value_column": "timestamp_s",
+          "objective_extraction": "last_value"
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_1",
+      "source": "experiment_setup_1",
+      "target": "sample_preparation_1",
+      "sourceHandle": "trigger-output",
+      "targetHandle": "trigger-input",
+      "type": "default",
+      "data": {
+        "label": "Setup Complete → Sample Prep",
+        "condition": null
+      }
+    },
+    {
+      "id": "edge_2",
+      "source": "sample_preparation_1",
+      "target": "electrode_manipulation_pickup",
+      "sourceHandle": "trigger-output",
+      "targetHandle": "trigger-input",
+      "type": "default",
+      "data": {
+        "label": "Sample Ready → Pickup Electrode",
+        "condition": null
+      }
+    },
+    {
+      "id": "edge_3",
+      "source": "electrode_manipulation_pickup",
+      "target": "electrode_manipulation_insert",
+      "sourceHandle": "trigger-output",
+      "targetHandle": "trigger-input",
+      "type": "default",
+      "data": {
+        "label": "Electrode Picked → Insert Electrode",
+        "condition": null
+      }
+    },
+    {
+      "id": "edge_4",
+      "source": "electrode_manipulation_insert",
+      "target": "electrochemical_measurement_1",
+      "sourceHandle": "trigger-output",
+      "targetHandle": "trigger-input",
+      "type": "default",
+      "data": {
+        "label": "Electrode Inserted → Start Measurement",
+        "condition": null
+      }
+    },
+    {
+      "id": "edge_5",
+      "source": "electrochemical_measurement_1",
+      "target": "electrode_manipulation_remove",
+      "sourceHandle": "trigger-output",
+      "targetHandle": "trigger-input",
+      "type": "default",
+      "data": {
+        "label": "Measurement Complete → Remove Electrode",
+        "condition": null
+      }
+    },
+    {
+      "id": "edge_6",
+      "source": "electrode_manipulation_remove",
+      "target": "hardware_washing_1",
+      "sourceHandle": "trigger-output",
+      "targetHandle": "trigger-input",
+      "type": "default",
+      "data": {
+        "label": "Electrode Removed → Start Washing",
+        "condition": null
+      }
+    },
+    {
+      "id": "edge_7",
+      "source": "hardware_washing_1",
+      "target": "electrode_manipulation_return",
+      "sourceHandle": "trigger-output",
+      "targetHandle": "trigger-input",
+      "type": "default",
+      "data": {
+        "label": "Washing Complete → Return Electrode",
+        "condition": null
+      }
+    },
+    {
+      "id": "edge_8",
+      "source": "electrode_manipulation_return",
+      "target": "data_export_1",
+      "sourceHandle": "trigger-output",
+      "targetHandle": "trigger-input",
+      "type": "default",
+      "data": {
+        "label": "Electrode Returned → Export Data",
+        "condition": null
+      }
+    },
+    {
+      "id": "edge_csv_data",
+      "source": "experiment_setup_1",
+      "target": "sample_preparation_1",
+      "sourceHandle": "csv_data-output",
+      "targetHandle": "csv_data-input",
+      "type": "default",
+      "data": {
+        "label": "CSV Parameters → Sample Prep",
+        "condition": null
+      }
+    },
+    {
+      "id": "edge_cell_info",
+      "source": "sample_preparation_1",
+      "target": "electrode_manipulation_pickup",
+      "sourceHandle": "sample_info-output",
+      "targetHandle": "cell_info-input",
+      "type": "default",
+      "data": {
+        "label": "Cell Info → Electrode Pickup",
+        "condition": null
+      }
+    }
+  ],
+  "metadata": {
+    "experimentType": "electrochemistry",
+    "platform": "SDL1",
+    "hardware": ["Opentrons OT2", "Squidstat", "Arduino"],
+    "chemicals": ["ZnSO4", "Additives A-G"],
+    "labware": ["NIS Reactor", "Vial Racks", "Electrode Rack", "Wash Station"],
+    "optimization": "NIMO (PHYSBO/RE)",
+    "dataCollection": "Real-time DC/AC",
+    "estimatedDuration": "15-20 minutes per experiment",
+    "safetyNotes": [
+      "Verify all hardware connections before starting",
+      "Ensure proper electrode insertion depths",
+      "Monitor pump operation during washing",
+      "Check CSV file format before execution"
+    ],
+    "parameterNotes": {
+      "additives": "A-G parameters loaded from CSV file (0=disabled, 1=enabled)",
+      "currents": "Deposition: -4mA, Dissolution: +4mA",
+      "durations": "All operations: 3 seconds (adjustable)",
+      "frequencies": "PEIS: 10kHz to 1kHz sweep",
+      "volumes": "Total sample: 3000μL, Additive: 100μL each",
+      "cells": "Target cell A1 (configurable A1-C5)"
+    },
+    "quickStart": {
+      "steps": [
+        "1. Import this workflow JSON file",
+        "2. Modify additive parameters (A-G) as needed",
+        "3. Adjust current/voltage limits if required", 
+        "4. Set target cell position",
+        "5. Run workflow - all operations are automated"
+      ],
+      "commonModifications": [
+        "Change target_cell in all nodes for different reactor positions",
+        "Modify cp_deposition_current/cp_dissolution_current for different currents",
+        "Adjust additive_volume for different concentrations",
+        "Change ultrasonic_duration for different cleaning intensities"
+      ]
+    }
+  }
+}
