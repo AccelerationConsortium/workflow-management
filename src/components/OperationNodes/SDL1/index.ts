@@ -1,6 +1,6 @@
 import './styles.css';
 
-// Import components individually to avoid circular dependencies
+// Import existing components
 import { ExperimentSetupNode, experimentSetupNodeConfig } from './UnitOperations/ExperimentSetup';
 import { SolutionPreparationNode, solutionPreparationNodeConfig } from './UnitOperations/SolutionPreparation';
 import { ElectrodeSetupNode, electrodeSetupNodeConfig } from './UnitOperations/ElectrodeSetup';
@@ -9,6 +9,11 @@ import { WashCleaningNode, washCleaningNodeConfig } from './UnitOperations/WashC
 import { DataExportNode, dataExportNodeConfig } from './UnitOperations/DataExport';
 import { SequenceControlNode, sequenceControlNodeConfig } from './UnitOperations/SequenceControl';
 import { CycleCounterNode, cycleCounterNodeConfig } from './UnitOperations/CycleCounter';
+
+// Import new components
+import { SamplePreparationNode, samplePreparationNodeConfig } from './UnitOperations/SamplePreparation';
+import { ElectrodeManipulationNode, electrodeManipulationNodeConfig } from './UnitOperations/ElectrodeManipulation';
+import { HardwareWashingNode, hardwareWashingNodeConfig } from './UnitOperations/HardwareWashing';
 
 // Re-export individual components
 export { ExperimentSetupNode, experimentSetupNodeConfig };
@@ -20,11 +25,17 @@ export { DataExportNode, dataExportNodeConfig };
 export { SequenceControlNode, sequenceControlNodeConfig };
 export { CycleCounterNode, cycleCounterNodeConfig };
 
+// Re-export new components
+export { SamplePreparationNode, samplePreparationNodeConfig };
+export { ElectrodeManipulationNode, electrodeManipulationNodeConfig };
+export { HardwareWashingNode, hardwareWashingNodeConfig };
+
 // Types
 export * from './types';
 
 // Export nodes for App.tsx integration - using imported components
 export const SDL1Nodes = {
+  // Existing nodes
   sdl1ExperimentSetup: ExperimentSetupNode,
   sdl1SolutionPreparation: SolutionPreparationNode,
   sdl1ElectrodeSetup: ElectrodeSetupNode,
@@ -33,6 +44,11 @@ export const SDL1Nodes = {
   sdl1DataExport: DataExportNode,
   sdl1SequenceControl: SequenceControlNode,
   sdl1CycleCounter: CycleCounterNode,
+  
+  // New nodes
+  sdl1SamplePreparation: SamplePreparationNode,
+  sdl1ElectrodeManipulation: ElectrodeManipulationNode,
+  sdl1HardwareWashing: HardwareWashingNode,
 };
 
 // Node configs for registration and initialization
@@ -45,6 +61,10 @@ export const SDL1NodeConfigs = [
   dataExportNodeConfig,
   sequenceControlNodeConfig,
   cycleCounterNodeConfig,
+  // New node configs
+  samplePreparationNodeConfig,
+  electrodeManipulationNodeConfig,
+  hardwareWashingNodeConfig,
 ];
 
 // Node configs for lazy loading (optional - keeping for potential future use)
@@ -57,4 +77,8 @@ export const SDL1_NODE_CONFIGS = {
   sdl1DataExport: () => Promise.resolve(dataExportNodeConfig),
   sdl1SequenceControl: () => Promise.resolve(sequenceControlNodeConfig),
   sdl1CycleCounter: () => Promise.resolve(cycleCounterNodeConfig),
+  // New node configs
+  sdl1SamplePreparation: () => Promise.resolve(samplePreparationNodeConfig),
+  sdl1ElectrodeManipulation: () => Promise.resolve(electrodeManipulationNodeConfig),
+  sdl1HardwareWashing: () => Promise.resolve(hardwareWashingNodeConfig),
 };
