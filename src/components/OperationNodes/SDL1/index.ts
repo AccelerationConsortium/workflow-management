@@ -14,6 +14,7 @@ import { CycleCounterNode, cycleCounterNodeConfig } from './UnitOperations/Cycle
 import { SamplePreparationNode, samplePreparationNodeConfig } from './UnitOperations/SamplePreparation';
 import { ElectrodeManipulationNode, electrodeManipulationNodeConfig } from './UnitOperations/ElectrodeManipulation';
 import { HardwareWashingNode, hardwareWashingNodeConfig } from './UnitOperations/HardwareWashing';
+import { BloxOptimizationNode, bloxOptimizationNodeConfig } from './UnitOperations/BloxOptimization';
 
 // Re-export individual components
 export { ExperimentSetupNode, experimentSetupNodeConfig };
@@ -29,6 +30,7 @@ export { CycleCounterNode, cycleCounterNodeConfig };
 export { SamplePreparationNode, samplePreparationNodeConfig };
 export { ElectrodeManipulationNode, electrodeManipulationNodeConfig };
 export { HardwareWashingNode, hardwareWashingNodeConfig };
+export { BloxOptimizationNode, bloxOptimizationNodeConfig };
 
 // Types
 export * from './types';
@@ -49,6 +51,7 @@ export const SDL1Nodes = {
   sdl1SamplePreparation: SamplePreparationNode,
   sdl1ElectrodeManipulation: ElectrodeManipulationNode,
   sdl1HardwareWashing: HardwareWashingNode,
+  sdl1BloxOptimization: BloxOptimizationNode,
 };
 
 // Node configs for registration and initialization
@@ -65,6 +68,7 @@ export const SDL1NodeConfigs = [
   samplePreparationNodeConfig,
   electrodeManipulationNodeConfig,
   hardwareWashingNodeConfig,
+  bloxOptimizationNodeConfig,
 ];
 
 // Node configs for lazy loading (optional - keeping for potential future use)
@@ -81,4 +85,5 @@ export const SDL1_NODE_CONFIGS = {
   sdl1SamplePreparation: () => Promise.resolve(samplePreparationNodeConfig),
   sdl1ElectrodeManipulation: () => Promise.resolve(electrodeManipulationNodeConfig),
   sdl1HardwareWashing: () => Promise.resolve(hardwareWashingNodeConfig),
+  sdl1BloxOptimization: () => Promise.resolve(bloxOptimizationNodeConfig),
 };
