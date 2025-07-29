@@ -1,0 +1,207 @@
+{
+  "workflow": {
+    "id": "zinc_deposition_blox_optimized",
+    "name": "Blox-Optimized Zinc Deposition Workflow",
+    "description": "Complete automated zinc electrodeposition workflow with Blox multi-objective optimization, replacing NIMO with advanced Bayesian optimization",
+    "version": "2.0.0",
+    "created": "2025-01-29",
+    "author": "SDL1 Team",
+    "category": "Electrochemistry",
+    "tags": ["zinc", "electrodeposition", "blox", "bayesian-optimization", "multi-objective", "automation", "SDL1"]
+  },
+  "nodes": [
+    {
+      "id": "blox_optimization_controller",
+      "type": "sdl1BloxOptimization",
+      "position": { "x": 50, "y": 300 },
+      "data": {
+        "label": "Blox Optimization Controller",
+        "nodeType": "sdl1BloxOptimization",
+        "category": "SDL1",
+        "parameters": {
+          "uo_name": "ZnDeposition_BloxOptimizer",
+          "description": "Multi-objective Bayesian optimization for zinc deposition parameters",
+          "wait_before": 0,
+          "wait_after": 1,
+          "error_handling": "continue",
+          "log_level": "INFO",
+          
+          "optimization_method": "EHVI",
+          "acquisition_function": "qEHVI",
+          "surrogate_model": "MultiTaskGP",
+          
+          "parameter_space_enabled": true,
+          "additive_A_enabled": true,
+          "additive_B_enabled": true,
+          "additive_C_enabled": true,
+          "additive_D_enabled": true,
+          "additive_E_enabled": false,
+          "additive_F_enabled": false,
+          "additive_G_enabled": false,
+          
+          "objectives_enabled": true,
+          "capacity_objective_enabled": true,
+          "capacity_objective_type": "maximize",
+          "capacity_objective_weight": 0.5,
+          "capacity_extraction_method": "integrate_current_curve",
+          "capacity_data_source": "dc_data",
+          "capacity_data_column": "current_A",
+          
+          "efficiency_objective_enabled": true,
+          "efficiency_objective_type": "maximize",
+          "efficiency_objective_weight": 0.3,
+          "efficiency_extraction_method": "coulombic_efficiency",
+          "efficiency_data_source": "dc_data",
+          
+          "stability_objective_enabled": true,
+          "stability_objective_type": "maximize",
+          "stability_objective_weight": 0.2,
+          "stability_extraction_method": "voltage_stability",
+          "stability_data_source": "dc_data",
+          "stability_data_column": "we_voltage_V",
+          
+          "initial_strategy": "latin_hypercube",
+          "initial_samples": 5,
+          "max_iterations": 25,
+          "batch_size": 1,
+          "convergence_threshold": 0.005,
+          "exploration_weight": 0.15,
+          
+          "experiment_history_file": "zinc_blox_history.json",
+          "parameter_proposals_file": "zinc_blox_proposals.csv",
+          "results_update_file": "zinc_blox_results.json",
+          "backup_frequency": 3,
+          
+          "constraint_handling": true,
+          "max_additives_constraint": 2,
+          "min_additives_constraint": 1,
+          "multi_fidelity": false,
+          "uncertainty_quantification": true,
+          "expected_improvement_threshold": 0.001,
+          
+          "trigger_experiment_on_proposal": true,
+          "wait_for_experiment_completion": true,
+          "auto_extract_objectives": true,
+          "real_time_model_update": true,
+          
+          "data_collection_enabled": true,
+          "cycle_dependent_collection": false,
+          "data_tag": "BloxOptimization"
+        }
+      }
+    },
+    {
+      "id": "experiment_setup_1",
+      "type": "sdl1ExperimentSetup",
+      "position": { "x": 400, "y": 100 },
+      "data": {
+        "label": "Blox-Driven Experiment Setup",
+        "nodeType": "sdl1ExperimentSetup",
+        "category": "SDL1",
+        "parameters": {
+          "uo_name": "ZnDeposition_BloxDriven_Setup",
+          "description": "Initialize zinc deposition experiment with Blox-optimized parameters",
+          "wait_before": 0,
+          "wait_after": 2,
+          "error_handling": "stop",
+          "log_level": "INFO",
+          "nimo_enabled": false,
+          "csv_mode": "blox_driven",
+          "blox_proposals_file": "zinc_blox_proposals.csv",
+          "fallback_to_random": true,
+          "experiment_base_name": "ZnDeposition_Blox",
+          "auto_increment_run": true,
+          "data_directory": "data/blox_optimization",
+          "metadata_generation": true,
+          "experiment_status": "running",
+          "robot_ip": "169.254.69.185",
+          "robot_port": 80,
+          "squidstat_port": "COM4",
+          "squidstat_channel": 0,
+          "arduino_port": "COM3",
+          "target_cell": "A1",
+          "test_well_address": "A1",
+          "pipette_tip_start_id": 17,
+          "validate_hardware_connection": true,
+          "check_csv_file_exists": false,
+          "data_collection_enabled": true,
+          "data_tag": "ExperimentSetup"
+        }
+      }
+    },
+    {
+      "id": "sample_preparation_1",
+      "type": "sdl1SamplePreparation",
+      "position": { "x": 400, "y": 250 },
+      "data": {
+        "label": "Sample Preparation",
+        "nodeType": "sdl1SamplePreparation",
+        "category": "SDL1",
+        "parameters": {
+          "uo_name": "ZnDeposition_SamplePrep",
+          "description": "Prepare zinc deposition samples based on Blox optimization proposals",
+          "wait_before": 0,
+          "wait_after": 1,
+          "error_handling": "stop",
+          "log_level": "INFO",
+          "preparation_method": "automated_pipetting",
+          "sample_volume_ml": 10.0,
+          "electrolyte_base": "ZnSO4_solution",
+          "additive_concentrations": "blox_optimized",
+          "mixing_time_s": 30,
+          "mixing_speed_rpm": 300,
+          "temperature_control": true,
+          "target_temperature_c": 25.0,
+          "ph_adjustment": false,
+          "degassing_enabled": true,
+          "degassing_time_s": 120,
+          "data_collection_enabled": true,
+          "data_tag": "SamplePreparation"
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_blox_to_setup",
+      "source": "blox_optimization_controller",
+      "target": "experiment_setup_1",
+      "sourceHandle": "next_parameters-output",
+      "targetHandle": "parameters_input",
+      "type": "conditional",
+      "data": {
+        "label": "Blox Proposals → Experiment Setup",
+        "condition": "has_next_proposal",
+        "description": "Sends optimized parameters from Blox to experiment setup"
+      }
+    },
+    {
+      "id": "edge_setup_to_sample",
+      "source": "experiment_setup_1",
+      "target": "sample_preparation_1",
+      "sourceHandle": "setup_complete-output",
+      "targetHandle": "trigger-input",
+      "type": "default",
+      "data": {
+        "label": "Setup → Sample Prep",
+        "description": "Triggers sample preparation after experiment setup"
+      }
+    }
+  ],
+  "metadata": {
+    "totalNodes": 3,
+    "totalEdges": 2,
+    "optimizationLoop": true,
+    "estimatedDuration": "4-12 hours",
+    "objectives": ["capacity", "efficiency", "stability"],
+    "parameterSpace": "4 categorical additives (A-D)",
+    "maxIterations": 25,
+    "convergenceCriteria": "0.005 improvement threshold",
+    "notes": [
+      "This workflow replaces NIMO optimization with Blox multi-objective Bayesian optimization",
+      "Focuses on 4 additives (A-D) instead of all 7 for faster convergence",
+      "Uses Latin Hypercube sampling for better initial space coverage",
+      "Implements constraint handling to ensure realistic additive combinations"
+    ]
+  }
+}

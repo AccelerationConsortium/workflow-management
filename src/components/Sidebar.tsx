@@ -169,6 +169,12 @@ const Sidebar: React.FC = () => {
 
     // Add regular operation nodes
     operationNodes.forEach(node => {
+      // Safety check: ensure node has required properties
+      if (!node.label || !node.category) {
+        console.warn('Invalid node found:', node);
+        return;
+      }
+
       if (!node.label.toLowerCase().includes(searchTerm.toLowerCase())) {
         return;
       }
