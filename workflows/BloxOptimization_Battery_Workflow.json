@@ -1,0 +1,268 @@
+{
+  "workflow": {
+    "id": "blox_battery_optimization",
+    "name": "Blox-Driven Battery Optimization Workflow",
+    "description": "Autonomous multi-objective optimization of battery additives using Blox framework",
+    "version": "1.0.0",
+    "created": "2024-01-24T10:00:00Z",
+    "author": "SDL1 Team"
+  },
+  "nodes": [
+    {
+      "id": "blox_optimization_controller",
+      "type": "sdl1BloxOptimization",
+      "position": { "x": 50, "y": 300 },
+      "data": {
+        "label": "Blox Optimization Controller",
+        "nodeType": "sdl1BloxOptimization",
+        "category": "SDL1",
+        "parameters": {
+          "uo_name": "BloxOptimizer",
+          "description": "Multi-objective Bayesian optimization using Blox framework",
+          "wait_before": 0,
+          "wait_after": 1,
+          "error_handling": "continue",
+          "log_level": "INFO",
+          
+          "optimization_method": "EHVI",
+          "acquisition_function": "qEHVI",
+          "surrogate_model": "MultiTaskGP",
+          
+          "parameter_space_enabled": true,
+          "additive_A_enabled": true,
+          "additive_B_enabled": true,
+          "additive_C_enabled": true,
+          "additive_D_enabled": true,
+          "additive_E_enabled": true,
+          "additive_F_enabled": true,
+          "additive_G_enabled": true,
+          
+          "objectives_enabled": true,
+          "capacity_objective_enabled": true,
+          "capacity_objective_type": "maximize",
+          "capacity_objective_weight": 0.4,
+          "capacity_extraction_method": "integrate_current_curve",
+          "capacity_data_source": "dc_data",
+          "capacity_data_column": "current_A",
+          
+          "efficiency_objective_enabled": true,
+          "efficiency_objective_type": "maximize",
+          "efficiency_objective_weight": 0.3,
+          "efficiency_extraction_method": "coulombic_efficiency",
+          "efficiency_data_source": "dc_data",
+          
+          "stability_objective_enabled": true,
+          "stability_objective_type": "maximize",
+          "stability_objective_weight": 0.3,
+          "stability_extraction_method": "voltage_stability",
+          "stability_data_source": "dc_data",
+          "stability_data_column": "we_voltage_V",
+          
+          "initial_strategy": "random_sampling",
+          "initial_samples": 3,
+          "max_iterations": 20,
+          "batch_size": 1,
+          "convergence_threshold": 0.01,
+          "exploration_weight": 0.1,
+          
+          "experiment_history_file": "blox_experiment_history.json",
+          "parameter_proposals_file": "blox_proposals.csv",
+          "results_update_file": "blox_results.json",
+          "backup_frequency": 5,
+          
+          "constraint_handling": true,
+          "max_additives_constraint": 4,
+          "min_additives_constraint": 1,
+          "multi_fidelity": false,
+          "uncertainty_quantification": true,
+          "expected_improvement_threshold": 0.001,
+          
+          "trigger_experiment_on_proposal": true,
+          "wait_for_experiment_completion": true,
+          "auto_extract_objectives": true,
+          "real_time_model_update": true,
+          
+          "data_collection_enabled": true,
+          "cycle_dependent_collection": false,
+          "data_tag": "BloxOptimization"
+        }
+      }
+    },
+    {
+      "id": "experiment_setup_1",
+      "type": "sdl1ExperimentSetup",
+      "position": { "x": 400, "y": 100 },
+      "data": {
+        "label": "Blox-Driven Experiment Setup",
+        "nodeType": "sdl1ExperimentSetup",
+        "category": "SDL1",
+        "parameters": {
+          "uo_name": "BloxDrivenExperimentSetup",
+          "description": "Experiment setup driven by Blox optimization proposals",
+          "parameter_source": "blox_driven",
+          "blox_proposals_file": "blox_proposals.csv",
+          "fallback_to_random": true,
+          "nimo_method": "NIMO_OPTIMIZATION",
+          "target_cell": "A1",
+          "test_well_address": "A1",
+          "pipette_tip_start_id": 17,
+          "data_collection_enabled": true,
+          "data_tag": "ExperimentSetup"
+        }
+      }
+    },
+    {
+      "id": "sample_preparation_1",
+      "type": "sdl1SamplePreparation",
+      "position": { "x": 400, "y": 250 },
+      "data": {
+        "label": "Sample Preparation",
+        "nodeType": "sdl1SamplePreparation",
+        "category": "SDL1",
+        "parameters": {
+          "uo_name": "SamplePreparation",
+          "description": "Prepare samples based on Blox proposals",
+          "data_collection_enabled": true,
+          "data_tag": "SamplePreparation"
+        }
+      }
+    },
+    {
+      "id": "electrochemical_measurement_1",
+      "type": "sdl1ElectrochemicalMeasurement",
+      "position": { "x": 400, "y": 400 },
+      "data": {
+        "label": "Electrochemical Measurement",
+        "nodeType": "sdl1ElectrochemicalMeasurement",
+        "category": "SDL1",
+        "parameters": {
+          "uo_name": "Enhanced_Electrochemical_Measurement",
+          "description": "Enhanced electrochemical measurement with real-time data collection",
+          "sequence_enabled": true,
+          "sequence_cycles": 1,
+          "cp_deposition_enabled": true,
+          "cp_deposition_current": -0.004,
+          "cp_deposition_duration": 3,
+          "cp_deposition_voltage_limit": 1.0,
+          "ocv_post_deposition_enabled": true,
+          "ocv_post_deposition_duration": 3,
+          "ocv_post_deposition_sample_interval": 1.0,
+          "peis_post_deposition_enabled": true,
+          "peis_post_deposition_start_freq": 10000,
+          "peis_post_deposition_end_freq": 1000,
+          "peis_post_deposition_points_per_decade": 5.0,
+          "cp_dissolution_enabled": true,
+          "cp_dissolution_current": 0.004,
+          "cp_dissolution_duration": 3,
+          "cp_dissolution_voltage_limit": 1.0,
+          "real_time_data_collection": true,
+          "data_collection_enabled": true,
+          "data_tag": "ElectrochemicalMeasurement"
+        }
+      }
+    },
+    {
+      "id": "data_export_1",
+      "type": "sdl1DataExport",
+      "position": { "x": 400, "y": 550 },
+      "data": {
+        "label": "Blox-Enhanced Data Export",
+        "nodeType": "sdl1DataExport",
+        "category": "SDL1",
+        "parameters": {
+          "uo_name": "BloxEnhancedDataExport",
+          "description": "Data export with Blox objective extraction",
+          "blox_integration": true,
+          "objective_extraction": {
+            "capacity": {
+              "method": "trapz_integration",
+              "data_column": "current_A",
+              "time_column": "timestamp_s"
+            },
+            "efficiency": {
+              "method": "charge_ratio",
+              "charge_column": "current_A",
+              "discharge_threshold": 0
+            },
+            "stability": {
+              "method": "voltage_variance",
+              "data_column": "we_voltage_V",
+              "time_window": "last_60s"
+            }
+          },
+          "data_collection_enabled": true,
+          "data_tag": "DataExport"
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_blox_to_setup",
+      "source": "blox_optimization_controller",
+      "target": "experiment_setup_1",
+      "sourceHandle": "next_parameters-output",
+      "targetHandle": "parameters_input",
+      "type": "conditional",
+      "data": {
+        "label": "Blox Proposal → Experiment Setup",
+        "condition": "has_next_proposal"
+      }
+    },
+    {
+      "id": "edge_setup_to_sample",
+      "source": "experiment_setup_1",
+      "target": "sample_preparation_1",
+      "sourceHandle": "setup_complete-output",
+      "targetHandle": "trigger-input",
+      "type": "default",
+      "data": {
+        "label": "Setup → Sample Prep"
+      }
+    },
+    {
+      "id": "edge_sample_to_measurement",
+      "source": "sample_preparation_1",
+      "target": "electrochemical_measurement_1",
+      "sourceHandle": "preparation_complete-output",
+      "targetHandle": "trigger-input",
+      "type": "default",
+      "data": {
+        "label": "Sample Prep → Measurement"
+      }
+    },
+    {
+      "id": "edge_measurement_to_export",
+      "source": "electrochemical_measurement_1",
+      "target": "data_export_1",
+      "sourceHandle": "measurement_complete-output",
+      "targetHandle": "data_input",
+      "type": "default",
+      "data": {
+        "label": "Measurement → Data Export"
+      }
+    },
+    {
+      "id": "edge_optimization_loop",
+      "source": "data_export_1",
+      "target": "blox_optimization_controller",
+      "sourceHandle": "experiment_results-output",
+      "targetHandle": "experiment_results-input",
+      "type": "conditional",
+      "data": {
+        "label": "Results → Blox Update",
+        "condition": "optimization_not_converged"
+      }
+    }
+  ],
+  "metadata": {
+    "totalNodes": 5,
+    "totalEdges": 5,
+    "optimizationLoop": true,
+    "estimatedDuration": "2-8 hours",
+    "objectives": ["capacity", "efficiency", "stability"],
+    "parameterSpace": "7 categorical additives",
+    "maxIterations": 20,
+    "convergenceCriteria": "0.01 improvement threshold"
+  }
+}
