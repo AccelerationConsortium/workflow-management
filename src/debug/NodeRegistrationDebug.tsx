@@ -5,22 +5,44 @@ import { SDL1NodeConfigs } from '../components/OperationNodes/SDL1';
 export const NodeRegistrationDebug: React.FC = () => {
   useEffect(() => {
     console.log('=== Node Registration Debug ===');
-    
+
     // Check SDL1NodeConfigs
     console.log('SDL1NodeConfigs:', SDL1NodeConfigs);
     console.log('SDL1NodeConfigs length:', SDL1NodeConfigs.length);
-    
+
     const bloxConfig = SDL1NodeConfigs.find(config => config.type === 'sdl1BloxOptimization');
     console.log('BloxOptimization in SDL1NodeConfigs:', bloxConfig);
-    
+
     // Check operationNodes
     console.log('operationNodes length:', operationNodes.length);
     const sdl1Nodes = operationNodes.filter(node => node.category === 'SDL1');
     console.log('SDL1 nodes in operationNodes:', sdl1Nodes.map(n => ({ type: n.type, label: n.label })));
-    
+
     const bloxNode = operationNodes.find(node => node.type === 'sdl1BloxOptimization');
     console.log('BloxOptimization in operationNodes:', bloxNode);
-    
+
+    // Check grouping logic
+    const groups = new Map<string, any[]>();
+    operationNodes.forEach(node => {
+      if (!node.label || !node.category) {
+        return;
+      }
+      const group = groups.get(node.category) || [];
+      group.push(node);
+      groups.set(node.category, group);
+    });
+
+    console.log('=== Grouping Debug ===');
+    console.log('All groups:', Array.from(groups.keys()));
+    console.log('SDL1 group:', groups.get('SDL1'));
+    console.log('SDL1 group size:', groups.get('SDL1')?.length);
+
+    const sdl1Group = groups.get('SDL1');
+    if (sdl1Group) {
+      const bloxInGroup = sdl1Group.find(n => n.type === 'sdl1BloxOptimization');
+      console.log('BloxOptimization in SDL1 group:', bloxInGroup);
+    }
+
     if (!bloxNode) {
       console.error('❌ BloxOptimization NOT found in operationNodes!');
     } else {
@@ -43,6 +65,10 @@ export const NodeRegistrationDebug: React.FC = () => {
       <div>Debug: Check console for node registration info</div>
       <div>SDL1 Nodes: {operationNodes.filter(n => n.category === 'SDL1').length}</div>
       <div>Blox Found: {operationNodes.find(n => n.type === 'sdl1BloxOptimization') ? '✅' : '❌'}</div>
+      <div>All Categories: {Array.from(new Set(operationNodes.map(n => n.category))).join(', ')}</div>
+      <div style={{ fontSize: '10px', marginTop: '5px' }}>
+        SDL1 Types: {operationNodes.filter(n => n.category === 'SDL1').map(n => n.type.replace('sdl1', '')).join(', ')}
+      </div>
     </div>
   );
 };
