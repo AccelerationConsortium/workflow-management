@@ -6,6 +6,19 @@ export const NodeRegistrationDebug: React.FC = () => {
   useEffect(() => {
     console.log('=== Node Registration Debug ===');
 
+    // Add temporary highlighting for BloxOptimization
+    setTimeout(() => {
+      const bloxElements = document.querySelectorAll('[data-node-type="sdl1BloxOptimization"], .operation-node');
+      bloxElements.forEach(el => {
+        const titleEl = el.querySelector('.operation-title');
+        if (titleEl && titleEl.textContent?.includes('Blox Optimization')) {
+          el.style.border = '3px solid red';
+          el.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
+          console.log('🔴 Found and highlighted BloxOptimization element:', el);
+        }
+      });
+    }, 1000);
+
     // Check SDL1NodeConfigs
     console.log('SDL1NodeConfigs:', SDL1NodeConfigs);
     console.log('SDL1NodeConfigs length:', SDL1NodeConfigs.length);
