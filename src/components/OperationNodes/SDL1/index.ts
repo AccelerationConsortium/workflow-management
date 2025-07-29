@@ -85,4 +85,5 @@ export const SDL1_NODE_CONFIGS = {
   sdl1SamplePreparation: () => Promise.resolve(samplePreparationNodeConfig),
   sdl1ElectrodeManipulation: () => Promise.resolve(electrodeManipulationNodeConfig),
   sdl1HardwareWashing: () => Promise.resolve(hardwareWashingNodeConfig),
+  sdl1BloxOptimization: () => Promise.resolve(bloxOptimizationNodeConfig),
 };

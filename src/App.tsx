@@ -1,5 +1,6 @@
 import React, { useCallback, useRef, useState, useEffect, useMemo, memo } from 'react';
 import { operationNodes } from './data/operationNodes';
+import NodeRegistrationDebug from './debug/NodeRegistrationDebug';
 import ReactFlow, {
   Background,
   Controls,
@@ -2384,6 +2385,7 @@ function App() {
             <DnDProvider>
               <ReactFlowProvider>
                 <Flow />
+                <NodeRegistrationDebug />
               </ReactFlowProvider>
             </DnDProvider>
           </WorkflowProvider>
