@@ -1473,20 +1473,38 @@ function Flow() {
         const content = e.target?.result as string;
         const workflowData = JSON.parse(content);
 
-        if (!workflowData || !workflowData.workflow) {
+        if (!workflowData) {
           throw new Error('Invalid workflow file format');
         }
 
-        const { workflow, metadata } = workflowData;
+        // Handle different workflow formats
+        let nodes, edges, metadata;
+
+        if (workflowData.workflow && workflowData.workflow.nodes) {
+          // Format 1: { workflow: { nodes: [...], edges: [...] }, metadata: {...} }
+          nodes = workflowData.workflow.nodes;
+          edges = workflowData.workflow.edges || [];
+          metadata = workflowData.metadata;
+        } else if (workflowData.nodes) {
+          // Format 2: { workflow: {...}, nodes: [...], edges: [...], metadata: {...} }
+          nodes = workflowData.nodes;
+          edges = workflowData.edges || [];
+          metadata = workflowData.metadata || workflowData.workflow;
+        } else {
+          throw new Error('Invalid workflow file format: missing nodes array');
+        }
+
+        if (!Array.isArray(nodes)) {
+          throw new Error('Invalid workflow format: nodes must be an array');
+        }
 
         // Extract nodes from the workflow
-        const loadedNodes = workflow.nodes.map((node: any) => {
+        const loadedNodes = nodes.map((node: any) => {
           // Find the node definition from operationNodes
           const nodeDefinition = operationNodes.find(n => n.type === node.type);
 
-          // Create a position for the node if it doesn't have one
-          // In a real implementation, positions would be saved in the JSON
-          const position = {
+          // Use the position from the JSON file if available, otherwise create a random one
+          const position = node.position || {
             x: Math.random() * 500,
             y: Math.random() * 300
           };
@@ -1500,11 +1518,30 @@ function Flow() {
               data: {
                 ...nodeDefinition,
                 id: node.id,
-                label: node.label,
-                parameters: node.params || {},  // Use 'parameters' for SDL7 nodes
+                label: node.data?.label || node.label,
+                parameters: node.data?.parameters || node.params || {},  // Use 'parameters' for SDL7 nodes
                 workflowId: metadata?.id,
                 preserveAsUO: true,
                 category: 'SDL7'
+              }
+            };
+          }
+
+          // Special handling for SDL1 nodes - ensure they're preserved as UOs
+          if (node.type?.startsWith('sdl1')) {
+            return {
+              id: node.id,
+              type: node.type,
+              position,
+              data: {
+                ...nodeDefinition,
+                ...node.data,  // Spread the existing data from the JSON
+                id: node.id,
+                label: node.data?.label || node.label,
+                parameters: node.data?.parameters || {},  // Use the parameters from the JSON
+                workflowId: metadata?.id,
+                preserveAsUO: true,
+                category: 'SDL1'
               }
             };
           }
@@ -1524,7 +1561,7 @@ function Flow() {
         });
 
         // Extract edges from the workflow
-        const loadedEdges = workflow.edges.map((edge: any) => {
+        const loadedEdges = edges.map((edge: any) => {
           return {
             id: edge.id,
             source: edge.source,
