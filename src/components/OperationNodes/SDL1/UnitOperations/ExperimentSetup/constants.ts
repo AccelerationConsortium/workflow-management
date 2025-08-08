@@ -1,5 +1,6 @@
 import { ParameterGroup } from '../../types';
 import { VIAL_POSITIONS } from '../../shared/labwareConstants';
+import { CONNECTION_TYPE_OPTIONS, HARDWARE_DEFAULTS } from '../../shared/hardwareConstants';
 
 export const WELL_ADDRESS_OPTIONS = [
   { value: 'A1', label: 'A1' }, { value: 'A2', label: 'A2' }, { value: 'A3', label: 'A3' }, { value: 'A4', label: 'A4' }, { value: 'A5', label: 'A5' },
@@ -65,8 +66,11 @@ export const DEFAULT_VALUES = {
   experiment_status: 'running',         // Initial status
   
   // Hardware configuration (from script lines 32, 204)
+  connection_type: 'opentrons',        // Default to Opentrons OT2
   robot_ip: '169.254.69.185',          // From script line 32
   robot_port: 80,
+  plc_ip_address: HARDWARE_DEFAULTS.plc_ip_address,
+  plc_port_number: HARDWARE_DEFAULTS.plc_port_number,
   squidstat_port: 'COM4',              // From script line 204
   squidstat_channel: 0,                // From script line 201
   arduino_port: 'COM3',                // Arduino port for pumps
@@ -188,12 +192,21 @@ export const PARAMETER_GROUPS: Record<string, ParameterGroup> = {
   hardware_config: {
     label: 'Hardware Configuration',
     parameters: {
+      connection_type: {
+        type: 'select',
+        label: 'Connection Type',
+        description: 'Type of robot connection',
+        options: CONNECTION_TYPE_OPTIONS.filter(opt => opt.value !== 'arduino'),  // Only OT2 and PLC
+        defaultValue: DEFAULT_VALUES.connection_type,
+        required: true,
+      },
       robot_ip: {
         type: 'string',
         label: 'Robot IP Address',
         description: 'Opentrons robot IP address',
         defaultValue: DEFAULT_VALUES.robot_ip,
-        required: true,
+        required: false,
+        condition: (data: any) => data.connection_type === 'opentrons',
       },
       robot_port: {
         type: 'number',
@@ -203,7 +216,28 @@ export const PARAMETER_GROUPS: Record<string, ParameterGroup> = {
         min: 1,
         max: 65535,
         step: 1,
-        required: true,
+        required: false,
+        condition: (data: any) => data.connection_type === 'opentrons',
+      },
+      plc_ip_address: {
+        type: 'string',
+        label: 'PLC IP Address',
+        description: 'IP address of the PLC controller',
+        defaultValue: DEFAULT_VALUES.plc_ip_address,
+        required: false,
+        condition: (data: any) => data.connection_type === 'plc',
+        pattern: '^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$',
+      },
+      plc_port_number: {
+        type: 'number',
+        label: 'PLC Port Number',
+        description: 'Port number for PLC connection',
+        defaultValue: DEFAULT_VALUES.plc_port_number,
+        min: 1,
+        max: 65535,
+        step: 1,
+        required: false,
+        condition: (data: any) => data.connection_type === 'plc',
       },
       squidstat_port: {
         type: 'string',
