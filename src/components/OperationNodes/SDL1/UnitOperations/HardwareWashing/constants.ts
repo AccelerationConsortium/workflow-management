@@ -38,8 +38,11 @@ export const DEFAULT_VALUES = {
   ultrasonic_duration: 5000,     // ms
   final_rinse_volume: 10.0,      // mL - pump 2
   
-  // Arduino configuration
+  // Hardware connection configuration
+  connection_type: 'arduino',    // 'arduino' or 'plc'
   arduino_com_port: 'COM3',      // Default Arduino port
+  plc_ip_address: '192.168.0.102', // PLC IP address
+  plc_port_number: 502,          // PLC port number (Modbus TCP default)
   
   // Movement parameters
   approach_speed: MOVEMENT_SPEEDS.slow,
@@ -179,12 +182,44 @@ export const PARAMETER_GROUPS: Record<string, ParameterGroup> = {
   hardware: {
     label: 'Hardware Configuration',
     parameters: {
+      connection_type: {
+        type: 'select',
+        label: 'Connection Type',
+        description: 'Type of hardware connection',
+        options: [
+          { value: 'arduino', label: 'Arduino (COM Port)' },
+          { value: 'plc', label: 'PLC (Ethernet)' },
+        ],
+        defaultValue: DEFAULT_VALUES.connection_type,
+        required: true,
+      },
       arduino_com_port: {
         type: 'string',
         label: 'Arduino COM Port',
         description: 'Serial port for Arduino connection',
         defaultValue: DEFAULT_VALUES.arduino_com_port,
-        required: true,
+        required: false,
+        condition: (data: any) => data.connection_type === 'arduino',
+      },
+      plc_ip_address: {
+        type: 'string',
+        label: 'PLC IP Address',
+        description: 'IP address of the PLC controller',
+        defaultValue: DEFAULT_VALUES.plc_ip_address,
+        required: false,
+        condition: (data: any) => data.connection_type === 'plc',
+        pattern: '^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$',
+      },
+      plc_port_number: {
+        type: 'number',
+        label: 'PLC Port Number',
+        description: 'Port number for PLC connection',
+        defaultValue: DEFAULT_VALUES.plc_port_number,
+        min: 1,
+        max: 65535,
+        step: 1,
+        required: false,
+        condition: (data: any) => data.connection_type === 'plc',
       },
     },
   },
