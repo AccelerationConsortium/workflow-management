@@ -544,6 +544,786 @@
         }
       },
       "keywords": ["robot", "wait", "sync", "pause", "delay", "synchronization"]
+    },
+    "autoeis": {
+      "type": "autoeis",
+      "name": "AutoEIS Analysis",
+      "category": "electrochemical",
+      "description": "Automatic Electrochemical Impedance Spectroscopy analysis with circuit fitting",
+      "params": {
+        "csv_file": {
+          "type": "file",
+          "required": true,
+          "accept": ".csv",
+          "description": "CSV file containing impedance data (frequency, Z_real, Z_imag)"
+        },
+        "frequency_column": {
+          "type": "string",
+          "default": "frequency",
+          "description": "Column name for frequency data"
+        },
+        "z_real_column": {
+          "type": "string",
+          "default": "z_real",
+          "description": "Column name for real impedance data"
+        },
+        "z_imag_column": {
+          "type": "string",
+          "default": "z_imag",
+          "description": "Column name for imaginary impedance data"
+        },
+        "circuit_initial_guess": {
+          "type": "string",
+          "default": "auto",
+          "enum": ["auto", "R0-C1", "R0-(R1-C1)", "R0-(R1||C1)", "R0-(R1||C1)-(R2||C2)"],
+          "description": "Initial circuit model guess or 'auto' for automatic detection"
+        },
+        "fitting_algorithm": {
+          "type": "string",
+          "default": "lm",
+          "enum": ["lm", "trf", "dogbox"],
+          "description": "Fitting algorithm: lm (Levenberg-Marquardt), trf (Trust Region), dogbox"
+        },
+        "max_iterations": {
+          "type": "number",
+          "default": 1000,
+          "min": 100,
+          "max": 10000,
+          "description": "Maximum number of fitting iterations"
+        },
+        "tolerance": {
+          "type": "number",
+          "default": 1e-8,
+          "min": 1e-12,
+          "max": 1e-4,
+          "description": "Fitting convergence tolerance"
+        },
+        "output_format": {
+          "type": "string",
+          "default": "json",
+          "enum": ["json", "csv", "both"],
+          "description": "Output format for results"
+        },
+        "generate_plots": {
+          "type": "boolean",
+          "default": true,
+          "description": "Generate Nyquist and Bode plots"
+        },
+        "save_circuit_diagram": {
+          "type": "boolean",
+          "default": false,
+          "description": "Save equivalent circuit diagram as image"
+        }
+      },
+      "keywords": ["EIS", "impedance", "spectroscopy", "circuit", "fitting", "electrochemical", "nyquist", "bode", "autoeis"]
+    },
+    "myxarm_move_position": {
+      "type": "myxarm_move_position",
+      "name": "MyxArm Move to Position",
+      "category": "robotic_control",
+      "description": "Move MyxArm robot to specified cartesian position",
+      "params": {
+        "x": {
+          "type": "number",
+          "unit": "mm",
+          "default": 0,
+          "min": -1000,
+          "max": 1000,
+          "description": "X coordinate position"
+        },
+        "y": {
+          "type": "number",
+          "unit": "mm",
+          "default": 0,
+          "min": -1000,
+          "max": 1000,
+          "description": "Y coordinate position"
+        },
+        "z": {
+          "type": "number",
+          "unit": "mm",
+          "default": 200,
+          "min": 0,
+          "max": 800,
+          "description": "Z coordinate position"
+        },
+        "roll": {
+          "type": "number",
+          "unit": "deg",
+          "default": 180,
+          "min": -180,
+          "max": 180,
+          "description": "Roll angle"
+        },
+        "pitch": {
+          "type": "number",
+          "unit": "deg",
+          "default": 0,
+          "min": -180,
+          "max": 180,
+          "description": "Pitch angle"
+        },
+        "yaw": {
+          "type": "number",
+          "unit": "deg",
+          "default": 0,
+          "min": -180,
+          "max": 180,
+          "description": "Yaw angle"
+        },
+        "speed": {
+          "type": "number",
+          "unit": "mm/s",
+          "default": 100,
+          "min": 1,
+          "max": 200,
+          "description": "Movement speed"
+        },
+        "acceleration": {
+          "type": "number",
+          "unit": "mm/s²",
+          "default": 200,
+          "min": 50,
+          "max": 2000,
+          "description": "Movement acceleration"
+        },
+        "wait": {
+          "type": "boolean",
+          "default": true,
+          "description": "Wait for movement completion"
+        }
+      },
+      "keywords": ["myxarm", "xarm", "robot", "move", "position", "cartesian"]
+    },
+    "myxarm_move_angles": {
+      "type": "myxarm_move_angles",
+      "name": "MyxArm Move to Angles",
+      "category": "robotic_control",
+      "description": "Move MyxArm robot joints to specified angles",
+      "params": {
+        "j1": {
+          "type": "number",
+          "unit": "deg",
+          "default": 0,
+          "min": -360,
+          "max": 360,
+          "description": "Joint 1 angle"
+        },
+        "j2": {
+          "type": "number",
+          "unit": "deg",
+          "default": 0,
+          "min": -118,
+          "max": 120,
+          "description": "Joint 2 angle"
+        },
+        "j3": {
+          "type": "number",
+          "unit": "deg",
+          "default": 0,
+          "min": -225,
+          "max": 11,
+          "description": "Joint 3 angle"
+        },
+        "j4": {
+          "type": "number",
+          "unit": "deg",
+          "default": 0,
+          "min": -360,
+          "max": 360,
+          "description": "Joint 4 angle"
+        },
+        "j5": {
+          "type": "number",
+          "unit": "deg",
+          "default": 0,
+          "min": -97,
+          "max": 180,
+          "description": "Joint 5 angle"
+        },
+        "j6": {
+          "type": "number",
+          "unit": "deg",
+          "default": 0,
+          "min": -360,
+          "max": 360,
+          "description": "Joint 6 angle"
+        },
+        "speed": {
+          "type": "number",
+          "unit": "deg/s",
+          "default": 20,
+          "min": 1,
+          "max": 180,
+          "description": "Angular speed"
+        },
+        "acceleration": {
+          "type": "number",
+          "unit": "deg/s²",
+          "default": 500,
+          "min": 50,
+          "max": 1000,
+          "description": "Angular acceleration"
+        },
+        "wait": {
+          "type": "boolean",
+          "default": true,
+          "description": "Wait for movement completion"
+        }
+      },
+      "keywords": ["myxarm", "xarm", "robot", "angles", "joints", "servo"]
+    },
+    "myxarm_gripper": {
+      "type": "myxarm_gripper",
+      "name": "MyxArm Gripper Control",
+      "category": "robotic_control",
+      "description": "Control MyxArm gripper position",
+      "params": {
+        "position": {
+          "type": "number",
+          "unit": "pulse",
+          "default": 500,
+          "min": 0,
+          "max": 850,
+          "description": "Gripper position (0=fully closed, 850=fully open)"
+        },
+        "speed": {
+          "type": "number",
+          "unit": "pulse/s",
+          "default": 5000,
+          "min": 100,
+          "max": 10000,
+          "description": "Gripper movement speed"
+        },
+        "wait": {
+          "type": "boolean",
+          "default": true,
+          "description": "Wait for gripper movement completion"
+        }
+      },
+      "keywords": ["myxarm", "xarm", "gripper", "grip", "grasp", "release"]
+    },
+    "arduino_pump": {
+      "type": "arduino_pump",
+      "name": "Arduino Pump Control",
+      "category": "liquid_handling",
+      "description": "Control Arduino-connected pump for liquid dispensing",
+      "params": {
+        "pump_number": {
+          "type": "number",
+          "default": 0,
+          "min": 0,
+          "max": 5,
+          "description": "Pump number (0-5)"
+        },
+        "volume": {
+          "type": "number",
+          "unit": "ml",
+          "default": 1.0,
+          "min": 0.1,
+          "max": 100,
+          "description": "Volume to dispense"
+        },
+        "mode": {
+          "type": "string",
+          "default": "dispense",
+          "enum": ["dispense", "on", "off"],
+          "description": "Pump operation mode"
+        },
+        "duration": {
+          "type": "number",
+          "unit": "ms",
+          "default": 1000,
+          "min": 100,
+          "max": 60000,
+          "description": "Duration for timed operation (ms)"
+        }
+      },
+      "keywords": ["arduino", "pump", "dispense", "liquid", "flow"]
+    },
+    "arduino_temperature": {
+      "type": "arduino_temperature",
+      "name": "Arduino Temperature Control",
+      "category": "temperature_control",
+      "description": "Control temperature using Arduino-connected heater",
+      "params": {
+        "base_number": {
+          "type": "number",
+          "default": 0,
+          "min": 0,
+          "max": 1,
+          "description": "Base plate number (0-1)"
+        },
+        "temperature": {
+          "type": "number",
+          "unit": "°C",
+          "default": 25.0,
+          "min": 15,
+          "max": 150,
+          "description": "Target temperature"
+        },
+        "mode": {
+          "type": "string",
+          "default": "set",
+          "enum": ["set", "get"],
+          "description": "Temperature operation mode"
+        }
+      },
+      "keywords": ["arduino", "temperature", "heat", "thermal", "control"]
+    },
+    "arduino_ultrasonic": {
+      "type": "arduino_ultrasonic",
+      "name": "Arduino Ultrasonic Control",
+      "category": "mixing",
+      "description": "Control ultrasonic module via Arduino",
+      "params": {
+        "base_number": {
+          "type": "number",
+          "default": 0,
+          "min": 0,
+          "max": 1,
+          "description": "Base plate number (0-1)"
+        },
+        "duration": {
+          "type": "number",
+          "unit": "ms",
+          "default": 5000,
+          "min": 100,
+          "max": 60000,
+          "description": "Sonication duration (ms)"
+        },
+        "mode": {
+          "type": "string",
+          "default": "timed",
+          "enum": ["timed", "on", "off"],
+          "description": "Ultrasonic operation mode"
+        }
+      },
+      "keywords": ["arduino", "ultrasonic", "sonication", "mixing", "vibration"]
+    },
+    "arduino_furnace": {
+      "type": "arduino_furnace",
+      "name": "Arduino Furnace Control",
+      "category": "temperature_control",
+      "description": "Control furnace open/close via Arduino",
+      "params": {
+        "action": {
+          "type": "string",
+          "default": "open",
+          "enum": ["open", "close"],
+          "description": "Furnace action"
+        }
+      },
+      "keywords": ["arduino", "furnace", "heating", "temperature"]
+    },
+    "arduino_electrode": {
+      "type": "arduino_electrode",
+      "name": "Arduino Electrode Switch",
+      "category": "electrochemical",
+      "description": "Switch between 2-electrode and 3-electrode system",
+      "params": {
+        "mode": {
+          "type": "string",
+          "default": "3-electrode",
+          "enum": ["2-electrode", "3-electrode"],
+          "description": "Electrode system mode"
+        }
+      },
+      "keywords": ["arduino", "electrode", "electrochemical", "switch"]
+    },
+    "arduino_reactor": {
+      "type": "arduino_reactor",
+      "name": "Arduino Reactor Control",
+      "category": "reaction_control",
+      "description": "Control actuated reactor open/close",
+      "params": {
+        "action": {
+          "type": "string",
+          "default": "open",
+          "enum": ["open", "close"],
+          "description": "Reactor action"
+        }
+      },
+      "keywords": ["arduino", "reactor", "actuated", "vessel"]
+    },
+    "otflex_liquid_transfer": {
+      "type": "otflex_liquid_transfer",
+      "name": "OTFlex Liquid Transfer",
+      "category": "liquid_handling",
+      "description": "Transfer liquid using Opentrons Flex",
+      "params": {
+        "source_labware": {
+          "type": "string",
+          "default": "source_plate",
+          "description": "Source labware name"
+        },
+        "source_well": {
+          "type": "string",
+          "default": "A1",
+          "description": "Source well location"
+        },
+        "dest_labware": {
+          "type": "string",
+          "default": "dest_plate",
+          "description": "Destination labware name"
+        },
+        "dest_well": {
+          "type": "string",
+          "default": "A1",
+          "description": "Destination well location"
+        },
+        "volume": {
+          "type": "number",
+          "unit": "ul",
+          "default": 100,
+          "min": 1,
+          "max": 1000,
+          "description": "Transfer volume (μL)"
+        },
+        "pipette": {
+          "type": "string",
+          "default": "p1000_single_flex",
+          "enum": ["p1000_single_flex", "p50_single_flex"],
+          "description": "Pipette to use"
+        },
+        "speed": {
+          "type": "number",
+          "unit": "mm/s",
+          "default": 100,
+          "min": 10,
+          "max": 400,
+          "description": "Movement speed"
+        },
+        "mix_before": {
+          "type": "boolean",
+          "default": false,
+          "description": "Mix before aspiration"
+        },
+        "mix_after": {
+          "type": "boolean",
+          "default": false,
+          "description": "Mix after dispensing"
+        }
+      },
+      "keywords": ["otflex", "opentrons", "liquid", "transfer", "pipette", "aspirate", "dispense"]
+    },
+    "otflex_electrode_wash": {
+      "type": "otflex_electrode_wash",
+      "name": "OTFlex Electrode Wash",
+      "category": "cleaning",
+      "description": "Automated electrode washing sequence",
+      "params": {
+        "wash_station": {
+          "type": "string",
+          "default": "wash_station",
+          "description": "Wash station labware name"
+        },
+        "wash_well": {
+          "type": "string",
+          "default": "A1",
+          "description": "Wash well location"
+        },
+        "water_volume": {
+          "type": "number",
+          "unit": "ml",
+          "default": 15,
+          "min": 5,
+          "max": 50,
+          "description": "Water volume for washing"
+        },
+        "acid_volume": {
+          "type": "number",
+          "unit": "ml",
+          "default": 10,
+          "min": 5,
+          "max": 30,
+          "description": "Acid volume for washing"
+        },
+        "sonication_time": {
+          "type": "number",
+          "unit": "s",
+          "default": 30,
+          "min": 10,
+          "max": 120,
+          "description": "Sonication duration"
+        },
+        "cycles": {
+          "type": "number",
+          "default": 1,
+          "min": 1,
+          "max": 5,
+          "description": "Number of wash cycles"
+        }
+      },
+      "keywords": ["otflex", "electrode", "wash", "clean", "rinse", "sonication"]
+    },
+    "otflex_gripper": {
+      "type": "otflex_gripper",
+      "name": "OTFlex Gripper Control",
+      "category": "robotic_control",
+      "description": "Control Opentrons Flex gripper for plate handling",
+      "params": {
+        "action": {
+          "type": "string",
+          "default": "move",
+          "enum": ["move", "pick", "place", "open", "close"],
+          "description": "Gripper action"
+        },
+        "x": {
+          "type": "number",
+          "unit": "mm",
+          "default": 0,
+          "min": 0,
+          "max": 500,
+          "description": "X coordinate"
+        },
+        "y": {
+          "type": "number",
+          "unit": "mm",
+          "default": 0,
+          "min": 0,
+          "max": 500,
+          "description": "Y coordinate"
+        },
+        "z": {
+          "type": "number",
+          "unit": "mm",
+          "default": 100,
+          "min": 0,
+          "max": 400,
+          "description": "Z coordinate"
+        },
+        "labware": {
+          "type": "string",
+          "default": "",
+          "description": "Target labware for pick/place"
+        }
+      },
+      "keywords": ["otflex", "gripper", "plate", "move", "pick", "place"]
+    },
+    "otflex_myxarm_position": {
+      "type": "otflex_myxarm_position",
+      "name": "MyxArm Position",
+      "category": "robotic_control",
+      "description": "Control MyxArm robot position and movement",
+      "params": {
+        "movement_mode": {
+          "type": "string",
+          "default": "absolute",
+          "options": ["absolute", "relative", "joint"],
+          "description": "Type of movement control"
+        },
+        "x_position": {
+          "type": "number",
+          "unit": "mm",
+          "default": 200,
+          "min": -300,
+          "max": 300,
+          "description": "X coordinate position"
+        },
+        "y_position": {
+          "type": "number",
+          "unit": "mm",
+          "default": 0,
+          "min": -300,
+          "max": 300,
+          "description": "Y coordinate position"
+        },
+        "z_position": {
+          "type": "number",
+          "unit": "mm",
+          "default": 150,
+          "min": 0,
+          "max": 400,
+          "description": "Z coordinate position"
+        },
+        "speed": {
+          "type": "number",
+          "unit": "mm/s",
+          "default": 200,
+          "min": 10,
+          "max": 500,
+          "description": "Movement speed"
+        },
+        "safe_mode": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable reduced speed safe mode"
+        }
+      },
+      "keywords": ["myxarm", "robot", "position", "move", "coordinate", "6-dof"]
+    },
+    "otflex_myxarm_gripper": {
+      "type": "otflex_myxarm_gripper",
+      "name": "MyxArm Gripper",
+      "category": "robotic_control", 
+      "description": "Control MyxArm robot gripper operation",
+      "params": {
+        "gripper_action": {
+          "type": "string",
+          "default": "close",
+          "options": ["open", "close", "position"],
+          "description": "Action to perform with gripper"
+        },
+        "target_position": {
+          "type": "number",
+          "unit": "%",
+          "default": 50,
+          "min": 0,
+          "max": 100,
+          "description": "Gripper position (0=fully open, 100=fully closed)"
+        },
+        "grip_force": {
+          "type": "number",
+          "unit": "%",
+          "default": 70,
+          "min": 10,
+          "max": 100,
+          "description": "Force to apply when gripping"
+        },
+        "enable_force_control": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable force-based gripper control"
+        }
+      },
+      "keywords": ["myxarm", "gripper", "grip", "force", "open", "close"]
+    },
+    "otflex_arduino_furnace": {
+      "type": "otflex_arduino_furnace",
+      "name": "Arduino Furnace Control",
+      "category": "temperature_control",
+      "description": "Control furnace open/close via Arduino with temperature safety monitoring",
+      "params": {
+        "furnace_action": {
+          "type": "string",
+          "default": "open",
+          "options": ["open", "close", "toggle", "status"],
+          "description": "Action to perform on furnace"
+        },
+        "hold_duration": {
+          "type": "number",
+          "unit": "s",
+          "default": 5.0,
+          "min": 0.1,
+          "max": 300,
+          "description": "How long to hold the position"
+        },
+        "enable_temperature_check": {
+          "type": "boolean",
+          "default": true,
+          "description": "Check temperature before operation"
+        },
+        "max_safe_temperature": {
+          "type": "number",
+          "unit": "°C",
+          "default": 200,
+          "min": 50,
+          "max": 500,
+          "description": "Maximum safe operating temperature"
+        }
+      },
+      "keywords": ["arduino", "furnace", "heating", "temperature", "safety"]
+    },
+    "otflex_arduino_electrode": {
+      "type": "otflex_arduino_electrode",
+      "name": "Arduino Electrode Switch",
+      "category": "electrochemical",
+      "description": "Switch between 2-electrode and 3-electrode systems with continuity verification",
+      "params": {
+        "electrode_mode": {
+          "type": "string",
+          "default": "3-electrode",
+          "options": ["2-electrode", "3-electrode", "auto"],
+          "description": "Electrode system configuration"
+        },
+        "primary_electrode": {
+          "type": "string",
+          "default": "working",
+          "options": ["working", "counter", "reference"],
+          "description": "Primary electrode for switching"
+        },
+        "enable_continuity_check": {
+          "type": "boolean",
+          "default": true,
+          "description": "Check electrode continuity after switching"
+        },
+        "resistance_threshold": {
+          "type": "number",
+          "unit": "Ω",
+          "default": 1000,
+          "min": 100,
+          "max": 10000,
+          "description": "Maximum acceptable resistance"
+        }
+      },
+      "keywords": ["arduino", "electrode", "electrochemical", "switch", "continuity"]
+    },
+    "otflex_arduino_reactor": {
+      "type": "otflex_arduino_reactor",
+      "name": "Arduino Reactor Control",
+      "category": "reaction_control",
+      "description": "Control actuated reactor open/close operations with pressure and force monitoring",
+      "params": {
+        "reactor_action": {
+          "type": "string",
+          "default": "open",
+          "options": ["open", "close", "toggle", "status"],
+          "description": "Action to perform on reactor"
+        },
+        "reactor_type": {
+          "type": "string",
+          "default": "main",
+          "options": ["main", "secondary", "bypass"],
+          "description": "Type of reactor to control"
+        },
+        "actuation_force": {
+          "type": "number",
+          "unit": "%",
+          "default": 50,
+          "min": 10,
+          "max": 200,
+          "description": "Force to apply during actuation"
+        },
+        "enable_pressure_monitoring": {
+          "type": "boolean",
+          "default": true,
+          "description": "Monitor reactor pressure"
+        }
+      },
+      "keywords": ["arduino", "reactor", "actuation", "pressure", "force"]
+    },
+    "otflex_gripper": {
+      "type": "otflex_gripper",
+      "name": "OTFlex Gripper Control",
+      "category": "robotic_control",
+      "description": "Control Opentrons Flex gripper for automated plate handling and positioning",
+      "params": {
+        "gripper_action": {
+          "type": "string",
+          "default": "pick",
+          "options": ["move", "pick", "place", "open", "close", "home"],
+          "description": "Action to perform with gripper"
+        },
+        "labware_type": {
+          "type": "string",
+          "default": "plate_96",
+          "options": ["plate_96", "plate_384", "tip_rack", "reservoir", "custom"],
+          "description": "Type of labware to handle"
+        },
+        "grip_force_mode": {
+          "type": "string",
+          "default": "medium",
+          "options": ["light", "medium", "firm", "custom"],
+          "description": "Predefined grip force setting"
+        },
+        "enable_collision_detection": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable collision detection"
+        }
+      },
+      "keywords": ["otflex", "gripper", "plate", "handling", "automation"]
     }
   },
   "categories": {

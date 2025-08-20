@@ -2,6 +2,7 @@ import { SDL_CATALYST_NODE_TYPES } from '../components/OperationNodes/SDLCatalys
 import { SDL2_NODE_TYPES } from '../components/OperationNodes/SDL2';
 import { SDL7NodeConfigs } from '../components/OperationNodes/SDL7';
 import { SDL1NodeConfigs } from '../components/OperationNodes/SDL1';
+import { OTFLEXNodeConfigs } from '../components/OperationNodes/OTFLEX';
 
 interface PrimitiveParameter {
   name: string;
@@ -24,7 +25,7 @@ export interface OperationNode {
   type: string;
   label: string;
   description?: string;
-  category: "SDL Catalyst" | "SDL1" | "SDL2" | "SDL7" | "Sample Processing" | "Analysis & Measurement" | "Reaction Control" |
+  category: "SDL Catalyst" | "SDL1" | "SDL2" | "SDL7" | "OTFLEX" | "Sample Processing" | "Analysis & Measurement" | "Reaction Control" |
              "Separation & Purification" | "Data Acquisition" | "Environment Control" |
              "Test" | "Catalyst Workflow" | "Workflow Control" | "Robotic Control" | string; // Allow custom categories
   expanded?: boolean;
@@ -98,6 +99,14 @@ export const operationNodes: OperationNode[] = [
     description: nodeConfig.description,
     category: "SDL7" as const,
     expanded: false
+  })),
+  ...Object.values(OTFLEXNodeConfigs).map(nodeConfig => ({
+    type: nodeConfig.type,
+    label: nodeConfig.label,
+    description: nodeConfig.description,
+    category: "OTFLEX" as const,
+    expanded: false,
+    parameters: nodeConfig.parameters
   })),
   {
     type: 'PumpControl',
@@ -2414,6 +2423,86 @@ export const operationNodes: OperationNode[] = [
         label: 'Wait Result',
         type: 'dataset',
         description: 'Wait operation result data'
+      }
+    ]
+  },
+  // AutoEIS Analysis Node
+  {
+    type: 'autoeis',
+    label: 'Enhanced AutoEIS',
+    description: 'Automatic Electrochemical Impedance Spectroscopy analysis with circuit fitting',
+    category: 'Analysis & Measurement' as const,
+    expanded: false,
+    icon: '⚡',
+    specs: {
+      model: 'AutoEIS',
+      manufacturer: 'AUTODIAL',
+      type: 'Software Analysis Tool'
+    },
+    parameters: [
+      {
+        name: 'dataSource',
+        type: 'string',
+        label: 'Data Source',
+        default: 'single_file',
+        description: 'Data input method: single_file, separate_files, or upstream'
+      },
+      {
+        name: 'circuitModel',
+        type: 'string',
+        label: 'Circuit Model',
+        default: 'auto-detect',
+        description: 'Circuit complexity: auto-detect, simple, or complex'
+      },
+      {
+        name: 'algorithm',
+        type: 'string',
+        label: 'Algorithm',
+        default: 'accurate',
+        description: 'Analysis mode: fast, accurate, or robust'
+      },
+      {
+        name: 'outputFormat',
+        type: 'string',
+        label: 'Output Format',
+        default: 'json',
+        description: 'Output format: json, csv, or report'
+      },
+      {
+        name: 'mode',
+        type: 'string',
+        label: 'Execution Mode',
+        default: 'enhanced',
+        description: 'Analysis mode: idle or enhanced'
+      }
+    ],
+    inputs: [
+      {
+        id: 'eis-data',
+        label: 'EIS Data',
+        type: 'dataset',
+        required: true,
+        description: 'Impedance spectroscopy data from PEIS measurement'
+      }
+    ],
+    outputs: [
+      {
+        id: 'enhanced-circuit-model',
+        label: 'Enhanced Circuit Model',
+        type: 'dataset',
+        description: 'Fitted circuit model with uncertainty estimates and quality metrics'
+      },
+      {
+        id: 'ai-analysis-report',
+        label: 'AI Analysis Report',
+        type: 'dataset',
+        description: 'Comprehensive analysis with AI-powered insights and suggestions'
+      },
+      {
+        id: 'interactive-dashboard',
+        label: 'Interactive Dashboard',
+        type: 'visualization',
+        description: 'Interactive visualization dashboard with plots and analysis tools'
       }
     ]
   },

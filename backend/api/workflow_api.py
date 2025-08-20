@@ -141,4 +141,91 @@ async def websocket_broadcast_endpoint(websocket: WebSocket):
 @app.websocket("/ws/{run_id}")
 async def websocket_workflow_endpoint(websocket: WebSocket, run_id: str):
     """subscribe to workflow updates"""
-    await handle_workflow_subscription(websocket, run_id) 
+    await handle_workflow_subscription(websocket, run_id)
+
+# AutoEIS Analysis Endpoint
+from fastapi import File, UploadFile, Form
+import pandas as pd
+from io import StringIO
+import json
+
+class AutoEISRequest(BaseModel):
+    """AutoEIS analysis request model"""
+    frequency_column: str = "frequency"
+    z_real_column: str = "z_real"
+    z_imag_column: str = "z_imag"
+    circuit_initial_guess: str = "auto"
+    fitting_algorithm: str = "lm"
+    max_iterations: int = 1000
+    tolerance: float = 1e-8
+    output_format: str = "json"
+    generate_plots: bool = True
+    save_circuit_diagram: bool = False
+
+class AutoEISResponse(BaseModel):
+    """AutoEIS analysis response model"""
+    circuit_model: str
+    fit_parameters: Dict[str, float]
+    fit_error: float
+    chi_squared: float
+    plots: Optional[Dict[str, str]]  # Base64 encoded plot images
+    circuit_diagram: Optional[str]  # Base64 encoded circuit diagram
+
+@app.post("/analyze/eis", response_model=AutoEISResponse)
+async def analyze_eis(
+    csv_file: UploadFile = File(...),
+    frequency_column: str = Form("frequency"),
+    z_real_column: str = Form("z_real"),
+    z_imag_column: str = Form("z_imag"),
+    circuit_initial_guess: str = Form("auto"),
+    fitting_algorithm: str = Form("lm"),
+    max_iterations: int = Form(1000),
+    tolerance: float = Form(1e-8),
+    output_format: str = Form("json"),
+    generate_plots: bool = Form(True),
+    save_circuit_diagram: bool = Form(False)
+):
+    """Analyze EIS data using AutoEIS"""
+    try:
+        # Read CSV file
+        contents = await csv_file.read()
+        df = pd.read_csv(StringIO(contents.decode('utf-8')))
+        
+        # Validate columns exist
+        required_columns = [frequency_column, z_real_column, z_imag_column]
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        if missing_columns:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Missing columns in CSV: {missing_columns}"
+            )
+        
+        # Extract data
+        frequencies = df[frequency_column].values
+        z_real = df[z_real_column].values
+        z_imag = df[z_imag_column].values
+        
+        # TODO: Call actual AutoEIS library here
+        # For now, return mock data
+        logger.info(f"Analyzing EIS data with {len(frequencies)} frequency points")
+        
+        # Mock response
+        return AutoEISResponse(
+            circuit_model="R0-(R1||C1)",
+            fit_parameters={
+                "R0": 10.5,
+                "R1": 45.3,
+                "C1": 1.2e-6
+            },
+            fit_error=0.023,
+            chi_squared=0.00054,
+            plots={
+                "nyquist": "base64_encoded_nyquist_plot",
+                "bode": "base64_encoded_bode_plot"
+            } if generate_plots else None,
+            circuit_diagram="base64_encoded_circuit_diagram" if save_circuit_diagram else None
+        )
+        
+    except Exception as e:
+        logger.error(f"Failed to analyze EIS data: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e)) 

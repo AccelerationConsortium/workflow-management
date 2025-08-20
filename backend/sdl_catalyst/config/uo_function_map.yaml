@@ -408,4 +408,248 @@ ROBOT_WAIT:
       unit: null
       description: Type of robot
       enum: ["UR3e", "Dobot", "Kinova", "Generic"]
-      default: "Generic" 
+      default: "Generic"
+
+AUTOEIS:
+  function: run_autoeis
+  module: backend.sdl_catalyst.primitives.autoeis
+  description: Automatic Electrochemical Impedance Spectroscopy analysis with circuit fitting
+  parameters:
+    csv_file:
+      type: string
+      unit: null
+      description: Path to CSV file containing impedance data
+      required: true
+    frequency_column:
+      type: string
+      unit: null
+      description: Column name for frequency data
+      default: "frequency"
+    z_real_column:
+      type: string
+      unit: null
+      description: Column name for real impedance data
+      default: "z_real"
+    z_imag_column:
+      type: string
+      unit: null
+      description: Column name for imaginary impedance data
+      default: "z_imag"
+    circuit_initial_guess:
+      type: string
+      unit: null
+      description: Initial circuit model guess or auto for automatic detection
+      enum: ["auto", "R0-C1", "R0-(R1-C1)", "R0-(R1||C1)", "R0-(R1||C1)-(R2||C2)"]
+      default: "auto"
+    fitting_algorithm:
+      type: string
+      unit: null
+      description: Fitting algorithm
+      enum: ["lm", "trf", "dogbox"]
+      default: "lm"
+    max_iterations:
+      type: number
+      unit: null
+      description: Maximum number of fitting iterations
+      min: 100
+      max: 10000
+      default: 1000
+    tolerance:
+      type: number
+      unit: null
+      description: Fitting convergence tolerance
+      min: 1e-12
+      max: 1e-4
+      default: 1e-8
+    output_format:
+      type: string
+      unit: null
+      description: Output format for results
+      enum: ["json", "csv", "both"]
+      default: "json"
+    generate_plots:
+      type: boolean
+      unit: null
+      description: Generate Nyquist and Bode plots
+      default: true
+    save_circuit_diagram:
+      type: boolean
+      unit: null
+      description: Save equivalent circuit diagram as image
+      default: false
+
+# OTFLEX Hardware Operations
+myxarm_move_position:
+  function: execute_myxarm_move_position
+  module: backend.hardware.myxarm_primitives
+  description: Move MyxArm robot to specified cartesian position
+  parameters:
+    x:
+      type: number
+      unit: mm
+      description: X coordinate position
+      min: -1000
+      max: 1000
+      default: 0
+    y:
+      type: number
+      unit: mm
+      description: Y coordinate position
+      min: -1000
+      max: 1000
+      default: 0
+    z:
+      type: number
+      unit: mm
+      description: Z coordinate position
+      min: 0
+      max: 800
+      default: 200
+    speed:
+      type: number
+      unit: mm/s
+      description: Movement speed
+      min: 1
+      max: 200
+      default: 100
+
+myxarm_gripper:
+  function: execute_myxarm_gripper
+  module: backend.hardware.myxarm_primitives
+  description: Control MyxArm gripper position
+  parameters:
+    position:
+      type: number
+      unit: pulse
+      description: Gripper position (0=closed, 850=open)
+      min: 0
+      max: 850
+      default: 500
+    speed:
+      type: number
+      unit: pulse/s
+      description: Gripper movement speed
+      min: 100
+      max: 10000
+      default: 5000
+
+arduino_pump:
+  function: execute_arduino_pump
+  module: backend.hardware.arduino_primitives
+  description: Control Arduino-connected pump for liquid dispensing
+  parameters:
+    pump_number:
+      type: number
+      description: Pump number (0-5)
+      min: 0
+      max: 5
+      default: 0
+    volume:
+      type: number
+      unit: ml
+      description: Volume to dispense
+      min: 0.1
+      max: 100
+      default: 1.0
+    mode:
+      type: string
+      description: Pump operation mode
+      enum: ["dispense", "on", "off"]
+      default: "dispense"
+
+arduino_temperature:
+  function: execute_arduino_temperature
+  module: backend.hardware.arduino_primitives
+  description: Control temperature using Arduino-connected heater
+  parameters:
+    base_number:
+      type: number
+      description: Base plate number (0-1)
+      min: 0
+      max: 1
+      default: 0
+    temperature:
+      type: number
+      unit: °C
+      description: Target temperature
+      min: 15
+      max: 150
+      default: 25.0
+
+arduino_ultrasonic:
+  function: execute_arduino_ultrasonic
+  module: backend.hardware.arduino_primitives
+  description: Control ultrasonic module via Arduino
+  parameters:
+    base_number:
+      type: number
+      description: Base plate number (0-1)
+      min: 0
+      max: 1
+      default: 0
+    duration:
+      type: number
+      unit: ms
+      description: Sonication duration
+      min: 100
+      max: 60000
+      default: 5000
+
+otflex_liquid_transfer:
+  function: execute_otflex_liquid_transfer
+  module: backend.hardware.otflex_primitives
+  description: Transfer liquid using Opentrons Flex
+  parameters:
+    source_well:
+      type: string
+      description: Source well location
+      default: "A1"
+    dest_well:
+      type: string
+      description: Destination well location
+      default: "A1"
+    volume:
+      type: number
+      unit: ul
+      description: Transfer volume
+      min: 1
+      max: 1000
+      default: 100
+    pipette:
+      type: string
+      description: Pipette to use
+      enum: ["p1000_single_flex", "p50_single_flex"]
+      default: "p1000_single_flex"
+
+otflex_electrode_wash:
+  function: execute_otflex_electrode_wash
+  module: backend.hardware.otflex_primitives
+  description: Automated electrode washing sequence
+  parameters:
+    water_volume:
+      type: number
+      unit: ml
+      description: Water volume for washing
+      min: 5
+      max: 50
+      default: 15
+    acid_volume:
+      type: number
+      unit: ml
+      description: Acid volume for washing
+      min: 5
+      max: 30
+      default: 10
+    sonication_time:
+      type: number
+      unit: s
+      description: Sonication duration
+      min: 10
+      max: 120
+      default: 30
+    cycles:
+      type: number
+      description: Number of wash cycles
+      min: 1
+      max: 5
+      default: 1 

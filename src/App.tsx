@@ -35,6 +35,7 @@ import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 // Import BaseNode separately
 import { BaseNode } from './components/BaseNode';
 import { CustomUONode } from './components/OperationNodes/CustomUONode';
+import { EnhancedAutoEISNode } from './components/OperationNodes/EnhancedAutoEISNode';
 import { customUOService } from './services/customUOService';
 
 // Import all node components
@@ -100,6 +101,7 @@ import { SDL2Nodes } from './components/OperationNodes/SDL2';
 import { SDL7Nodes, SDL7NodeConfigs } from './components/OperationNodes/SDL7';
 import { SDL1Nodes, SDL1NodeConfigs } from './components/OperationNodes/SDL1';
 import { RoboticControlNodes } from './components/OperationNodes/RoboticControl';
+import { OTFLEXNodes } from './components/OperationNodes/OTFLEX';
 import Sidebar from './components/Sidebar';
 import TestStylePage from './components/TestStylePage';
 import TestRobotParameters from './components/TestRobotParameters';
@@ -232,6 +234,12 @@ const MemoizedRoboticControlNodes = Object.entries(RoboticControlNodes).reduce((
   [key]: memo((props: NodeProps) => React.createElement(component as React.ComponentType<NodeProps>, props))
 }), {});
 
+// Define OTFLEX node types
+const MemoizedOTFLEXNodes = Object.entries(OTFLEXNodes).reduce((acc, [key, component]) => ({
+  ...acc,
+  [key]: memo((props: NodeProps) => React.createElement(component as React.ComponentType<NodeProps>, props))
+}), {});
+
 // Define all node types
 const ALL_NODE_TYPES: NodeTypes = {
   ...baseNodeTypes,
@@ -240,7 +248,9 @@ const ALL_NODE_TYPES: NodeTypes = {
   ...MemoizedSDL7Nodes,
   ...MemoizedSDL1Nodes,
   ...MemoizedRoboticControlNodes,
+  ...MemoizedOTFLEXNodes,
   customUO: memo(CustomUONode), // added customUO node type
+  autoeis: memo(EnhancedAutoEISNode), // AutoEIS Analysis node type
   // custom: CustomEdge, // Removed: CustomEdge is an edge type, should be in edgeTypes
 };
 
