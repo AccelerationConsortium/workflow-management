@@ -1,0 +1,79 @@
+{
+  "hardware_platforms": {
+    "myxarm": {
+      "type": "robotic_arm",
+      "model": "UFactory xArm 6",
+      "connection": {
+        "protocol": "tcp",
+        "ip": "192.168.1.233",
+        "port": null,
+        "timeout": 30
+      },
+      "capabilities": {
+        "degrees_of_freedom": 6,
+        "has_gripper": true,
+        "max_speed": 200,
+        "max_acceleration": 2000
+      },
+      "initialization": {
+        "auto_enable": true,
+        "clean_errors": true,
+        "motion_enable": true,
+        "mode": 0,
+        "state": 0
+      }
+    },
+    "opentrons_flex": {
+      "type": "liquid_handler",
+      "model": "Opentrons Flex",
+      "connection": {
+        "protocol": "http",
+        "ip": "169.254.179.32",
+        "timeout": 60
+      },
+      "capabilities": {
+        "pipettes": ["p1000_single_flex", "p50_single_flex"],
+        "max_volume": 1000,
+        "has_gripper": true
+      }
+    },
+    "arduino": {
+      "type": "controller",
+      "model": "Arduino Controller",
+      "connection": {
+        "protocol": "serial",
+        "port": "COM4",
+        "baudrate": 115200,
+        "timeout": 300
+      },
+      "capabilities": {
+        "pumps": 6,
+        "heaters": 2,
+        "ultrasonic_modules": 2,
+        "has_furnace": true,
+        "has_electrode_switch": true
+      },
+      "calibration": {
+        "pumps": {
+          "0": {"slope": 1.594, "intercept": 0, "unit": "mL/s", "label": "Water"},
+          "1": {"slope": 1.600, "intercept": 0, "unit": "mL/s", "label": "HCl"},
+          "2": {"slope": 1.574, "intercept": 0, "unit": "mL/s", "label": "Waste Out"},
+          "3": {"slope": 1.584, "intercept": 0, "unit": "mL/s", "label": "Rinse Water"},
+          "4": {"slope": 1.636, "intercept": 0, "unit": "mL/s", "label": "Rinse HCl"},
+          "5": {"slope": 1.496, "intercept": 0, "unit": "mL/s", "label": "Rinse Waste"}
+        }
+      }
+    }
+  },
+  "labware_definitions": {
+    "custom_labware_path": "labware/flex_labware",
+    "custom_plates": [
+      "sdl1_11_vials_20mL.json",
+      "sdl1_24_electrode_plate_holder.json",
+      "sdl1_24_wellplate_2664ul.json",
+      "actuated_reactor.json",
+      "sdl1_parallel_electrode_tiprack.json",
+      "sdl1_single_electrode_tiprack.json"
+    ]
+  }
+}
