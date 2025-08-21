@@ -128,7 +128,7 @@
     "ocv": {
       "type": "ocv",
       "name": "Open Circuit Voltage",
-      "category": "electrochemical", 
+      "category": "electrochemical",
       "description": "Measure open circuit voltage",
       "params": {
         "duration": {
@@ -145,6 +145,935 @@
         }
       },
       "keywords": ["OCV", "open", "circuit", "voltage", "potential", "electrochemical"]
+    },
+    "sdl_catalyst_ocv": {
+      "type": "sdl_catalyst_ocv",
+      "name": "SDL Catalyst OCV",
+      "category": "SDL Catalyst",
+      "description": "Open Circuit Voltage measurement for SDL Catalyst workflow",
+      "params": {
+        "duration": {
+          "type": "number",
+          "unit": "s",
+          "default": 180,
+          "min": 1,
+          "max": 3600,
+          "description": "Duration of OCV measurement"
+        },
+        "sample_interval": {
+          "type": "number",
+          "unit": "s",
+          "default": 1.0,
+          "min": 0.1,
+          "max": 10,
+          "step": 0.1,
+          "description": "Time between measurements"
+        },
+        "settle_time": {
+          "type": "number",
+          "unit": "s",
+          "default": 10,
+          "min": 0,
+          "max": 60,
+          "description": "Stabilization time before measurement"
+        },
+        "stability_threshold": {
+          "type": "number",
+          "unit": "mV",
+          "default": 1.0,
+          "min": 0.1,
+          "max": 10,
+          "step": 0.1,
+          "description": "Maximum voltage change for stability"
+        },
+        "com_port": {
+          "type": "string",
+          "default": "COM4",
+          "enum": ["COM3", "COM4", "COM5", "COM6"],
+          "description": "Potentiostat communication port"
+        },
+        "channel": {
+          "type": "number",
+          "default": 0,
+          "min": 0,
+          "max": 7,
+          "description": "Potentiostat channel"
+        },
+        "data_collection_enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable data recording"
+        },
+        "data_tag": {
+          "type": "string",
+          "default": "ocv_measurement",
+          "description": "Tag for data identification"
+        },
+        "voltage_limit_min": {
+          "type": "number",
+          "unit": "V",
+          "default": -1.5,
+          "min": -2,
+          "max": 0,
+          "step": 0.1,
+          "description": "Minimum voltage safety limit"
+        },
+        "voltage_limit_max": {
+          "type": "number",
+          "unit": "V",
+          "default": 1.5,
+          "min": 0,
+          "max": 2,
+          "step": 0.1,
+          "description": "Maximum voltage safety limit"
+        }
+      },
+      "primitive_operations": [
+        "initialize_potentiostat",
+        "configure_safety_limits",
+        "apply_settle_time",
+        "measure_ocv",
+        "collect_data",
+        "save_results"
+      ],
+      "hardware_requirements": {
+        "potentiostat": true,
+        "electrodes": ["working", "reference", "counter"]
+      },
+      "software_compatibility": {
+        "squidstat": true,
+        "gamry": false,
+        "autolab": false
+      },
+      "constraints": {
+        "max_voltage": 2.0,
+        "min_voltage": -2.0,
+        "max_duration": 3600
+      },
+      "environment_requirements": {
+        "temperature_range": [15, 40],
+        "humidity_max": 80
+      },
+      "keywords": ["SDL", "catalyst", "OCV", "open", "circuit", "voltage", "electrochemical", "measurement"]
+    },
+    "sdl_catalyst_cp": {
+      "type": "sdl_catalyst_cp",
+      "name": "SDL Catalyst CP",
+      "category": "SDL Catalyst",
+      "description": "Chronopotentiometry measurement for SDL Catalyst workflow",
+      "params": {
+        "current": {
+          "type": "number",
+          "unit": "mA",
+          "default": 10.0,
+          "min": -1000,
+          "max": 1000,
+          "step": 0.1,
+          "description": "Applied current for chronopotentiometry"
+        },
+        "duration": {
+          "type": "number",
+          "unit": "s",
+          "default": 300,
+          "min": 1,
+          "max": 3600,
+          "description": "Duration of CP measurement"
+        },
+        "sample_interval": {
+          "type": "number",
+          "unit": "s",
+          "default": 1.0,
+          "min": 0.1,
+          "max": 10,
+          "step": 0.1,
+          "description": "Time between measurements"
+        },
+        "area_cm2": {
+          "type": "number",
+          "unit": "cm²",
+          "default": 1.0,
+          "min": 0.01,
+          "max": 100,
+          "step": 0.01,
+          "description": "Electrode area for current density calculation"
+        },
+        "current_density": {
+          "type": "number",
+          "unit": "mA/cm²",
+          "default": 10.0,
+          "min": 0.1,
+          "max": 1000,
+          "step": 0.1,
+          "description": "Current density (calculated from current and area)"
+        },
+        "voltage_limit_high": {
+          "type": "number",
+          "unit": "V",
+          "default": 2.0,
+          "min": 0,
+          "max": 5.0,
+          "step": 0.1,
+          "description": "Upper voltage limit for safety"
+        },
+        "voltage_limit_low": {
+          "type": "number",
+          "unit": "V",
+          "default": -2.0,
+          "min": -5.0,
+          "max": 0,
+          "step": 0.1,
+          "description": "Lower voltage limit for safety"
+        },
+        "com_port": {
+          "type": "string",
+          "default": "COM4",
+          "enum": ["COM3", "COM4", "COM5", "COM6"],
+          "description": "Potentiostat communication port"
+        },
+        "channel": {
+          "type": "number",
+          "default": 0,
+          "min": 0,
+          "max": 7,
+          "description": "Potentiostat channel"
+        },
+        "data_collection_enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable data recording"
+        },
+        "data_tag": {
+          "type": "string",
+          "default": "cp_measurement",
+          "description": "Tag for data identification"
+        }
+      },
+      "primitive_operations": [
+        "initialize_potentiostat",
+        "configure_current_parameters",
+        "configure_safety_limits",
+        "apply_stabilization_time",
+        "perform_chronopotentiometry",
+        "monitor_voltage_limits",
+        "collect_data",
+        "analyze_voltage_profile",
+        "save_results"
+      ],
+      "hardware_requirements": {
+        "potentiostat": true,
+        "electrodes": ["working", "reference", "counter"]
+      },
+      "software_compatibility": {
+        "squidstat": true,
+        "gamry": false,
+        "autolab": false
+      },
+      "constraints": {
+        "max_current": 1000,
+        "min_current": -1000,
+        "max_voltage": 5.0,
+        "min_voltage": -5.0,
+        "max_duration": 3600
+      },
+      "environment_requirements": {
+        "temperature_range": [15, 40],
+        "humidity_max": 80
+      },
+      "keywords": ["SDL", "catalyst", "CP", "chronopotentiometry", "current", "electrochemical", "measurement"]
+    },
+    "sdl_catalyst_cva": {
+      "type": "sdl_catalyst_cva",
+      "name": "SDL Catalyst CVA",
+      "category": "SDL Catalyst",
+      "description": "Cyclic Voltammetry Analysis for SDL Catalyst workflow",
+      "params": {
+        "start_voltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 0.300,
+          "min": -2,
+          "max": 2,
+          "step": 0.001,
+          "description": "Initial voltage for CV scan"
+        },
+        "first_voltage_limit": {
+          "type": "number",
+          "unit": "V",
+          "default": 0.400,
+          "min": -2,
+          "max": 2,
+          "step": 0.001,
+          "description": "First turning point voltage"
+        },
+        "second_voltage_limit": {
+          "type": "number",
+          "unit": "V",
+          "default": 0.300,
+          "min": -2,
+          "max": 2,
+          "step": 0.001,
+          "description": "Second turning point voltage"
+        },
+        "end_voltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 0.300,
+          "min": -2,
+          "max": 2,
+          "step": 0.001,
+          "description": "Final voltage for CV scan"
+        },
+        "scan_rate_1": {
+          "type": "number",
+          "unit": "V/s",
+          "default": 0.01,
+          "min": 0.001,
+          "max": 1.0,
+          "step": 0.001,
+          "description": "First scan rate for multiple rate CV"
+        },
+        "scan_rate_2": {
+          "type": "number",
+          "unit": "V/s",
+          "default": 0.05,
+          "min": 0.001,
+          "max": 1.0,
+          "step": 0.001,
+          "description": "Second scan rate"
+        },
+        "scan_rate_3": {
+          "type": "number",
+          "unit": "V/s",
+          "default": 0.1,
+          "min": 0.001,
+          "max": 1.0,
+          "step": 0.001,
+          "description": "Third scan rate"
+        },
+        "cycles": {
+          "type": "number",
+          "default": 3,
+          "min": 1,
+          "max": 100,
+          "description": "Number of CV cycles per scan rate"
+        },
+        "sample_interval": {
+          "type": "number",
+          "unit": "s",
+          "default": 0.01,
+          "min": 0.001,
+          "max": 1,
+          "step": 0.001,
+          "description": "Time between measurements"
+        },
+        "quiet_time": {
+          "type": "number",
+          "unit": "s",
+          "default": 10,
+          "min": 0,
+          "max": 60,
+          "description": "Stabilization time before measurement"
+        },
+        "com_port": {
+          "type": "string",
+          "default": "COM4",
+          "enum": ["COM3", "COM4", "COM5", "COM6"],
+          "description": "Potentiostat communication port"
+        },
+        "channel": {
+          "type": "number",
+          "default": 0,
+          "min": 0,
+          "max": 7,
+          "description": "Potentiostat channel"
+        },
+        "data_collection_enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable data recording"
+        },
+        "data_tag": {
+          "type": "string",
+          "default": "cva_measurement",
+          "description": "Tag for data identification"
+        }
+      },
+      "primitive_operations": [
+        "initialize_potentiostat",
+        "configure_cv_parameters",
+        "apply_quiet_time",
+        "perform_cv_scan_rate_1",
+        "perform_cv_scan_rate_2",
+        "perform_cv_scan_rate_3",
+        "collect_data",
+        "analyze_results",
+        "save_results"
+      ],
+      "hardware_requirements": {
+        "potentiostat": true,
+        "electrodes": ["working", "reference", "counter"]
+      },
+      "software_compatibility": {
+        "squidstat": true,
+        "gamry": false,
+        "autolab": false
+      },
+      "constraints": {
+        "max_voltage": 2.0,
+        "min_voltage": -2.0,
+        "max_scan_rate": 1.0,
+        "min_scan_rate": 0.001
+      },
+      "environment_requirements": {
+        "temperature_range": [15, 40],
+        "humidity_max": 80
+      },
+      "keywords": ["SDL", "catalyst", "CVA", "cyclic", "voltammetry", "analysis", "electrochemical", "scan"]
+    },
+    "sdl_catalyst_peis": {
+      "type": "sdl_catalyst_peis",
+      "name": "SDL Catalyst PEIS",
+      "category": "SDL Catalyst",
+      "description": "Potentiostatic Electrochemical Impedance Spectroscopy for SDL Catalyst workflow",
+      "params": {
+        "start_frequency": {
+          "type": "number",
+          "unit": "Hz",
+          "default": 100000,
+          "min": 0.01,
+          "max": 1000000,
+          "description": "Starting frequency for EIS sweep"
+        },
+        "end_frequency": {
+          "type": "number",
+          "unit": "Hz",
+          "default": 0.1,
+          "min": 0.01,
+          "max": 1000000,
+          "description": "Ending frequency for EIS sweep"
+        },
+        "steps_per_decade": {
+          "type": "number",
+          "default": 10,
+          "min": 1,
+          "max": 50,
+          "description": "Number of frequency steps per decade"
+        },
+        "voltage_bias": {
+          "type": "number",
+          "unit": "V",
+          "default": 0.0,
+          "min": -2,
+          "max": 2,
+          "step": 0.001,
+          "description": "DC bias voltage for EIS measurement"
+        },
+        "voltage_amplitude": {
+          "type": "number",
+          "unit": "V",
+          "default": 0.01,
+          "min": 0.001,
+          "max": 0.1,
+          "step": 0.001,
+          "description": "AC amplitude for EIS measurement"
+        },
+        "quiet_time": {
+          "type": "number",
+          "unit": "s",
+          "default": 10,
+          "min": 0,
+          "max": 60,
+          "description": "Stabilization time before measurement"
+        },
+        "com_port": {
+          "type": "string",
+          "default": "COM4",
+          "enum": ["COM3", "COM4", "COM5", "COM6"],
+          "description": "Potentiostat communication port"
+        },
+        "channel": {
+          "type": "number",
+          "default": 0,
+          "min": 0,
+          "max": 7,
+          "description": "Potentiostat channel"
+        },
+        "data_collection_enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable data recording"
+        },
+        "data_tag": {
+          "type": "string",
+          "default": "peis_measurement",
+          "description": "Tag for data identification"
+        }
+      },
+      "primitive_operations": [
+        "initialize_potentiostat",
+        "configure_frequency_range",
+        "configure_voltage_parameters",
+        "apply_quiet_time",
+        "perform_impedance_sweep",
+        "collect_impedance_data",
+        "calculate_impedance_parameters",
+        "analyze_eis_results",
+        "save_results"
+      ],
+      "hardware_requirements": {
+        "potentiostat": true,
+        "electrodes": ["working", "reference", "counter"],
+        "frequency_response_analyzer": true
+      },
+      "software_compatibility": {
+        "squidstat": true,
+        "gamry": false,
+        "autolab": false
+      },
+      "constraints": {
+        "max_frequency": 1000000,
+        "min_frequency": 0.01,
+        "max_voltage": 2.0,
+        "min_voltage": -2.0,
+        "max_amplitude": 0.1
+      },
+      "environment_requirements": {
+        "temperature_range": [15, 40],
+        "humidity_max": 80,
+        "electromagnetic_shielding": true
+      },
+      "keywords": ["SDL", "catalyst", "PEIS", "impedance", "spectroscopy", "electrochemical", "frequency", "EIS"]
+    },
+    "sdl_catalyst_lsv": {
+      "type": "sdl_catalyst_lsv",
+      "name": "SDL Catalyst LSV",
+      "category": "SDL Catalyst",
+      "description": "Linear Sweep Voltammetry for SDL Catalyst workflow",
+      "params": {
+        "start_potential": {
+          "type": "number",
+          "unit": "V",
+          "default": 0.0,
+          "min": -2,
+          "max": 2,
+          "step": 0.001,
+          "description": "Starting potential for LSV scan"
+        },
+        "end_potential": {
+          "type": "number",
+          "unit": "V",
+          "default": 1.0,
+          "min": -2,
+          "max": 2,
+          "step": 0.001,
+          "description": "Ending potential for LSV scan"
+        },
+        "scan_rate": {
+          "type": "number",
+          "unit": "V/s",
+          "default": 0.01,
+          "min": 0.001,
+          "max": 1.0,
+          "step": 0.001,
+          "description": "Voltage scan rate"
+        },
+        "sample_interval": {
+          "type": "number",
+          "unit": "s",
+          "default": 0.01,
+          "min": 0.001,
+          "max": 1,
+          "step": 0.001,
+          "description": "Time between measurements"
+        },
+        "quiet_time": {
+          "type": "number",
+          "unit": "s",
+          "default": 10,
+          "min": 0,
+          "max": 60,
+          "description": "Stabilization time before measurement"
+        },
+        "max_current": {
+          "type": "number",
+          "unit": "mA",
+          "default": 100,
+          "min": 0.1,
+          "max": 1000,
+          "description": "Maximum current limit for safety"
+        },
+        "com_port": {
+          "type": "string",
+          "default": "COM4",
+          "enum": ["COM3", "COM4", "COM5", "COM6"],
+          "description": "Potentiostat communication port"
+        },
+        "channel": {
+          "type": "number",
+          "default": 0,
+          "min": 0,
+          "max": 7,
+          "description": "Potentiostat channel"
+        },
+        "data_collection_enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable data recording"
+        },
+        "data_tag": {
+          "type": "string",
+          "default": "lsv_measurement",
+          "description": "Tag for data identification"
+        }
+      },
+      "primitive_operations": [
+        "initialize_potentiostat",
+        "configure_voltage_parameters",
+        "configure_current_limits",
+        "apply_quiet_time",
+        "perform_linear_sweep",
+        "monitor_current_limits",
+        "collect_data",
+        "analyze_voltammogram",
+        "save_results"
+      ],
+      "hardware_requirements": {
+        "potentiostat": true,
+        "electrodes": ["working", "reference", "counter"]
+      },
+      "software_compatibility": {
+        "squidstat": true,
+        "gamry": false,
+        "autolab": false
+      },
+      "constraints": {
+        "max_voltage": 2.0,
+        "min_voltage": -2.0,
+        "max_scan_rate": 1.0,
+        "min_scan_rate": 0.001,
+        "max_current": 1000
+      },
+      "environment_requirements": {
+        "temperature_range": [15, 40],
+        "humidity_max": 80
+      },
+      "keywords": ["SDL", "catalyst", "LSV", "linear", "sweep", "voltammetry", "electrochemical", "potential"]
+    },
+    "sdl_catalyst_ot2": {
+      "type": "sdl_catalyst_ot2",
+      "name": "SDL Catalyst OT2",
+      "category": "SDL Catalyst",
+      "description": "OpenTrons OT2 liquid handling for SDL Catalyst workflow",
+      "params": {
+        "robot_ip": {
+          "type": "string",
+          "default": "192.168.1.100",
+          "description": "IP address of OT2 robot"
+        },
+        "robot_port": {
+          "type": "number",
+          "default": 31950,
+          "min": 1,
+          "max": 65535,
+          "description": "Port number for OT2 communication"
+        },
+        "pipette_type": {
+          "type": "string",
+          "default": "p1000_single_gen2",
+          "enum": ["p1000_single_gen2", "p300_single_gen2", "p20_single_gen2", "p10_single"],
+          "description": "Type of pipette to use"
+        },
+        "pipette_mount": {
+          "type": "string",
+          "default": "right",
+          "enum": ["left", "right"],
+          "description": "Pipette mount position"
+        },
+        "tip_rack_type": {
+          "type": "string",
+          "default": "opentrons_96_tiprack_1000ul",
+          "enum": ["opentrons_96_tiprack_1000ul", "opentrons_96_tiprack_300ul", "opentrons_96_tiprack_20ul"],
+          "description": "Type of tip rack"
+        },
+        "tip_rack_slot": {
+          "type": "number",
+          "default": 1,
+          "min": 1,
+          "max": 11,
+          "description": "Deck slot for tip rack"
+        },
+        "source_labware_type": {
+          "type": "string",
+          "default": "nest_12_reservoir_15ml",
+          "enum": ["nest_12_reservoir_15ml", "corning_96_wellplate_360ul_flat", "nest_96_wellplate_200ul_flat"],
+          "description": "Type of source labware"
+        },
+        "source_labware_slot": {
+          "type": "number",
+          "default": 2,
+          "min": 1,
+          "max": 11,
+          "description": "Deck slot for source labware"
+        },
+        "dest_labware_type": {
+          "type": "string",
+          "default": "corning_96_wellplate_360ul_flat",
+          "enum": ["corning_96_wellplate_360ul_flat", "nest_96_wellplate_200ul_flat", "custom_electrochemical_cell"],
+          "description": "Type of destination labware"
+        },
+        "dest_labware_slot": {
+          "type": "number",
+          "default": 3,
+          "min": 1,
+          "max": 11,
+          "description": "Deck slot for destination labware"
+        },
+        "transfer_volume": {
+          "type": "number",
+          "unit": "μL",
+          "default": 100,
+          "min": 1,
+          "max": 1000,
+          "description": "Volume to transfer per operation"
+        },
+        "aspirate_rate": {
+          "type": "number",
+          "unit": "μL/s",
+          "default": 150,
+          "min": 1,
+          "max": 1000,
+          "description": "Aspiration rate"
+        },
+        "dispense_rate": {
+          "type": "number",
+          "unit": "μL/s",
+          "default": 300,
+          "min": 1,
+          "max": 1000,
+          "description": "Dispensing rate"
+        },
+        "mix_before": {
+          "type": "boolean",
+          "default": false,
+          "description": "Mix before aspiration"
+        },
+        "mix_after": {
+          "type": "boolean",
+          "default": false,
+          "description": "Mix after dispensing"
+        },
+        "blow_out": {
+          "type": "boolean",
+          "default": true,
+          "description": "Blow out after dispensing"
+        },
+        "new_tip": {
+          "type": "string",
+          "default": "always",
+          "enum": ["always", "once", "never"],
+          "description": "Tip usage strategy"
+        }
+      },
+      "primitive_operations": [
+        "initialize_robot",
+        "home_robot",
+        "enable_lights",
+        "load_labware",
+        "load_pipette",
+        "pick_up_tip",
+        "aspirate_solution",
+        "move_to_target",
+        "dispense_solution",
+        "blowout",
+        "drop_tip",
+        "cleanup_robot"
+      ],
+      "hardware_requirements": {
+        "opentrons_ot2": true,
+        "pipettes": ["single_channel"],
+        "labware": ["tip_rack", "source_plate", "destination_plate"]
+      },
+      "software_compatibility": {
+        "opentrons_api": ">=6.0.0",
+        "python": ">=3.7"
+      },
+      "constraints": {
+        "max_volume": 1000,
+        "min_volume": 1,
+        "max_deck_slots": 11,
+        "max_pipettes": 2
+      },
+      "environment_requirements": {
+        "temperature_range": [15, 35],
+        "humidity_max": 80,
+        "clean_environment": true
+      },
+      "keywords": ["SDL", "catalyst", "OT2", "opentrons", "liquid", "handling", "pipette", "automation"]
+    },
+    "sdl_catalyst_batch_cva": {
+      "type": "sdl_catalyst_batch_cva",
+      "name": "SDL Catalyst Batch CVA",
+      "category": "SDL Catalyst",
+      "description": "Batch Cyclic Voltammetry Analysis for multiple samples in SDL Catalyst workflow",
+      "params": {
+        "batch_size": {
+          "type": "number",
+          "default": 8,
+          "min": 1,
+          "max": 96,
+          "description": "Number of samples in batch"
+        },
+        "start_voltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 0.300,
+          "min": -2,
+          "max": 2,
+          "step": 0.001,
+          "description": "Initial voltage for CV scan"
+        },
+        "first_voltage_limit": {
+          "type": "number",
+          "unit": "V",
+          "default": 0.400,
+          "min": -2,
+          "max": 2,
+          "step": 0.001,
+          "description": "First turning point voltage"
+        },
+        "second_voltage_limit": {
+          "type": "number",
+          "unit": "V",
+          "default": 0.300,
+          "min": -2,
+          "max": 2,
+          "step": 0.001,
+          "description": "Second turning point voltage"
+        },
+        "end_voltage": {
+          "type": "number",
+          "unit": "V",
+          "default": 0.300,
+          "min": -2,
+          "max": 2,
+          "step": 0.001,
+          "description": "Final voltage for CV scan"
+        },
+        "scan_rates": {
+          "type": "array",
+          "default": [0.01, 0.05, 0.1],
+          "description": "Array of scan rates to test (V/s)"
+        },
+        "cycles_per_rate": {
+          "type": "number",
+          "default": 3,
+          "min": 1,
+          "max": 10,
+          "description": "Number of CV cycles per scan rate"
+        },
+        "sample_interval": {
+          "type": "number",
+          "unit": "s",
+          "default": 0.01,
+          "min": 0.001,
+          "max": 1,
+          "step": 0.001,
+          "description": "Time between measurements"
+        },
+        "quiet_time": {
+          "type": "number",
+          "unit": "s",
+          "default": 10,
+          "min": 0,
+          "max": 60,
+          "description": "Stabilization time before each measurement"
+        },
+        "inter_sample_delay": {
+          "type": "number",
+          "unit": "s",
+          "default": 30,
+          "min": 0,
+          "max": 300,
+          "description": "Delay between samples"
+        },
+        "electrode_cleaning": {
+          "type": "boolean",
+          "default": true,
+          "description": "Clean electrodes between samples"
+        },
+        "cleaning_cycles": {
+          "type": "number",
+          "default": 3,
+          "min": 1,
+          "max": 10,
+          "description": "Number of cleaning cycles"
+        },
+        "com_port": {
+          "type": "string",
+          "default": "COM4",
+          "enum": ["COM3", "COM4", "COM5", "COM6"],
+          "description": "Potentiostat communication port"
+        },
+        "channel": {
+          "type": "number",
+          "default": 0,
+          "min": 0,
+          "max": 7,
+          "description": "Potentiostat channel"
+        },
+        "data_collection_enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable data recording"
+        },
+        "data_tag": {
+          "type": "string",
+          "default": "batch_cva_measurement",
+          "description": "Tag for data identification"
+        },
+        "auto_analysis": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically analyze results after batch completion"
+        }
+      },
+      "primitive_operations": [
+        "initialize_batch_system",
+        "configure_cv_parameters",
+        "setup_sample_sequence",
+        "perform_batch_cv_analysis",
+        "clean_electrodes_between_samples",
+        "collect_batch_data",
+        "analyze_batch_results",
+        "generate_batch_report",
+        "save_batch_results"
+      ],
+      "hardware_requirements": {
+        "potentiostat": true,
+        "electrodes": ["working", "reference", "counter"],
+        "sample_changer": true,
+        "cleaning_system": true
+      },
+      "software_compatibility": {
+        "squidstat": true,
+        "gamry": false,
+        "autolab": false,
+        "batch_analysis": true
+      },
+      "constraints": {
+        "max_batch_size": 96,
+        "max_voltage": 2.0,
+        "min_voltage": -2.0,
+        "max_scan_rate": 1.0,
+        "min_scan_rate": 0.001,
+        "max_total_time": 86400
+      },
+      "environment_requirements": {
+        "temperature_range": [15, 40],
+        "humidity_max": 80,
+        "automated_environment": true
+      },
+      "keywords": ["SDL", "catalyst", "batch", "CVA", "cyclic", "voltammetry", "high-throughput", "automation"]
     },
     "stir": {
       "type": "stir", 
