@@ -23,6 +23,7 @@ export const VIAL_POSITIONS = {
 };
 
 export const PIPETTE_OPTIONS = [
+  { value: 'p1000_single_gen1', label: 'P1000 Single Gen 1' },
   { value: 'p1000_single_gen2', label: 'P1000 Single Gen2' },
   { value: 'p300_single_gen2', label: 'P300 Single Gen2' },
   { value: 'p20_single_gen2', label: 'P20 Single Gen2' },

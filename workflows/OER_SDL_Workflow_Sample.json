@@ -1,0 +1,587 @@
+{
+  "workflow": {
+    "id": "oer_sdl_workflow_sample",
+    "name": "OER SDL Catalyst Workflow Sample",
+    "description": "Complete OER characterization workflow with electrodeposition and electrochemical analysis based on OER_SDL_Workflow.py",
+    "created": "2025-01-21T00:00:00Z",
+    "version": "1.0",
+    "tags": ["OER", "electrodeposition", "electrochemical", "SDL", "catalyst", "characterization"]
+  },
+  "nodes": [
+    {
+      "id": "ot2_liquid_handling_1",
+      "type": "sdl_catalyst_ot2",
+      "category": "SDL Catalyst",
+      "position": { "x": 100, "y": 100 },
+      "data": {
+        "label": "OT2 Liquid Handling - Mn-Ru Solution",
+        "nodeType": "sdl_catalyst_ot2",
+        "category": "ot2",
+        "description": "Fill reactor well with 4000µL Mn-Ru solution for electrodeposition",
+        "parameters": {
+          "robot_ip": "169.254.69.185",
+          "robot_port": 31950,
+          "pipette_type": "p1000_single_gen2",
+          "pipette_mount": "right",
+          "tip_rack_type": "opentrons_96_tiprack_1000ul",
+          "tip_rack_slot": 1,
+          "source_labware_type": "nest_12_reservoir_15ml",
+          "source_labware_slot": 2,
+          "dest_labware_type": "custom_electrochemical_cell",
+          "dest_labware_slot": 3,
+          "transfer_volume": 4000,
+          "aspirate_rate": 150,
+          "dispense_rate": 300,
+          "mix_before": false,
+          "mix_after": false,
+          "blow_out": true,
+          "new_tip": "always"
+        },
+        "hardware_requirements": {
+          "opentrons_ot2": true,
+          "pipettes": ["single_channel"],
+          "labware": ["tip_rack", "source_plate", "destination_plate"]
+        },
+        "software_compatibility": {
+          "opentrons_api": ">=6.0.0",
+          "python": ">=3.7"
+        },
+        "constraints": {
+          "max_volume": 1000,
+          "min_volume": 1,
+          "max_deck_slots": 11,
+          "max_pipettes": 2
+        },
+        "environment_requirements": {
+          "temperature_range": [15, 35],
+          "humidity_max": 80,
+          "clean_environment": true
+        },
+        "primitiveOperations": [
+          "initialize_robot",
+          "home_robot",
+          "enable_lights",
+          "load_labware",
+          "load_pipette",
+          "pick_up_tip",
+          "aspirate_solution",
+          "move_to_target",
+          "dispense_solution",
+          "blowout",
+          "drop_tip",
+          "cleanup_robot"
+        ]
+      }
+    },
+    {
+      "id": "cp_electrodeposition",
+      "type": "sdl_catalyst_cp",
+      "category": "SDL Catalyst",
+      "position": { "x": 400, "y": 100 },
+      "data": {
+        "label": "Chronopotentiometry - Electrodeposition",
+        "nodeType": "sdl_catalyst_cp",
+        "category": "cp",
+        "description": "8-minute electrodeposition at -1.12 mA constant current",
+        "parameters": {
+          "current": -1.12,
+          "duration": 480,
+          "sample_interval": 1.0,
+          "area_cm2": 0.28,
+          "current_density": 4.0,
+          "voltage_limit_high": 2.0,
+          "voltage_limit_low": -1.0,
+          "com_port": "COM4",
+          "channel": 0,
+          "data_collection_enabled": true,
+          "data_tag": "electrodeposition"
+        },
+        "hardware_requirements": {
+          "potentiostat": true,
+          "electrodes": ["working", "reference", "counter"]
+        },
+        "software_compatibility": {
+          "squidstat": true,
+          "gamry": false,
+          "autolab": false
+        },
+        "constraints": {
+          "max_current": 1000,
+          "min_current": -1000,
+          "max_voltage": 5.0,
+          "min_voltage": -5.0,
+          "max_duration": 3600
+        },
+        "environment_requirements": {
+          "temperature_range": [15, 40],
+          "humidity_max": 80
+        },
+        "primitiveOperations": [
+          "initialize_potentiostat",
+          "configure_current_parameters",
+          "configure_safety_limits",
+          "apply_stabilization_time",
+          "perform_chronopotentiometry",
+          "monitor_voltage_limits",
+          "collect_data",
+          "analyze_voltage_profile",
+          "save_results"
+        ]
+      }
+    },
+    {
+      "id": "ot2_electrolyte_change",
+      "type": "sdl_catalyst_ot2",
+      "category": "SDL Catalyst",
+      "position": { "x": 700, "y": 100 },
+      "data": {
+        "label": "OT2 Liquid Handling - Electrolyte Change",
+        "nodeType": "sdl_catalyst_ot2",
+        "category": "ot2",
+        "description": "Replace Mn-Ru solution with 4000µL KOH electrolyte for characterization",
+        "parameters": {
+          "robot_ip": "169.254.69.185",
+          "robot_port": 31950,
+          "pipette_type": "p1000_single_gen2",
+          "pipette_mount": "right",
+          "tip_rack_type": "opentrons_96_tiprack_1000ul",
+          "tip_rack_slot": 1,
+          "source_labware_type": "nest_12_reservoir_15ml",
+          "source_labware_slot": 2,
+          "dest_labware_type": "custom_electrochemical_cell",
+          "dest_labware_slot": 3,
+          "transfer_volume": 4000,
+          "aspirate_rate": 150,
+          "dispense_rate": 300,
+          "mix_before": false,
+          "mix_after": true,
+          "blow_out": true,
+          "new_tip": "always"
+        },
+        "primitiveOperations": [
+          "initialize_robot",
+          "load_pipette",
+          "pick_up_tip",
+          "aspirate_solution",
+          "move_to_target",
+          "dispense_solution",
+          "blowout",
+          "drop_tip"
+        ]
+      }
+    },
+    {
+      "id": "ocv_stabilization",
+      "type": "sdl_catalyst_ocv",
+      "category": "SDL Catalyst",
+      "position": { "x": 1000, "y": 100 },
+      "data": {
+        "label": "Open Circuit Voltage - Stabilization",
+        "nodeType": "sdl_catalyst_ocv",
+        "category": "ocv",
+        "description": "3-minute OCV measurement for electrode stabilization",
+        "parameters": {
+          "duration": 180,
+          "sample_interval": 1.0,
+          "settle_time": 10,
+          "stability_threshold": 1.0,
+          "com_port": "COM4",
+          "channel": 0,
+          "data_collection_enabled": true,
+          "data_tag": "ocv_stabilization",
+          "voltage_limit_min": -1.5,
+          "voltage_limit_max": 1.5
+        },
+        "hardware_requirements": {
+          "potentiostat": true,
+          "electrodes": ["working", "reference", "counter"]
+        },
+        "software_compatibility": {
+          "squidstat": true,
+          "gamry": false,
+          "autolab": false
+        },
+        "constraints": {
+          "max_voltage": 2.0,
+          "min_voltage": -2.0,
+          "max_duration": 3600
+        },
+        "environment_requirements": {
+          "temperature_range": [15, 40],
+          "humidity_max": 80
+        },
+        "primitiveOperations": [
+          "initialize_potentiostat",
+          "configure_measurement_parameters",
+          "start_ocv_measurement",
+          "monitor_stability",
+          "collect_data",
+          "evaluate_stability",
+          "save_results"
+        ]
+      }
+    },
+    {
+      "id": "cva_scan_1",
+      "type": "sdl_catalyst_cva",
+      "category": "SDL Catalyst",
+      "position": { "x": 100, "y": 400 },
+      "data": {
+        "label": "Cyclic Voltammetry - Multiple Scan Rates",
+        "nodeType": "sdl_catalyst_cva",
+        "category": "cva",
+        "description": "CV scan with multiple scan rates (10, 50, 100 mV/s) with 5 cycles each",
+        "parameters": {
+          "start_voltage": 0.300,
+          "first_voltage_limit": 0.400,
+          "second_voltage_limit": 0.300,
+          "end_voltage": 0.300,
+          "scan_rate_1": 0.01,
+          "scan_rate_2": 0.05,
+          "scan_rate_3": 0.1,
+          "cycles": 5,
+          "sample_interval": 0.01,
+          "quiet_time": 10.0,
+          "com_port": "COM4",
+          "channel": 0,
+          "data_collection_enabled": true,
+          "data_tag": "cva_multiple_rates"
+        },
+        "hardware_requirements": {
+          "potentiostat": true,
+          "electrodes": ["working", "reference", "counter"]
+        },
+        "software_compatibility": {
+          "squidstat": true,
+          "gamry": false,
+          "autolab": false
+        },
+        "constraints": {
+          "max_voltage": 2.0,
+          "min_voltage": -2.0,
+          "max_scan_rate": 1.0,
+          "min_scan_rate": 0.001
+        },
+        "environment_requirements": {
+          "temperature_range": [15, 40],
+          "humidity_max": 80
+        },
+        "primitiveOperations": [
+          "initialize_potentiostat",
+          "configure_cv_parameters",
+          "apply_quiet_time",
+          "perform_cv_scan_rate_1",
+          "perform_cv_scan_rate_2",
+          "perform_cv_scan_rate_3",
+          "collect_data",
+          "analyze_results",
+          "save_results"
+        ]
+      }
+    },
+    {
+      "id": "lsv_polarization",
+      "type": "sdl_catalyst_lsv",
+      "category": "SDL Catalyst",
+      "position": { "x": 400, "y": 400 },
+      "data": {
+        "label": "Linear Sweep Voltammetry - OER Polarization",
+        "nodeType": "sdl_catalyst_lsv",
+        "category": "lsv",
+        "description": "LSV sweep from 0.742V to 1.642V at 10 mV/s for OER polarization curve",
+        "parameters": {
+          "start_potential": 0.742,
+          "end_potential": 1.642,
+          "scan_rate": 0.01,
+          "sample_interval": 0.05,
+          "quiet_time": 30.0,
+          "max_current": 1.62,
+          "com_port": "COM4",
+          "channel": 0,
+          "data_collection_enabled": true,
+          "data_tag": "lsv_oer_polarization"
+        },
+        "hardware_requirements": {
+          "potentiostat": true,
+          "electrodes": ["working", "reference", "counter"]
+        },
+        "software_compatibility": {
+          "squidstat": true,
+          "gamry": false,
+          "autolab": false
+        },
+        "constraints": {
+          "max_voltage": 2.0,
+          "min_voltage": -2.0,
+          "max_scan_rate": 1.0,
+          "min_scan_rate": 0.001,
+          "max_current": 1000
+        },
+        "environment_requirements": {
+          "temperature_range": [15, 40],
+          "humidity_max": 80
+        },
+        "primitiveOperations": [
+          "initialize_potentiostat",
+          "configure_sweep_parameters",
+          "apply_quiet_time",
+          "perform_lsv",
+          "collect_data",
+          "analyze_results",
+          "save_results"
+        ]
+      }
+    },
+    {
+      "id": "cp_chronopotentiometry",
+      "type": "sdl_catalyst_cp",
+      "category": "SDL Catalyst",
+      "position": { "x": 700, "y": 400 },
+      "data": {
+        "label": "Chronopotentiometry - OER Stability Test",
+        "nodeType": "sdl_catalyst_cp",
+        "category": "cp",
+        "description": "5-minute chronopotentiometry at 10 mA/cm² for OER stability test",
+        "parameters": {
+          "current": 2.8,
+          "duration": 300,
+          "sample_interval": 1.0,
+          "area_cm2": 0.28,
+          "current_density": 10.0,
+          "voltage_limit_high": 2.0,
+          "voltage_limit_low": -1.0,
+          "com_port": "COM4",
+          "channel": 0,
+          "data_collection_enabled": true,
+          "data_tag": "cp_oer_stability"
+        },
+        "hardware_requirements": {
+          "potentiostat": true,
+          "electrodes": ["working", "reference", "counter"]
+        },
+        "software_compatibility": {
+          "squidstat": true,
+          "gamry": false,
+          "autolab": false
+        },
+        "constraints": {
+          "max_current": 1000,
+          "min_current": -1000,
+          "max_voltage": 5.0,
+          "min_voltage": -5.0,
+          "max_duration": 3600
+        },
+        "environment_requirements": {
+          "temperature_range": [15, 40],
+          "humidity_max": 80
+        },
+        "primitiveOperations": [
+          "initialize_potentiostat",
+          "configure_current_parameters",
+          "configure_safety_limits",
+          "apply_stabilization_time",
+          "perform_chronopotentiometry",
+          "monitor_voltage_limits",
+          "collect_data",
+          "analyze_voltage_profile",
+          "save_results"
+        ]
+      }
+    },
+    {
+      "id": "peis_impedance",
+      "type": "sdl_catalyst_peis",
+      "category": "SDL Catalyst",
+      "position": { "x": 1000, "y": 400 },
+      "data": {
+        "label": "Potentiostatic EIS - Impedance Analysis",
+        "nodeType": "sdl_catalyst_peis",
+        "category": "peis",
+        "description": "EIS measurement from 100kHz to 0.2Hz at 0.731V bias for impedance characterization",
+        "parameters": {
+          "start_frequency": 100000,
+          "end_frequency": 0.2,
+          "steps_per_decade": 8,
+          "voltage_bias": 0.731,
+          "voltage_amplitude": 0.01,
+          "quiet_time": 10.0,
+          "com_port": "COM4",
+          "channel": 0,
+          "data_collection_enabled": true,
+          "data_tag": "peis_impedance_analysis"
+        },
+        "hardware_requirements": {
+          "potentiostat": true,
+          "electrodes": ["working", "reference", "counter"],
+          "frequency_response_analyzer": true
+        },
+        "software_compatibility": {
+          "squidstat": true,
+          "gamry": false,
+          "autolab": false
+        },
+        "constraints": {
+          "max_frequency": 1000000,
+          "min_frequency": 0.01,
+          "max_voltage": 2.0,
+          "min_voltage": -2.0,
+          "max_amplitude": 0.1
+        },
+        "environment_requirements": {
+          "temperature_range": [15, 40],
+          "humidity_max": 80,
+          "electromagnetic_shielding": true
+        },
+        "primitiveOperations": [
+          "initialize_potentiostat",
+          "configure_frequency_range",
+          "configure_voltage_parameters",
+          "apply_quiet_time",
+          "perform_impedance_sweep",
+          "collect_impedance_data",
+          "calculate_impedance_parameters",
+          "analyze_eis_results",
+          "save_results"
+        ]
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_1_2",
+      "source": "ot2_liquid_handling_1",
+      "target": "cp_electrodeposition",
+      "sourceHandle": "success_output",
+      "targetHandle": "trigger_input",
+      "type": "default",
+      "data": {
+        "label": "Solution Prepared → Start Electrodeposition",
+        "condition": "liquid_handling_complete"
+      }
+    },
+    {
+      "id": "edge_2_3",
+      "source": "cp_electrodeposition",
+      "target": "ot2_electrolyte_change",
+      "sourceHandle": "success_output",
+      "targetHandle": "trigger_input",
+      "type": "default",
+      "data": {
+        "label": "Electrodeposition Complete → Change Electrolyte",
+        "condition": "deposition_complete"
+      }
+    },
+    {
+      "id": "edge_3_4",
+      "source": "ot2_electrolyte_change",
+      "target": "ocv_measurement",
+      "sourceHandle": "success_output",
+      "targetHandle": "trigger_input",
+      "type": "default",
+      "data": {
+        "label": "Electrolyte Changed → OCV Stabilization",
+        "condition": "electrolyte_change_complete"
+      }
+    },
+    {
+      "id": "edge_4_5",
+      "source": "ocv_measurement",
+      "target": "cva_scan_1",
+      "sourceHandle": "success_output",
+      "targetHandle": "trigger_input",
+      "type": "default",
+      "data": {
+        "label": "OCV Stabilized → CV Analysis",
+        "condition": "ocv_stable"
+      }
+    },
+    {
+      "id": "edge_5_6",
+      "source": "cva_scan_1",
+      "target": "lsv_polarization",
+      "sourceHandle": "success_output",
+      "targetHandle": "trigger_input",
+      "type": "default",
+      "data": {
+        "label": "CV Complete → LSV Polarization",
+        "condition": "cv_analysis_complete"
+      }
+    },
+    {
+      "id": "edge_6_7",
+      "source": "lsv_polarization",
+      "target": "cp_chronopotentiometry",
+      "sourceHandle": "success_output",
+      "targetHandle": "trigger_input",
+      "type": "default",
+      "data": {
+        "label": "LSV Complete → Chronopotentiometry",
+        "condition": "lsv_complete"
+      }
+    },
+    {
+      "id": "edge_7_8",
+      "source": "cp_chronopotentiometry",
+      "target": "peis_impedance",
+      "sourceHandle": "success_output",
+      "targetHandle": "trigger_input",
+      "type": "default",
+      "data": {
+        "label": "CP Complete → EIS Analysis",
+        "condition": "chronopotentiometry_complete"
+      }
+    }
+  ],
+  "settings": {
+    "execution": {
+      "mode": "sequential",
+      "error_handling": "stop_on_error",
+      "timeout": 7200,
+      "retry_failed": false
+    },
+    "data_management": {
+      "auto_save": true,
+      "data_format": "csv",
+      "include_metadata": true,
+      "compression": false
+    },
+    "hardware": {
+      "robot_ip": "169.254.69.185",
+      "potentiostat_port": "COM4",
+      "enable_monitoring": true,
+      "safety_checks": true
+    }
+  },
+  "metadata": {
+    "experiment_type": "OER_Characterization",
+    "total_duration_estimate": "~45 minutes",
+    "required_hardware": [
+      "OpenTrons OT2 Robot",
+      "Admiral Squidstat Plus Potentiostat",
+      "NIS Reactor System",
+      "Reference Electrode",
+      "Working Electrode (Pt-Ti Felt)"
+    ],
+    "required_reagents": [
+      "Mn-Ru Solution (A1 in Vial Rack 2)",
+      "KOH Electrolyte (A2 in Vial Rack 2)",
+      "Distilled Water for washing"
+    ],
+    "key_parameters": {
+      "electrodeposition_current": "-1.12 mA",
+      "electrodeposition_duration": "8 minutes",
+      "cv_scan_rates": "10, 50, 100 mV/s",
+      "lsv_potential_range": "0.742V to 1.642V",
+      "cp_current_density": "10 mA/cm²",
+      "eis_frequency_range": "100 kHz to 0.2 Hz"
+    },
+    "output_data": [
+      "Electrodeposition voltage profile",
+      "OCV stabilization data",
+      "CV curves at multiple scan rates",
+      "LSV polarization curve",
+      "Chronopotentiometry voltage profile",
+      "EIS impedance spectra (Nyquist and Bode plots)"
+    ]
+  }
+}

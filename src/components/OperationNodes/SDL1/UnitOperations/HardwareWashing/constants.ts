@@ -29,8 +29,7 @@ export const DEFAULT_VALUES = {
   error_handling: 'stop',
   log_level: 'INFO',
   
-  // Cell configuration
-  target_cell: 'A1',
+  // Cell configuration (target cell is inherited from Experiment Setup)
   
   // Washing sequence parameters
   initial_drain_volume: 10.0,    // mL - pump 2
@@ -38,8 +37,8 @@ export const DEFAULT_VALUES = {
   ultrasonic_duration: 5000,     // ms
   final_rinse_volume: 10.0,      // mL - pump 2
   
-  // Arduino configuration
-  arduino_com_port: 'COM3',      // Default Arduino port
+  // Hardware configuration (simplified - no Arduino/PLC selection needed)
+  pump_timeout: 30,              // Pump operation timeout in seconds
   
   // Movement parameters
   approach_speed: MOVEMENT_SPEEDS.slow,
@@ -115,19 +114,7 @@ export const PARAMETER_GROUPS: Record<string, ParameterGroup> = {
       },
     },
   },
-  target: {
-    label: 'Target Configuration',
-    parameters: {
-      target_cell: {
-        type: 'select',
-        label: 'Target Cell',
-        description: 'Reactor cell to wash',
-        options: VIAL_POSITIONS.nis_reactor.map(pos => ({ value: pos, label: pos })),
-        defaultValue: DEFAULT_VALUES.target_cell,
-        required: true,
-      },
-    },
-  },
+
   washing_sequence: {
     label: 'Washing Sequence Parameters',
     parameters: {
@@ -179,11 +166,15 @@ export const PARAMETER_GROUPS: Record<string, ParameterGroup> = {
   hardware: {
     label: 'Hardware Configuration',
     parameters: {
-      arduino_com_port: {
-        type: 'string',
-        label: 'Arduino COM Port',
-        description: 'Serial port for Arduino connection',
-        defaultValue: DEFAULT_VALUES.arduino_com_port,
+      pump_timeout: {
+        type: 'number',
+        label: 'Pump Timeout',
+        description: 'Maximum time to wait for pump operations',
+        defaultValue: DEFAULT_VALUES.pump_timeout,
+        min: 5,
+        max: 120,
+        step: 5,
+        unit: 's',
         required: true,
       },
     },

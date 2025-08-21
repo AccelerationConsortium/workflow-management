@@ -1,0 +1,70 @@
+/* OTFLEX Hardware Node Styles */
+
+.otflex-node {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.otflex-node:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  transform: translateY(-1px);
+}
+
+.otflex-node.selected {
+  border: 2px solid #2196f3;
+  box-shadow: 0 4px 16px rgba(33, 150, 243, 0.3);
+}
+
+.otflex-myxarm {
+  border-left: 4px solid #ff6b6b;
+}
+
+.otflex-arduino {
+  border-left: 4px solid #66bb6a;
+}
+
+.otflex-opentrons {
+  border-left: 4px solid #00acc1;
+}
+
+.otflex-node-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.otflex-node-icon {
+  font-size: 20px;
+}
+
+.otflex-node-title {
+  font-weight: bold;
+  color: #333;
+}
+
+.otflex-node-parameters {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.otflex-parameter {
+  font-size: 12px;
+  color: #666;
+}
+
+.otflex-status-chip {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.otflex-handle {
+  background: #2196f3;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
