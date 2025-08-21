@@ -52,11 +52,55 @@ export const BaseUONode: React.FC<BaseUONodeProps> = ({ data, id }) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [importedFileName, setImportedFileName] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isScrolling, setIsScrolling] = useState(false);
+  const [hasScrollableContent, setHasScrollableContent] = useState(false);
 
   useEffect(() => {
     const newParams = initializeParameters();
     setParameters(newParams);
   }, [initializeParameters]);
+
+  // Check if content is scrollable
+  const checkScrollableContent = useCallback(() => {
+    const scrollContainer = scrollContainerRef.current;
+    if (scrollContainer) {
+      const hasScroll = scrollContainer.scrollHeight > scrollContainer.clientHeight;
+      setHasScrollableContent(hasScroll);
+    }
+  }, []);
+
+  // Handle scroll area mouse events to prevent drag conflicts
+  const handleScrollAreaMouseEnter = useCallback(() => {
+    setIsScrolling(true);
+    checkScrollableContent();
+  }, [checkScrollableContent]);
+
+  const handleScrollAreaMouseLeave = useCallback(() => {
+    setIsScrolling(false);
+  }, []);
+
+  // Prevent node dragging when mouse is over scroll area
+  const handleScrollAreaMouseDown = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+  }, []);
+
+  // Handle wheel events in scroll area
+  const handleScrollAreaWheel = useCallback((e: React.WheelEvent) => {
+    const scrollContainer = scrollContainerRef.current;
+    if (scrollContainer) {
+      // Allow natural scrolling
+      scrollContainer.scrollTop += e.deltaY;
+      e.stopPropagation();
+    }
+  }, []);
+
+  // Check scrollable content when expanded state changes
+  useEffect(() => {
+    if (expanded) {
+      setTimeout(checkScrollableContent, 100);
+    }
+  }, [expanded, checkScrollableContent]);
 
   const handleParameterChange = useCallback(
     (paramKey: string, value: any) => {
@@ -643,7 +687,23 @@ export const BaseUONode: React.FC<BaseUONodeProps> = ({ data, id }) => {
       )}
 
       <Collapse in={expanded}>
-        <Box className="node-content nodrag">
+        <Box
+          ref={scrollContainerRef}
+          className={`node-content nodrag ${hasScrollableContent ? 'has-scroll' : ''}`}
+          onMouseEnter={handleScrollAreaMouseEnter}
+          onMouseLeave={handleScrollAreaMouseLeave}
+          onMouseDown={handleScrollAreaMouseDown}
+          onWheel={handleScrollAreaWheel}
+          sx={{
+            position: 'relative',
+          }}
+        >
+          {/* Scroll hint */}
+          {hasScrollableContent && (
+            <Box className="scroll-hint">
+              🖱️ Scroll here
+            </Box>
+          )}
           {data.parameterGroups && Object.entries(data.parameterGroups).map(([groupKey, group]) => {
             const typedGroup = group as ParameterGroup;
             return (

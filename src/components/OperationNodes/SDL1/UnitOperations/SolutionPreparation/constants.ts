@@ -1,5 +1,6 @@
 import { ParameterGroup } from '../../types';
 import { LABWARE_OPTIONS, PIPETTE_OPTIONS, VIAL_POSITIONS } from '../../shared/labwareConstants';
+import { getDynamicHardwareParameters, HARDWARE_DEFAULTS } from '../../shared/hardwareConstants';
 
 export const TRANSFER_MODE_OPTIONS = [
   { value: 'single', label: 'Single Transfer' },
@@ -39,7 +40,15 @@ export const DEFAULT_VALUES = {
   // Volume handling
   total_volume: 3000,    // Total volume to transfer (μL)
   max_volume_per_cycle: 1000,  // Max volume per aspirate/dispense cycle
-  pipette_type: 'p1000_single_gen2',
+  pipette_type: 'p1000_single_gen1',  // Updated default to Gen 1
+  
+  // Hardware connection configuration
+  connection_type: HARDWARE_DEFAULTS.connection_type,
+  arduino_com_port: HARDWARE_DEFAULTS.arduino_com_port,
+  plc_ip_address: HARDWARE_DEFAULTS.plc_ip_address,
+  plc_port_number: HARDWARE_DEFAULTS.plc_port_number,
+  ot2_ip_address: HARDWARE_DEFAULTS.ot2_ip_address,
+  ot2_port_number: HARDWARE_DEFAULTS.ot2_port_number,
   
   // Movement parameters
   move_speed: 100,       // Movement speed (mm/s)
@@ -278,6 +287,10 @@ export const PARAMETER_GROUPS: Record<string, ParameterGroup> = {
         unit: 'μL/s',
       },
     },
+  },
+  hardware: {
+    label: 'Hardware Configuration',
+    parameters: getDynamicHardwareParameters(),
   },
   safety: {
     label: 'Safety & Mixing Parameters',

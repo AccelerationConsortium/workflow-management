@@ -1,5 +1,6 @@
 import { ParameterGroup } from '../../types';
 import { LABWARE_OPTIONS, PIPETTE_OPTIONS, VIAL_POSITIONS } from '../../shared/labwareConstants';
+import { getDynamicHardwareParameters, HARDWARE_DEFAULTS } from '../../shared/hardwareConstants';
 
 export const ERROR_HANDLING_OPTIONS = [
   { value: 'continue', label: 'Continue' },
@@ -23,30 +24,55 @@ export const DEFAULT_VALUES = {
   error_handling: 'stop',
   log_level: 'INFO',
   
-  // Target configuration
-  target_cell: 'A1',
+  // Volume configuration
   total_volume: 3000,  // Total volume in μL
   
-  // Additive flags (0 or 1)
-  additive_A: 0,
-  additive_B: 0,
-  additive_C: 0,
-  additive_D: 0,
-  additive_E: 0,
-  additive_F: 0,
-  additive_G: 0,
-  
-  // Volume per additive when enabled
-  additive_volume: 100,  // μL per additive
+  // Pure Zn solution (always from A1)
+  pure_zn_volume: 2800,  // μL of pure Zn solution from A1
+
+  // Additive configurations (enable/disable and specify position/volume)
+  additive_A_enabled: false,
+  additive_A_position: 'A2',
+  additive_A_volume: 100,
+
+  additive_B_enabled: false,
+  additive_B_position: 'A3',
+  additive_B_volume: 100,
+
+  additive_C_enabled: false,
+  additive_C_position: 'A4',
+  additive_C_volume: 100,
+
+  additive_D_enabled: false,
+  additive_D_position: 'B1',
+  additive_D_volume: 100,
+
+  additive_E_enabled: false,
+  additive_E_position: 'B2',
+  additive_E_volume: 100,
+
+  additive_F_enabled: false,
+  additive_F_position: 'B3',
+  additive_F_volume: 100,
+
+  additive_G_enabled: false,
+  additive_G_position: 'B4',
+  additive_G_volume: 100,
   
   // Pipetting parameters
-  pipette_type: 'p1000_single_gen2',
+  pipette_type: 'p1000_single_gen1',  // Updated default to Gen 1
   move_speed: 100,
   
-  // Offsets for dispensing
-  dispense_offset_x: -1,
-  dispense_offset_y: 0.5,
-  dispense_offset_z: 0,
+  // Hardware connection configuration
+  connection_type: HARDWARE_DEFAULTS.connection_type,
+  arduino_com_port: HARDWARE_DEFAULTS.arduino_com_port,
+  plc_ip_address: HARDWARE_DEFAULTS.plc_ip_address,
+  plc_port_number: HARDWARE_DEFAULTS.plc_port_number,
+  ot2_ip_address: HARDWARE_DEFAULTS.ot2_ip_address,
+  ot2_port_number: HARDWARE_DEFAULTS.ot2_port_number,
+  
+  // Offsets for dispensing (fixed values - rarely changed)
+  // dispense_offset_x: -1, dispense_offset_y: 0.5, dispense_offset_z: 0
 };
 
 export const PARAMETER_GROUPS: Record<string, ParameterGroup> = {
@@ -106,16 +132,8 @@ export const PARAMETER_GROUPS: Record<string, ParameterGroup> = {
     },
   },
   target: {
-    label: 'Target Configuration',
+    label: 'Volume Configuration',
     parameters: {
-      target_cell: {
-        type: 'select',
-        label: 'Target Cell',
-        description: 'NIS reactor cell for sample preparation',
-        options: VIAL_POSITIONS.nis_reactor.map(pos => ({ value: pos, label: pos })),
-        defaultValue: DEFAULT_VALUES.target_cell,
-        required: true,
-      },
       total_volume: {
         type: 'number',
         label: 'Total Volume',
@@ -129,61 +147,241 @@ export const PARAMETER_GROUPS: Record<string, ParameterGroup> = {
       },
     },
   },
-  additives: {
-    label: 'Additive Selection',
+  pure_zn: {
+    label: 'Pure Zn Solution (A1)',
     parameters: {
-      additive_A: {
-        type: 'boolean',
-        label: 'Use Additive A',
-        description: 'Include additive A from vial A2',
-        defaultValue: DEFAULT_VALUES.additive_A,
-      },
-      additive_B: {
-        type: 'boolean',
-        label: 'Use Additive B',
-        description: 'Include additive B from vial A3',
-        defaultValue: DEFAULT_VALUES.additive_B,
-      },
-      additive_C: {
-        type: 'boolean',
-        label: 'Use Additive C',
-        description: 'Include additive C from vial A4',
-        defaultValue: DEFAULT_VALUES.additive_C,
-      },
-      additive_D: {
-        type: 'boolean',
-        label: 'Use Additive D',
-        description: 'Include additive D from vial B1',
-        defaultValue: DEFAULT_VALUES.additive_D,
-      },
-      additive_E: {
-        type: 'boolean',
-        label: 'Use Additive E',
-        description: 'Include additive E from vial B2',
-        defaultValue: DEFAULT_VALUES.additive_E,
-      },
-      additive_F: {
-        type: 'boolean',
-        label: 'Use Additive F',
-        description: 'Include additive F from vial B3',
-        defaultValue: DEFAULT_VALUES.additive_F,
-      },
-      additive_G: {
-        type: 'boolean',
-        label: 'Use Additive G',
-        description: 'Include additive G from vial B4',
-        defaultValue: DEFAULT_VALUES.additive_G,
-      },
-      additive_volume: {
+      pure_zn_volume: {
         type: 'number',
-        label: 'Volume per Additive',
-        description: 'Volume to add for each selected additive',
-        defaultValue: DEFAULT_VALUES.additive_volume,
-        min: 10,
-        max: 1000,
-        step: 10,
+        label: 'Pure Zn Volume',
+        description: 'Volume of pure Zn solution from vial A1',
+        defaultValue: DEFAULT_VALUES.pure_zn_volume,
+        min: 100,
+        max: 3000,
+        step: 50,
         unit: 'μL',
         required: true,
+      },
+    },
+  },
+  additives: {
+    label: 'Additive Configuration',
+    parameters: {
+      additive_A_enabled: {
+        type: 'boolean',
+        label: 'Enable Additive A',
+        description: 'Include additive A in the sample',
+        defaultValue: DEFAULT_VALUES.additive_A_enabled,
+      },
+      additive_A_position: {
+        type: 'select',
+        label: 'Additive A Position',
+        description: 'Vial position for additive A',
+        options: VIAL_POSITIONS.vial_rack_2.map(pos => ({ value: pos, label: `Slot 2, ${pos}` })),
+        defaultValue: DEFAULT_VALUES.additive_A_position,
+        dependsOn: {
+          parameter: 'additive_A_enabled',
+          value: true,
+        },
+      },
+      additive_A_volume: {
+        type: 'number',
+        label: 'Additive A Volume',
+        description: 'Volume of additive A to add',
+        defaultValue: DEFAULT_VALUES.additive_A_volume,
+        min: 10,
+        max: 500,
+        step: 10,
+        unit: 'μL',
+        dependsOn: {
+          parameter: 'additive_A_enabled',
+          value: true,
+        },
+      },
+      additive_B_enabled: {
+        type: 'boolean',
+        label: 'Enable Additive B',
+        description: 'Include additive B in the sample',
+        defaultValue: DEFAULT_VALUES.additive_B_enabled,
+      },
+      additive_B_position: {
+        type: 'select',
+        label: 'Additive B Position',
+        description: 'Vial position for additive B',
+        options: VIAL_POSITIONS.vial_rack_2.map(pos => ({ value: pos, label: `Slot 2, ${pos}` })),
+        defaultValue: DEFAULT_VALUES.additive_B_position,
+        dependsOn: {
+          parameter: 'additive_B_enabled',
+          value: true,
+        },
+      },
+      additive_B_volume: {
+        type: 'number',
+        label: 'Additive B Volume',
+        description: 'Volume of additive B to add',
+        defaultValue: DEFAULT_VALUES.additive_B_volume,
+        min: 10,
+        max: 500,
+        step: 10,
+        unit: 'μL',
+        dependsOn: {
+          parameter: 'additive_B_enabled',
+          value: true,
+        },
+      },
+      additive_C_enabled: {
+        type: 'boolean',
+        label: 'Enable Additive C',
+        description: 'Include additive C in the sample',
+        defaultValue: DEFAULT_VALUES.additive_C_enabled,
+      },
+      additive_C_position: {
+        type: 'select',
+        label: 'Additive C Position',
+        description: 'Vial position for additive C',
+        options: VIAL_POSITIONS.vial_rack_2.map(pos => ({ value: pos, label: `Slot 2, ${pos}` })),
+        defaultValue: DEFAULT_VALUES.additive_C_position,
+        dependsOn: {
+          parameter: 'additive_C_enabled',
+          value: true,
+        },
+      },
+      additive_C_volume: {
+        type: 'number',
+        label: 'Additive C Volume',
+        description: 'Volume of additive C to add',
+        defaultValue: DEFAULT_VALUES.additive_C_volume,
+        min: 10,
+        max: 500,
+        step: 10,
+        unit: 'μL',
+        dependsOn: {
+          parameter: 'additive_C_enabled',
+          value: true,
+        },
+      },
+      additive_D_enabled: {
+        type: 'boolean',
+        label: 'Enable Additive D',
+        description: 'Include additive D in the sample',
+        defaultValue: DEFAULT_VALUES.additive_D_enabled,
+      },
+      additive_D_position: {
+        type: 'select',
+        label: 'Additive D Position',
+        description: 'Vial position for additive D',
+        options: VIAL_POSITIONS.vial_rack_2.map(pos => ({ value: pos, label: `Slot 2, ${pos}` })),
+        defaultValue: DEFAULT_VALUES.additive_D_position,
+        dependsOn: {
+          parameter: 'additive_D_enabled',
+          value: true,
+        },
+      },
+      additive_D_volume: {
+        type: 'number',
+        label: 'Additive D Volume',
+        description: 'Volume of additive D to add',
+        defaultValue: DEFAULT_VALUES.additive_D_volume,
+        min: 10,
+        max: 500,
+        step: 10,
+        unit: 'μL',
+        dependsOn: {
+          parameter: 'additive_D_enabled',
+          value: true,
+        },
+      },
+      additive_E_enabled: {
+        type: 'boolean',
+        label: 'Enable Additive E',
+        description: 'Include additive E in the sample',
+        defaultValue: DEFAULT_VALUES.additive_E_enabled,
+      },
+      additive_E_position: {
+        type: 'select',
+        label: 'Additive E Position',
+        description: 'Vial position for additive E',
+        options: VIAL_POSITIONS.vial_rack_2.map(pos => ({ value: pos, label: `Slot 2, ${pos}` })),
+        defaultValue: DEFAULT_VALUES.additive_E_position,
+        dependsOn: {
+          parameter: 'additive_E_enabled',
+          value: true,
+        },
+      },
+      additive_E_volume: {
+        type: 'number',
+        label: 'Additive E Volume',
+        description: 'Volume of additive E to add',
+        defaultValue: DEFAULT_VALUES.additive_E_volume,
+        min: 10,
+        max: 500,
+        step: 10,
+        unit: 'μL',
+        dependsOn: {
+          parameter: 'additive_E_enabled',
+          value: true,
+        },
+      },
+      additive_F_enabled: {
+        type: 'boolean',
+        label: 'Enable Additive F',
+        description: 'Include additive F in the sample',
+        defaultValue: DEFAULT_VALUES.additive_F_enabled,
+      },
+      additive_F_position: {
+        type: 'select',
+        label: 'Additive F Position',
+        description: 'Vial position for additive F',
+        options: VIAL_POSITIONS.vial_rack_2.map(pos => ({ value: pos, label: `Slot 2, ${pos}` })),
+        defaultValue: DEFAULT_VALUES.additive_F_position,
+        dependsOn: {
+          parameter: 'additive_F_enabled',
+          value: true,
+        },
+      },
+      additive_F_volume: {
+        type: 'number',
+        label: 'Additive F Volume',
+        description: 'Volume of additive F to add',
+        defaultValue: DEFAULT_VALUES.additive_F_volume,
+        min: 10,
+        max: 500,
+        step: 10,
+        unit: 'μL',
+        dependsOn: {
+          parameter: 'additive_F_enabled',
+          value: true,
+        },
+      },
+      additive_G_enabled: {
+        type: 'boolean',
+        label: 'Enable Additive G',
+        description: 'Include additive G in the sample',
+        defaultValue: DEFAULT_VALUES.additive_G_enabled,
+      },
+      additive_G_position: {
+        type: 'select',
+        label: 'Additive G Position',
+        description: 'Vial position for additive G',
+        options: VIAL_POSITIONS.vial_rack_2.map(pos => ({ value: pos, label: `Slot 2, ${pos}` })),
+        defaultValue: DEFAULT_VALUES.additive_G_position,
+        dependsOn: {
+          parameter: 'additive_G_enabled',
+          value: true,
+        },
+      },
+      additive_G_volume: {
+        type: 'number',
+        label: 'Additive G Volume',
+        description: 'Volume of additive G to add',
+        defaultValue: DEFAULT_VALUES.additive_G_volume,
+        min: 10,
+        max: 500,
+        step: 10,
+        unit: 'μL',
+        dependsOn: {
+          parameter: 'additive_G_enabled',
+          value: true,
+        },
       },
     },
   },
@@ -210,41 +408,11 @@ export const PARAMETER_GROUPS: Record<string, ParameterGroup> = {
       },
     },
   },
-  dispense_offsets: {
-    label: 'Dispense Offset Configuration',
-    parameters: {
-      dispense_offset_x: {
-        type: 'number',
-        label: 'Dispense Offset X',
-        description: 'X-axis offset for dispensing into reactor',
-        defaultValue: DEFAULT_VALUES.dispense_offset_x,
-        min: -5,
-        max: 5,
-        step: 0.1,
-        unit: 'mm',
-      },
-      dispense_offset_y: {
-        type: 'number',
-        label: 'Dispense Offset Y',
-        description: 'Y-axis offset for dispensing into reactor',
-        defaultValue: DEFAULT_VALUES.dispense_offset_y,
-        min: -5,
-        max: 5,
-        step: 0.1,
-        unit: 'mm',
-      },
-      dispense_offset_z: {
-        type: 'number',
-        label: 'Dispense Offset Z',
-        description: 'Z-axis offset for dispensing into reactor',
-        defaultValue: DEFAULT_VALUES.dispense_offset_z,
-        min: -5,
-        max: 5,
-        step: 0.1,
-        unit: 'mm',
-      },
-    },
+  hardware: {
+    label: 'Hardware Configuration',
+    parameters: getDynamicHardwareParameters(),
   },
+  // Offset configuration removed - these values are rarely changed and are now fixed in the backend
 };
 
 export const PRIMITIVE_OPERATIONS = [

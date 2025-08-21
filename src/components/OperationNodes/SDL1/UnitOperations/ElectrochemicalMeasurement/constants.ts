@@ -43,6 +43,7 @@ export const DEFAULT_VALUES = {
   cp_deposition_current: -0.004,    // -4mA deposition current (line 512)
   cp_deposition_duration: 3,        // 3s as specified in script (line 512)
   cp_deposition_voltage_limit: 1.0, // 1.0V limit (line 512)
+  cp_deposition_sample_interval: 0.1, // Sample interval for deposition
   
   // Element 2: Rest after deposition (OCV) 
   ocv_post_deposition_enabled: true,
@@ -65,6 +66,7 @@ export const DEFAULT_VALUES = {
   cp_dissolution_duration: 3,        // 3s (line 526)
   cp_dissolution_voltage_limit: 1.0, // 1.0V limit (line 526)
   cp_dissolution_max_voltage: -0.5,  // Max voltage -0.5V (line 527)
+  cp_dissolution_sample_interval: 0.1, // Sample interval for dissolution
   
   // Element 5: Rest after dissolution (OCV)
   ocv_post_dissolution_enabled: true,
@@ -658,6 +660,20 @@ export const PARAMETER_GROUPS: Record<string, ParameterGroup> = {
           value: true,
         },
       },
+      cp_deposition_sample_interval: {
+        type: 'number',
+        label: 'Sample Interval',
+        description: 'Time between measurements during deposition',
+        defaultValue: DEFAULT_VALUES.cp_deposition_sample_interval,
+        min: 0.01,
+        max: 10,
+        step: 0.01,
+        unit: 's',
+        dependsOn: {
+          parameter: 'cp_deposition_enabled',
+          value: true,
+        },
+      },
     },
   },
   post_deposition_ocv: {
@@ -874,6 +890,20 @@ export const PARAMETER_GROUPS: Record<string, ParameterGroup> = {
         max: 5.0,
         step: 0.1,
         unit: 'V',
+        dependsOn: {
+          parameter: 'cp_dissolution_enabled',
+          value: true,
+        },
+      },
+      cp_dissolution_sample_interval: {
+        type: 'number',
+        label: 'Sample Interval',
+        description: 'Time between measurements during dissolution',
+        defaultValue: DEFAULT_VALUES.cp_dissolution_sample_interval,
+        min: 0.01,
+        max: 10,
+        step: 0.01,
+        unit: 's',
         dependsOn: {
           parameter: 'cp_dissolution_enabled',
           value: true,
