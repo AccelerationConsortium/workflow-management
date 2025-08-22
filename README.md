@@ -2,6 +2,8 @@
 
 A comprehensive scientific laboratory workflow management platform designed for automated electrochemical and catalyst research. This system provides visual workflow design, device control, and experiment execution capabilities for Self-Driving Laboratory (SDL) environments.
 
+> **📚 For detailed technical documentation, see [Repository Overview](docs/REPOSITORY_OVERVIEW.md) and [Architecture Diagrams](docs/ARCHITECTURE_DIAGRAM.md)**
+
 ## Features
 
 ### Visual Workflow Designer
@@ -32,17 +34,28 @@ A comprehensive scientific laboratory workflow management platform designed for 
 ## Technology Stack
 
 ### Frontend
-- **React 18** with TypeScript
-- **ReactFlow** for workflow visualization
-- **Material-UI (MUI)** for UI components
-- **Vite** for build tooling
+- **React 18** with TypeScript for modern web development
+- **ReactFlow** for visual workflow editor and canvas
+- **Material-UI (MUI)** for consistent UI components
+- **Vite** for fast development and optimized builds
 
 ### Backend
-- **Python FastAPI** for workflow execution API
-- **Rust** for device executors and hardware control
-- **Node.js/Express** for file management services
-- **PostgreSQL** with Prisma ORM
-- **WebSocket** for real-time communication
+- **Python FastAPI** for REST API and workflow execution
+- **Rust** for high-performance device control and hardware abstraction
+- **Node.js/Express** for file management and upload services
+- **PostgreSQL** with Prisma ORM for data persistence
+- **WebSocket** for real-time execution monitoring
+
+### AI/ML Integration
+- **OpenAI GPT** integration for natural language to workflow conversion
+- **Custom NLP models** for parameter extraction and workflow optimization
+- **Intelligent suggestions** for workflow improvements and missing steps
+
+### Infrastructure
+- **Multi-platform deployment** (Vercel, Docker, Cloudflare, AWS/GCP/Azure)
+- **Real-time communication** via WebSocket and optional MQTT
+- **Scientific data formats** (CSV, Excel, HDF5, JSON)
+- **Complete provenance tracking** for scientific reproducibility
 
 ## Quick Start
 
@@ -202,11 +215,22 @@ See the `deployment/` directory for specific deployment guides.
 
 ## Documentation
 
-Comprehensive documentation is available in the `documentation/` directory:
-- **API Guide**: REST API usage and examples
-- **Node Development**: Creating custom workflow nodes
-- **Device Integration**: Adding new laboratory equipment
-- **Architecture Overview**: System design and components
+### Technical Documentation
+- **[Repository Overview](docs/REPOSITORY_OVERVIEW.md)**: Comprehensive technical overview covering stack, architecture, and features
+- **[Architecture Diagrams](docs/ARCHITECTURE_DIAGRAM.md)**: Visual system architecture with Mermaid diagrams
+- **[Frontend Tech Stack](docs/FRONTEND_TECH_STACK.md)**: Detailed frontend technology breakdown
+- **[Provenance Tracking](docs/PROVENANCE_TRACKING.md)**: Scientific reproducibility and experiment tracking
+
+### Feature Documentation
+- **[AI Workflow Builder](backend/agent_workflow_builder/README.md)**: Natural language to workflow conversion
+- **[SDL7 Features](docs/SDL7_FEATURES_SUMMARY.md)**: Self-Driving Laboratory integration
+- **[Custom UO Builder](docs/ENHANCED_CUSTOM_UO_BUILDER.md)**: Creating custom unit operations
+- **[Device Integration](docs/guides/)**: Laboratory equipment integration guides
+
+### Deployment Guides
+- **[Cloudflare Deployment](deployment/cloudflare/README.md)**: Edge computing deployment
+- **[Docker Deployment](deployment/docker/)**: Containerized deployment
+- **[Terraform Infrastructure](deployment/terraform/)**: Cloud infrastructure as code
 
 ## License
 
